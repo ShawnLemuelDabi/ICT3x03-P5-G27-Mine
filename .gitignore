@@ -1,0 +1,7 @@
+# Assumes you name your virtualenv like this
+**/venv
+**/.venv
+
+**/__pycache__
+
+# Do not ignore .vscode. It may be useful

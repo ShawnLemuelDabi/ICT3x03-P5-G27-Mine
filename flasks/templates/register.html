@@ -1,0 +1,27 @@
+<html>
+    <head>
+
+    </head>
+
+    <body>
+        {% if user_profile.is_authenticated %}
+            <h1>You are logged in as {{ user_profile.username }} Hello world</h1>
+        {% else %}
+            <h1>Please login to continue</h1>
+
+            <h1>Login</h1>
+            <form action="/login" method="POST">
+                <input type="text" name="username">
+                <input type="password" name="password">
+                <input type="submit">
+            </form>
+
+            <h1>Register</h1>
+            <form action="/register" method="POST">
+                <input type="text" name="username">
+                <input type="password" name="password">
+                <input type="submit">
+            </form>
+        {% endif %}
+    </body>
+</html>

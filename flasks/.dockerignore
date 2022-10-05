@@ -1,0 +1,9 @@
+Dockerfile
+**/__pycache__
+
+# Assumes you name your virtualenv like this
+venv
+.venv
+
+flask.env
+mysql.env
