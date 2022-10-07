@@ -16,6 +16,7 @@ from engine import engine_uri
 from db import db
 
 import os
+import base64
 
 EMPTY_STRING = ""
 
@@ -95,6 +96,10 @@ def register():
 def car_manager() -> str:
     # Function to read the vahicle db
     data = read_vehicle()
+
+    for i in data:
+        if i.image:
+            i.image_b64 = base64.b64encode(i.image).decode('utf8')
     # return and render the page template
     return render_template('car_manager.html', vehicle_list=data)
 
@@ -103,15 +108,18 @@ def car_manager() -> str:
 @app.route('/car_create', methods=['POST'])
 def car_create():
     if request.method == "POST":
+        uploaded_file = request.files['image']
         # Save the user input into variables, to use later
-        model = request.form.get('model', EMPTY_STRING)
-        license_plate = request.form.get('plate', EMPTY_STRING)
-        type = request.form.get('type', EMPTY_STRING)
+        vehicle_model = request.form.get('vehicle_model', EMPTY_STRING)
+        license_plate = request.form.get('license_plate', EMPTY_STRING)
+        vehicle_type = request.form.get('vehicle_type', EMPTY_STRING)
         location = request.form.get('location', EMPTY_STRING)
-        Price_Per_Limit = request.form.get('Price_Per_Limit', EMPTY_STRING)
-        image = request.form.get('image', EMPTY_STRING)
+        price_per_limit = request.form.get('price_per_limit', EMPTY_STRING)
+        image = uploaded_file.stream.read()
+        image_name = uploaded_file.name or EMPTY_STRING
+        image_mime = uploaded_file.mimetype
         # Calling the function to insert into the db
-        create_vehicle(model, license_plate, type, location, Price_Per_Limit, image)
+        create_vehicle(vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
         # Flash message
         flash("A New Vehicle is now Available for Booking")
         # return and render the page template
@@ -122,18 +130,28 @@ def car_create():
 @app.route('/car_update', methods=['POST'])
 def car_update():
     if request.method == "POST":
+        MAX_FILE_SIZE_LIMIT = 16777215  # as defined by MEDIUMBLOB
+
+        uploaded_file = request.files['image']
         # Save the user input into variables, to use later
-        id = request.form.get('car_id', EMPTY_STRING)
-        model = request.form.get('model', EMPTY_STRING)
-        license_plate = request.form.get('plate', EMPTY_STRING)
-        type = request.form.get('type', EMPTY_STRING)
+        vehicle_id = request.form.get('vehicle_id', EMPTY_STRING)
+        vehicle_model = request.form.get('vehicle_model', EMPTY_STRING)
+        license_plate = request.form.get('license_plate', EMPTY_STRING)
+        vehicle_type = request.form.get('vehicle_type', EMPTY_STRING)
         location = request.form.get('location', EMPTY_STRING)
-        Price_Per_Limit = request.form.get('Price_Per_Limit', EMPTY_STRING)
-        image = request.form.get('image', EMPTY_STRING)
+        price_per_limit = request.form.get('price_per_limit', EMPTY_STRING)
+        image = uploaded_file.stream.read()
+        image_size = uploaded_file.content_length
+        image_name = uploaded_file.filename
+        image_mime = uploaded_file.mimetype
+
         # Function to update the selected vehicle from vehicle db
-        update_vehicle(id, model, license_plate, type, location, Price_Per_Limit, image)
-        # Flash message
-        flash("The Vehicle was updated")
+        if image_size <= MAX_FILE_SIZE_LIMIT:
+            update_vehicle(vehicle_id, vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
+            # Flash message
+            flash("The Vehicle was updated")
+        else:
+            flash("Something went wrong")
         # return and render the page template
         return redirect(url_for('car_manager'))
 

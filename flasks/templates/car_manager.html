@@ -34,18 +34,18 @@
                                 </div>
                                 
                                 <div class="modal-body">
-                                    <form action="{{ url_for('car_create') }}" method="POST">
+                                    <form action="{{ url_for('car_create') }}" method="POST" enctype="multipart/form-data">
                                         <div class="form-group">
                                             <label>Vehicle Model</label>
-                                            <input type="text" class="form-control" name="model" placeholder="Toyota" required="1">
+                                            <input type="text" class="form-control" name="vehicle_model" placeholder="Toyota" required="1">
                                         </div>
                                         <div class="form-group">
                                             <label>License Plate</label>
-                                            <input type="text" class="form-control" name="plate" placeholder="S423E" required="1">
+                                            <input type="text" class="form-control" name="license_plate" placeholder="S423E" required="1">
                                         </div>
                                         <div class="form-group">
                                             <label>Vehicle Type</label>
-                                            <input type="text" class="form-control" name="type" placeholder="Truck" required="1">
+                                            <input type="text" class="form-control" name="vehicle_type" placeholder="Truck" required="1">
                                         </div>
                                         <div class="form-group">
                                             <label>Location</label>
@@ -53,7 +53,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Price Per Unit</label>
-                                            <input type="text" class="form-control" name="Price_Per_Limit" placeholder="2000.00" required="1">
+                                            <input type="text" class="form-control" name="price_per_limit" placeholder="2000.00" required="1">
                                         </div>
                                         <div class="form-group">
                                         <label>Image</label>
@@ -95,7 +95,7 @@
                             <th>Booked ID</th>
                             <th>Model</th>
                             <th>License Plate</th>
-                            <th>Avalability</th>
+                            <th>Availability</th>
                             <th>Vehicle Type</th>
                             <th>Location</th>
                             <th>Price Per Unit</th>
@@ -105,7 +105,11 @@
                         <!-- For loop to display Vehicle table content Read DB -->
                         {% for row in vehicle_list %}
                         <tr>
-                            <td>{{row.image}}</td>
+                            {%if row.image_b64%}
+                            <td><img height="50px" src="data:{{row.image_mime}};base64,{{row.image_b64}}" alt="{{row.image_name}}"/></td>
+                            {%else%}
+                            <td></td>
+                            {%endif%}
                             <td>{{row.vehicle_id}}</td>
                             <td>{{row.booking_id}}</td>
                             <td>{{row.vehicle_model}}</td>
@@ -137,21 +141,21 @@
                                         <div class="well">
                                             <h4 class="text-center" name="" type="number" value={{row.vehicle_id}}>Updating Vehicle : {{row.vehicle_id}}</h4>
                                         </div>
-                                        <form action="{{ url_for('car_update') }}" method="POST">
+                                        <form action="{{ url_for('car_update') }}" method="POST" enctype="multipart/form-data">
                                             <div class="form-group">                                                
-                                                <input type="hidden" name="car_id" value={{row.vehicle_id}}>
+                                                <input type="hidden" name="vehicle_id" value={{row.vehicle_id}}>
                                             </div>
                                             <div class="form-group">
                                                 <label>Vehicle Model</label>
-                                                <input type="text" class="form-control" name="model" value={{row.vehicle_model}}>
+                                                <input type="text" class="form-control" name="vehicle_model" value={{row.vehicle_model}}>
                                             </div>
                                             <div class="form-group">
                                                 <label>License Plate</label>
-                                                <input type="text" class="form-control" name="plate" value={{row.license_plate}}>
+                                                <input type="text" class="form-control" name="license_plate" value={{row.license_plate}}>
                                             </div>
                                             <div class="form-group">
                                                 <label>Vehicle Type</label>
-                                                <input type="text" class="form-control" name="type" value={{row.vehicle_type}}>
+                                                <input type="text" class="form-control" name="vehicle_type" value={{row.vehicle_type}}>
                                             </div>
                                             <div class="form-group">
                                                 <label>Location</label>
@@ -159,7 +163,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label>Price Per Unit</label>
-                                                <input type="text" class="form-control" name="Price_Per_Limit" value={{row.price_per_unit}}>
+                                                <input type="text" class="form-control" name="price_per_limit" value={{row.price_per_unit}}>
                                             </div>
                                             <div class="form-group">
                                             <label>Image</label>
