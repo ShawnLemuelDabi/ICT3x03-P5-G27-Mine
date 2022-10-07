@@ -1,12 +1,10 @@
-# from sqlalchemy.orm import Session
-
-# from model.engine.engine import engine2
-
 from user import User
 
+from werkzeug.security import check_password_hash
 
-def get_user(username: str, password: str) -> User:
-    result = User.query.filter_by(username=username).first()
 
-    if result and result.password == password:
+def get_user(email: str, password: str) -> User:
+    result = User.query.filter_by(email=email).first()
+
+    if result and check_password_hash(result.password, password):
         return result

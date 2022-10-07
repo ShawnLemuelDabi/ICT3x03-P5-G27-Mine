@@ -1,12 +1,21 @@
 {
     // if you are using cpell library...
     "cSpell.words": [
+        "backref",
+        "MEDIUMBLOB",
+        "ondelete",
+        "onupdate",
         "pymysql",
-        "SQLALCHEMY"
+        "SQLALCHEMY",
+        "TINYINT",
+        "werkzeug"
     ],
     "python.languageServer": "Pylance",
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
     // I hate the linting complaining about lines being too long
-    "python.linting.flake8Args": ["--ignore=E501"],
+    "python.linting.flake8Args": [
+        "--ignore=E501"
+    ],
+    "python.formatting.provider": "black",
 }

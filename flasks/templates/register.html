@@ -9,18 +9,28 @@
 
     <body>
         {% if user_profile.is_authenticated %}
-            <h1>You are logged in as {{ user_profile.username }} Hello world</h1>
+            <h1>You are logged in as {{ user_profile.first_name }}</h1>
         {% else %}
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <h3 align="center">Register</h3>
                 <div class="form-group">
-                  <label for="email">Username</label>
+                  <label for="first_name">First Name</label>
                   <input
                     type="text"
                     class="form-control"
-                    id="username"
-                    name="username"
-                    placeholder="Enter username"
+                    id="first_name"
+                    name="first_name"
+                    placeholder="Enter first name"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="last_name">Last Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="last_name"
+                    name="last_name"
+                    placeholder="Enter last name"
                   />
                 </div>
                 <div class="form-group">
@@ -33,16 +43,6 @@
                     placeholder="Enter password"
                   />
                 </div>
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="name"
-                      name="name"
-                      placeholder="Enter name"
-                    />
-                  </div>
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input
@@ -61,16 +61,6 @@
                       id="phone_number"
                       name="phone_number"
                       placeholder="Enter phone number"
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="license_id">License Id</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="license_id"
-                      name="license_id"
-                      placeholder="Enter license_id"
                     />
                 </div>
                 <br />
