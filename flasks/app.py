@@ -91,20 +91,7 @@ def register():
         return "Something was empty"
 
 
-# The route function to render the car managment page
-@app.route('/car_managment', methods=["GET", "POST"])
-def car_manager() -> str:
-    # Function to read the vahicle db
-    data = read_vehicle()
-
-    for i in data:
-        if i.image:
-            i.image_b64 = base64.b64encode(i.image).decode('utf8')
-    # return and render the page template
-    return render_template('car_manager.html', vehicle_list=data)
-
-
-# The route function to insert new car data into DB
+# The route function to CREATE/INSERT new car data into DB
 @app.route('/car_create', methods=['POST'])
 def car_create():
     if request.method == "POST":
@@ -126,7 +113,20 @@ def car_create():
         return redirect(url_for('car_manager'))
 
 
-# The route function to update car data into DB
+# The route function to RENDER/READ the car managment page
+@app.route('/car_management', methods=["GET", "POST"])
+def car_manager() -> str:
+    # Function to read the vahicle db
+    data = read_vehicle()
+    for i in data:
+        if i.image:
+            i.image_b64 = base64.b64encode(i.image).decode('utf8')
+    # return and render the page template
+    return render_template('car_manager.html', vehicle_list=data)
+        
+
+
+# The route function to UPDATE car data into DB
 @app.route('/car_update', methods=['POST'])
 def car_update():
     if request.method == "POST":
@@ -156,7 +156,7 @@ def car_update():
         return redirect(url_for('car_manager'))
 
 
-# The route function to delete car data in DB
+# The route function to DELETE car data in DB
 @app.route('/car_delete/<int:id>', methods=["GET"])
 def car_delete(id):
     # Function to delete the selected vehicle from vehicle db
