@@ -39,7 +39,7 @@ class User(UserMixin, db.Model):
     mfa_secret = db.Column(sa_mysql.VARCHAR(255))
     role = db.Column(sa_mysql.INTEGER(11))
 
-    bookings = db.relationship('Booking', backref='users', passive_deletes=True)
+    bookings = db.relationship("Booking", back_populates="user")
 
     def __repr__(self):
         return f"User(user_id={self.user_id!r}, email={self.email!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, password={self.password!r}, phone_number={self.phone_number!r}, license_blob={self.license_blob!r}, license_filename={self.license_filename!r}, license_mime={self.license_mime!r}, mfa_secret={self.mfa_secret!r}, role={self.role!r})"
@@ -52,6 +52,9 @@ class User(UserMixin, db.Model):
 
     def get_role_str(self):
         return ROLE[self.role]
+
+    def is_admin(self):
+        return ROLE[self.role] == "admin"
 
     def allowed(self, role):
         return self.role >= role

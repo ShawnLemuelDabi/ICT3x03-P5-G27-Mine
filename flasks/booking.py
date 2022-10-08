@@ -19,3 +19,5 @@ class Booking(db.Model):
     end_date = db.Column(sa_mysql.DATETIME)
     units_purchased = db.Column(sa_mysql.INTEGER(11))
     is_paid = db.Column(sa_mysql.TINYINT(1))
+
+    user = db.relationship("User", back_populates="bookings")

@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 def create_user(email: str, password: str, first_name: str, last_name: str, phone_number: str, license_blob: bytes, license_filename: str, license_mime: str, role: int, mfa_secret: str = ""):
 
-    password = generate_password_hash(password, method='sha256')
+    password = generate_password_hash(password)
 
     if len(license_blob) == 0 and not license_filename:
         license_blob = r''.encode('utf8')

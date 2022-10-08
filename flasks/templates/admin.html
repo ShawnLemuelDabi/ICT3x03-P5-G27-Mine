@@ -6,5 +6,9 @@
         <h1>You are logged in as {{ user_profile.username }} Hello world</h1>
         <h1>Your role is {{ user_profile.role }}</h1>
         <h1>You are admin</h1>
+
+        <ul>
+            <li><a href={{ url_for('user_manager') }}>User Management</a></li>
+        </ul>
     </body>
 </html>

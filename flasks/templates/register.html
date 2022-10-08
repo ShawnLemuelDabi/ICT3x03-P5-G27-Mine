@@ -8,64 +8,76 @@
     </head>
 
     <body>
-        {% if user_profile.is_authenticated %}
-            <h1>You are logged in as {{ user_profile.first_name }}</h1>
-        {% else %}
-            <form method="POST" enctype="multipart/form-data">
-                <h3 align="center">Register</h3>
-                <div class="form-group">
-                  <label for="first_name">First Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="first_name"
-                    name="first_name"
-                    placeholder="Enter first name"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="last_name">Last Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="last_name"
-                    name="last_name"
-                    placeholder="Enter last name"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="password">Password</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    name="password"
-                    placeholder="Enter password"
-                  />
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="email"
-                      name="email"
-                      placeholder="Enter email"
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="phone_number">Phone_number</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="phone_number"
-                      name="phone_number"
-                      placeholder="Enter phone number"
-                    />
-                </div>
-                <br />
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </form>
-        {% endif %}
+      {% with messages = get_flashed_messages(category_filter=["error"]) %}
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">X</span>
+        </button>
+        {{ message }}
+      </div>      
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <form method="POST" enctype="multipart/form-data">
+          <h3 align="center">Register</h3>
+          <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="first_name"
+              name="first_name"
+              placeholder="Enter first name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="last_name"
+              name="last_name"
+              placeholder="Enter last name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+            />
+          </div>
+          <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Enter email"
+              />
+          </div>
+          <div class="form-group">
+              <label for="phone_number">Phone_number</label>
+              <input
+                type="number"
+                class="form-control"
+                id="phone_number"
+                name="phone_number"
+                placeholder="Enter phone number"
+              />
+          </div>
+          <div class="form-group">
+            <label>License</label>
+              <input type="file" class="form-control" name="license_blob">
+          </div>
+          <br />
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </body>
 </html>

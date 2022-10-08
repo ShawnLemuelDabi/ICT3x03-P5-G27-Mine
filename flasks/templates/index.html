@@ -1,1 +1,13 @@
 <h1>Hello world</h1>
+
+{% if user_profile.is_authenticated %}
+{% if user_profile.is_admin() %}
+<a href={{ url_for('admin') }}>Admin</a>
+{% endif %}
+<a href={{ url_for('booking') }}>Bookings</a>
+<a href={{ url_for('profile') }}>Profile</a>
+<a href={{ url_for('logout') }}>Logout</a>
+{% else %}
+<a href={{ url_for('login') }}>Login</a>
+<a href={{ url_for('register') }}>Register</a>
+{% endif %}

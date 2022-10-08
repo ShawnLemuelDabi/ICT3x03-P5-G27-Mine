@@ -3,8 +3,8 @@
     <!-- Head -->
     <head>
         <title>CRUD User management</title>
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/bootstrap.min.css')}}" >
-        <script src="../static/js/jquery-3.6.1.min.js"></script>
+        <link rel="stylesheet" href={{ url_for('static', filename='../static/css/bootstrap.min.css') }} >
+        <script src={{ url_for('static', filename='../static/js/jquery-3.6.1.min.js') }}></script>
     </head>
 
     <!-- Body -->
@@ -127,8 +127,8 @@
                             {%endif%}
                             <td><img height="50px" src="data:{{row.license_mime}};base64,{{row.get_b64_license()}}" alt="{{row.license_filename}}"/></td>
                             <td>
-                                <a href="/user_update/{{row.user_id}}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
-                                <a href="/user_delete/{{row.user_id}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>                                
+                                <a href={{ url_for("user_update", target_user_id=row.user_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
+                                <a href={{ url_for("user_delete", target_user_id=row.user_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>
                             </td>
                         </tr>
 
@@ -145,10 +145,7 @@
                                         <div class="well">
                                             <h4 class="text-center" name="" type="number" value={{row.user_id}}>Updating User : {{row.user_id}}</h4>
                                         </div>
-                                        <form action="{{ url_for('user_update') }}" method="POST" enctype="multipart/form-data">
-                                            <div class="form-group">                                                
-                                                <input type="hidden" name="user_id" value={{row.user_id}}>
-                                            </div>
+                                        <form action="{{ url_for('user_update', target_user_id=row.user_id) }}" method="POST" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <label>Email</label>
                                                 <input type="email" class="form-control" name="email" value={{row.email}}>
