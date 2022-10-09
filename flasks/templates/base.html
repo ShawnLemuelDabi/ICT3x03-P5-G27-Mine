@@ -14,21 +14,21 @@
         <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
         <!-- custom css link -->
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/style.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/style.css') }}">
 
         <!-- Template CSS Files -->
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/bootstrap.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/bootstrap-select.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/line-awesome.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/owl.carousel.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/owl.theme.default.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/jquery.fancybox.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/daterangepicker.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/animate.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/animated-headline.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/jquery-ui.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/flag-icon.min.css')}}">
-        <link rel="stylesheet" href="{{url_for('static', filename='../static/css/style.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/bootstrap-select.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/line-awesome.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/owl.carousel.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/owl.theme.default.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/jquery.fancybox.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/daterangepicker.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/animate.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/animated-headline.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/jquery-ui.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/flag-icon.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/style.css') }}">
 
         <!--<link rel="stylesheet" href="./assets/css/font-awesome.min.css">-->
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
@@ -75,7 +75,7 @@
                             <div class="menu-wrapper">
                                 <a href="#" class="down-button"><i class="fa fa-angle-down"></i></a>
                                 <div class="logo">
-                                    <a href="#"><img src="{{url_for('static', filename='../static/images/logo.png')}}" alt="logo"></a>
+                                    <a href="#"><img src="{{ url_for('static', filename='../static/images/logo.png')  }}" alt="logo"></a>
                                     <div class="menu-toggler">
                                         <i class="fa fa-bars"></i>
                                         <i class="fa fa-times"></i>
@@ -85,10 +85,10 @@
                                     <nav>
                                         <ul>
                                             <li>
-                                                <a href="#">Home <button class="navbar-toggler" type="button"></button></a>
+                                                <a href="#">Home <!--<button class="navbar-toggler" type="button"></button>--></a>
                                             </li>
                                             <li>
-                                                <a href="#">About Us <button class="navbar-toggler" type="button"></button></a>
+                                                <a href="#">About Us <!--<button class="navbar-toggler" type="button"></button>--></a>
                                             </li>
                                             <li>
                                                 <a href="#">Cars <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
@@ -99,7 +99,7 @@
                                                 </ul>
                                             </li>
                                             <li>
-                                                <a href="#">Contact Us <button class="navbar-toggler" type="button"></button></a>
+                                                <a href="#">Contact Us <!--<button class="navbar-toggler" type="button"></button>--></a>
                                             </li>
                                         </ul>
                                     </nav>
@@ -127,7 +127,7 @@
 
                     <div class="footer-brand">
                     <a href="#" class="logo">
-                        <img src="{{url_for('static', filename='../static/images/logo.png')}}" alt="Shallot logo">
+                        <img src="{{ url_for('static', filename='../static/images/logo.png') }}" alt="Shallot logo">
                     </a>
 
                     <p class="footer-text">
@@ -181,20 +181,20 @@
         </footer>
 
         <!-- custom js link -->
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/script.js')}}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/script.js') }}"></script>
         <!-- Template JS Files -->
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/jquery-3.4.1.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/jquery-ui.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/popper.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/bootstrap.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/bootstrap-select.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/moment.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/daterangepicker.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/owl.carousel.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/jquery.fancybox.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/jquery.countTo.min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/animated-headline.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/jquery.ripples-min.js')}}"></script>
-        <script type="text/javascript" src="{{url_for('static',filename='../static/js/main.js')}}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery-ui.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/popper.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/bootstrap-select.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/moment.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/daterangepicker.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/owl.carousel.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery.fancybox.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery.countTo.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/animated-headline.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery.ripples-min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/main.js') }}"></script>
     </body>
 </html>

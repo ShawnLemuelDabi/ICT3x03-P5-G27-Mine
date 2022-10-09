@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <!-- A flash Verification message for sucessful data insertion/update/delete -->
+            <!-- A flash Verification message for successful data insertion/update/delete -->
             {%with messages = get_flashed_messages()%}
             {%if messages%}
             {%for message in messages%}
@@ -71,7 +71,7 @@
                 <button type="button" class="close" data-dismiss="alert" aria-label="close">
                     <span aria-hidden="true">X</span>
                 </button>
-                {{message}}
+                {{ message }}
             </div>                    
             {%endfor%}
             {%endif%}
@@ -86,7 +86,7 @@
                     <th>Booked ID</th>
                     <th>Model</th>
                     <th>License Plate</th>
-                    <th>Avalability</th>
+                    <th>Availability</th>
                     <th>Vehicle Type</th>
                     <th>Location</th>
                     <th>Price Per Unit</th>
@@ -98,31 +98,31 @@
                 <tr>
                     {%if row.image_b64%}
                     <td>
-                        <img height="50px" src="data:{{row.image_mime}};base64,{{row.image_b64}}" alt="{{row.image_name}}"/>
+                        <img height="50px" src="data:{{ row.image_mime }};base64,{{ row.image_b64 }}" alt="{{ row.image_name }}"/>
                     </td>
                     {%else%}
                     <td>No Image Found</td>
                     {%endif%}
-                    <td>{{row.vehicle_id}}</td>
-                    <td>{{row.booking_id}}</td>
-                    <td>{{row.vehicle_model}}</td>
-                    <td>{{row.license_plate}}</td>
+                    <td>{{ row.vehicle_id }}</td>
+                    <td>{{ row.booking_id }}</td>
+                    <td>{{ row.vehicle_model }}</td>
+                    <td>{{ row.license_plate }}</td>
                     {% if row.is_available == 1 %}
                     <td>Yes</td>
                     {% else %}
                     <td>No</td>
                     {%endif%}
-                    <td>{{row.vehicle_type}}</td>
-                    <td>{{row.location}}</td>
-                    <td>$ {{row.price_per_unit}}</td>
+                    <td>{{ row.vehicle_type }}</td>
+                    <td>{{ row.location }}</td>
+                    <td>$ {{ row.price_per_unit }}</td>
                     <td>
-                        <a href="/car_update/{{row.vehicle_id}}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.vehicle_id}}">Edit</a>
-                        <a href="/car_delete/{{row.vehicle_id}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete vehicle {{row.vehicle_id}}?')">Delete</a>                                
+                        <a href={{ url_for("car_update", vehicle_id=row.vehicle_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.vehicle_id }}">Edit</a>
+                        <a href={{ url_for("car_delete", vehicle_id=row.vehicle_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete vehicle {{ row.vehicle_id }}?')">Delete</a>                                
                     </td>
                 </tr>
                 
                 <!-- Modal For Updating a Vehicle -->
-                <div class="modal fade" id="modelEdit{{row.vehicle_id}}" role="dialog">
+                <div class="modal fade" id="modelEdit{{ row.vehicle_id }}" role="dialog">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -132,35 +132,35 @@
                             
                             <div class="modal-body">
                                 <div class="well">
-                                    <h4 class="text-center" name="" type="number" value={{row.vehicle_id}}>Updating Vehicle : {{row.vehicle_id}}</h4>
+                                    <h4 class="text-center" name="" type="number" value={{ row.vehicle_id }}>Updating Vehicle : {{ row.vehicle_id }}</h4>
                                 </div>
-                                <form action="{{ url_for('car_update') }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ url_for('car_update', vehicle_id=row.vehicle_id) }}" method="POST" enctype="multipart/form-data">
                                     <div class="form-group">                                                
-                                        <input type="hidden" name="vehicle_id" value={{row.vehicle_id}}>
+                                        <input type="hidden" name="vehicle_id" value={{ row.vehicle_id }}>
                                     </div>
                                     <div class="form-group">
                                         <label>Vehicle Model</label>
-                                        <input type="text" class="form-control" name="vehicle_model" value={{row.vehicle_model}}>
+                                        <input type="text" class="form-control" name="vehicle_model" value={{ row.vehicle_model }}>
                                     </div>
                                     <div class="form-group">
                                         <label>License Plate</label>
-                                        <input type="text" class="form-control" name="license_plate" value={{row.license_plate}}>
+                                        <input type="text" class="form-control" name="license_plate" value={{ row.license_plate }}>
                                     </div>
                                     <div class="form-group">
                                         <label>Vehicle Type</label>
-                                        <input type="text" class="form-control" name="vehicle_type" value={{row.vehicle_type}}>
+                                        <input type="text" class="form-control" name="vehicle_type" value={{ row.vehicle_type }}>
                                     </div>
                                     <div class="form-group">
                                         <label>Location</label>
-                                        <input type="text" class="form-control" name="location" value={{row.location}}>
+                                        <input type="text" class="form-control" name="location" value={{ row.location }}>
                                     </div>
                                     <div class="form-group">
                                         <label>Price Per Unit</label>
-                                        <input type="text" class="form-control" name="price_per_limit" value={{row.price_per_unit}}>
+                                        <input type="text" class="form-control" name="price_per_limit" value={{ row.price_per_unit }}>
                                     </div>
                                     <div class="form-group">
                                     <label>Image</label>
-                                        <input type="file" class="form-control" name="image" value={{row.image}}>
+                                        <input type="file" class="form-control" name="image">
                                     </div>                        
                                     <div class="form-group">
                                         <button class="btn btn-primary" type="submit">Update Data</button>    

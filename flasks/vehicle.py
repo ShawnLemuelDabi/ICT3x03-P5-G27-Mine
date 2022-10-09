@@ -11,15 +11,15 @@ class vehicle(db.Model):
     __tablename__ = "vehicles"
     # Expected column and their data type for the vehicle table
     vehicle_id = db.Column(db.Integer, primary_key=True)
-    vehicle_model = db.Column(db.String)
-    license_plate = db.Column(db.String)
-    is_available = db.Column(db.Boolean)
-    vehicle_type = db.Column(db.String)
-    location = db.Column(db.String)
+    vehicle_model = db.Column(sa_mysql.VARCHAR(255))
+    license_plate = db.Column(sa_mysql.VARCHAR(255))
+    is_available = db.Column(sa_mysql.TINYINT(255))
+    vehicle_type = db.Column(sa_mysql.VARCHAR(255))
+    location = db.Column(sa_mysql.VARCHAR(255))
     image = db.Column(sa_mysql.MEDIUMBLOB)
-    image_name = db.Column(db.String)
-    image_mime = db.Column(db.String)
-    price_per_unit = db.Column(db.Float)
+    image_name = db.Column(sa_mysql.VARCHAR(255))
+    image_mime = db.Column(sa_mysql.VARCHAR(255))
+    price_per_unit = db.Column(sa_mysql.FLOAT)
 
     def __repr__(self):
         return {
