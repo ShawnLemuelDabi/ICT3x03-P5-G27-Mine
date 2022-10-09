@@ -7,8 +7,10 @@
         "ondelete",
         "onupdate",
         "pymysql",
+        "pyotp",
         "SQLALCHEMY",
         "TINYINT",
+        "TOTP",
         "werkzeug"
     ],
     "python.languageServer": "Pylance",
