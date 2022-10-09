@@ -22,6 +22,8 @@ import flask_login
 from user import User, ROLE
 from engine import engine_uri
 
+import mfa
+
 from db import db
 
 import os
@@ -147,11 +149,12 @@ def login() -> str:
     if request.method == "POST":
         email = request.form.get("email", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
+        otp = request.form.get("otp", EMPTY_STRING)
 
-        if all([i != EMPTY_STRING for i in [email, password]]):
+        if all([i != EMPTY_STRING for i in [email, password, otp]]):
             user = get_user(email, password)
 
-            if user:
+            if user and mfa.verify_otp(user, otp):
                 # if successfully authenticated
                 flask_login.login_user(user)
                 return redirect(url_for('profile'))
@@ -474,6 +477,16 @@ def car_delete(vehicle_id: int) -> str:
     flash("The Vehicle was deleted")
     # return and render the page template
     return redirect(url_for('car_manager'))
+
+
+@app.route("/profile/enable_mfa", methods=["GET"])
+@flask_login.login_required
+def route_enable_mfa() -> str:
+    try:
+        return mfa.enable_mfa(flask_login.current_user)
+    except Exception as e:
+        app.logger.fatal(e)
+        return "Something went wrong"
 
 
 if __name__ == "__main__":
