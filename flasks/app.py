@@ -11,6 +11,11 @@ from delete_user import delete_user
 # Booking imports
 from booking import Booking
 from create_booking import create_booking
+# Vehicle CRUD Function Files
+from create_vehicle import create_vehicle
+from read_vehicle import read_vehicle
+from update_vehicle import update_vehicle
+from delete_vehicle import delete_vehicle
 
 import flask_login
 
@@ -20,6 +25,7 @@ from engine import engine_uri
 from db import db
 
 import os
+import base64
 
 EMPTY_STRING = ""
 
@@ -391,6 +397,83 @@ def admin() -> str:
 @login_manager.unauthorized_handler
 def unauthorized() -> None:
     abort(401, "Unauthorized")
+
+
+# The route function to CREATE/INSERT new car data into DB
+@app.route('/car_create', methods=['POST'])
+def car_create():
+    uploaded_file = request.files['image']
+    # Save the user input into variables, to use later
+    vehicle_model = request.form.get('vehicle_model', EMPTY_STRING)
+    license_plate = request.form.get('license_plate', EMPTY_STRING)
+    vehicle_type = request.form.get('vehicle_type', EMPTY_STRING)
+    location = request.form.get('location', EMPTY_STRING)
+    price_per_limit = request.form.get('price_per_limit', EMPTY_STRING)
+    image = uploaded_file.stream.read()
+    image_name = uploaded_file.name or EMPTY_STRING
+    image_mime = uploaded_file.mimetype
+    # Calling the function to insert into the db
+    create_vehicle(vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
+    # Flash message
+    flash("A New Vehicle is now Available for Booking")
+    # return and render the page template
+    return redirect(url_for('car_manager'))
+
+
+# The route function to RENDER/READ the car management page
+@app.route('/manager/vcp', methods=["GET"])
+def car_manager() -> str:
+    # Function to read the vehicle db
+    data = read_vehicle()
+
+    # encoding all binary image to b64
+    for i in data:
+        if i.image:
+            i.image_b64 = base64.b64encode(i.image).decode('utf8')
+
+    # return and render the page template
+    return render_template('car_manager.html', vehicle_list=data)
+
+
+# The route function to UPDATE car data into DB
+@app.route('/manager/vcp/vehicle/update/<int:vehicle_id>', methods=['POST'])
+def car_update(vehicle_id: int) -> str:
+    if request.method == "POST":
+        MAX_FILE_SIZE_LIMIT = 16777215  # as defined by MEDIUMBLOB
+
+        uploaded_file = request.files['image']
+        # Save the user input into variables, to use later
+        vehicle_model = request.form.get('vehicle_model', EMPTY_STRING)
+        license_plate = request.form.get('license_plate', EMPTY_STRING)
+        vehicle_type = request.form.get('vehicle_type', EMPTY_STRING)
+        location = request.form.get('location', EMPTY_STRING)
+        price_per_limit = request.form.get('price_per_limit', EMPTY_STRING)
+
+        image = uploaded_file.stream.read()
+        image_size = uploaded_file.content_length
+        image_name = uploaded_file.filename
+        image_mime = uploaded_file.mimetype
+
+        # Function to update the selected vehicle from vehicle db
+        if image_size <= MAX_FILE_SIZE_LIMIT:
+            update_vehicle(vehicle_id, vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
+            # Flash message
+            flash("The Vehicle was updated")
+        else:
+            flash("Something went wrong")
+        # return and render the page template
+        return redirect(url_for('car_manager'))
+
+
+# The route function to DELETE car data in DB
+@app.route('/manager/vcp/vehicle/delete/<int:vehicle_id>', methods=["GET"])
+def car_delete(vehicle_id: int) -> str:
+    # Function to delete the selected vehicle from vehicle db
+    delete_vehicle(vehicle_id)
+    # Flash message
+    flash("The Vehicle was deleted")
+    # return and render the page template
+    return redirect(url_for('car_manager'))
 
 
 if __name__ == "__main__":

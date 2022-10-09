@@ -1,16 +1,5 @@
-# from sqlalchemy import Column
-# from sqlalchemy import ForeignKey
-# from sqlalchemy import Integer
-# from sqlalchemy import String
-# from sqlalchemy.orm import declarative_base
-# from sqlalchemy.orm import relationship
-
 from sqlalchemy.dialects import mysql as sa_mysql
 from flask_login import UserMixin
-
-# from flask_sqlalchemy import SQLAlchemy
-
-# Base = declarative_base()
 
 from db import db
 

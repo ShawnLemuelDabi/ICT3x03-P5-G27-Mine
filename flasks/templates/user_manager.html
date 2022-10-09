@@ -1,30 +1,25 @@
-<!-- Template for Manager managing the User database to CRUD -->
-<html>
-    <!-- Head -->
-    <head>
-        <title>CRUD User management</title>
-        <link rel="stylesheet" href={{ url_for('static', filename='../static/css/bootstrap.min.css') }} >
-        <script src={{ url_for('static', filename='../static/js/jquery-3.6.1.min.js') }}></script>
-    </head>
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+{% block content %}
 
-    <!-- Body -->
+    {# Body #}
     <body>
-        <!-- Simple Heading Text -->
+        {# Simple Heading Text #}
         <div class="container">
             <div class="well">
                 <h1 class="text-center">User Management</h1>
             </div>
         </div>
 
-        <!-- Main page content -->
+        {# Main page content #}
         <div class="container">
             <dic class="row">
-                <!-- User manager Interfaces -->
-                <div class="col md-12"> 
-                    <!-- Insert Data interface -->
+                {# User manager Interfaces #}
+                <div class="col md-12">
+                    {# Insert Data interface #}
                     <h2>User List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel">Add User</button> </h2>
                     
-                    <!-- Modal For Creating a New User -->
+                    {# Modal For Creating a New User #}
                     <div  class="modal fade" id="myModel" role="dialog">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -68,7 +63,7 @@
                                             <input type="file" class="form-control" name="license_blob">
                                         </div>
                                         <div class="form-group">
-                                            <button class="btn btn-primary" type="submit">Insert Data</button>    
+                                            <button class="btn btn-primary" type="submit">Insert Data</button>
                                         </div>
                                     </form>
                                 </div>
@@ -80,7 +75,7 @@
                         </div>
                     </div>
 
-                    <!-- A flash Verification message for successful data insertion/update/delete -->
+                    {# A flash Verification message for successful data insertion/update/delete #}
                     {%with messages = get_flashed_messages()%}
                     {%if messages%}
                     {%for message in messages%}
@@ -88,15 +83,15 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="close">
                             <span aria-hidden="true">X</span>
                         </button>
-                        {{message}}
-                    </div>                    
+                        {{ message }}
+                    </div>
                     {%endfor%}
                     {%endif%}
                     {%endwith%} 
 
-                    <!-- Table User Interface for Read/Update/Delete -->
+                    {# Table User Interface for Read/Update/Delete #}
                     <table class="table table-striped">
-                        <!-- Table Column Headings -->
+                        {# Table Column Headings #}
                         <tr>
                             <th>ID</th>
                             <th>Email</th>
@@ -105,10 +100,10 @@
                             <th>Phone Number</th>
                             <th>Role</th>
                             <th>License</th>
-                            <th>Action</th>                           
+                            <th>Action</th>
                         </tr>
 
-                        <!-- For loop to display User table content Read DB -->
+                        {# For loop to display User table content Read DB #}
                         {% for row in user_list %}
                         <tr>
                             <td>{{row.user_id}}</td>
@@ -116,23 +111,15 @@
                             <td>{{row.first_name}}</td>
                             <td>{{row.last_name}}</td>
                             <td>{{row.phone_number}}</td>
-                            {% if row.role == 0 %}
-                            <td>Guest</td>
-                            {% elif row.role == 1 %}
-                            <td>User</td>
-                            {% elif row.role == 2 %}
-                            <td>Manager</td>
-                            {% else %}
-                            <td>Admin</td>
-                            {%endif%}
+                            <td>{{ roles[row.role][0].upper() + roles[row.role][1:] }}</td>
                             <td><img height="50px" src="data:{{row.license_mime}};base64,{{row.get_b64_license()}}" alt="{{row.license_filename}}"/></td>
                             <td>
-                                <a href={{ url_for("user_update", target_user_id=row.user_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
+                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
                                 <a href={{ url_for("user_delete", target_user_id=row.user_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>
                             </td>
                         </tr>
 
-                        <!-- Modal For Updating a User -->
+                        {# Modal For Updating a User #}
                         <div class="modal fade" id="modelEdit{{row.user_id}}" role="dialog">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -175,7 +162,7 @@
                                                 <input type="file" class="form-control" name="license_blob">
                                             </div>
                                             <div class="form-group">
-                                                <button class="btn btn-primary" type="submit">Update Data</button>    
+                                                <button class="btn btn-primary" type="submit">Update Data</button>
                                             </div>
                                         </form>
                                     </div>
@@ -185,22 +172,10 @@
                                         </div>
                                 </div>
                             </div>
-                        </div>                        
+                        </div>
                         {% endfor %}                        
                     </table>
                 </div>
             </dic>
-        </div>      
-
-        <!-- Footer -->
-        <div class="well">
-            <h5>
-                Website: www.Rent_ACar.com
-                <span class="pull-right">Like Us at:www.facebook.com</span>
-            </h5>            
         </div>
-    </body>
-
-    <script type="text/javascript" src="{{url_for('static', filename='../static/js/jquery-3.6.1.min.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='../static/js/bootstrap.js')}}"></script>    
-</html>
+{% endblock %}
