@@ -23,6 +23,7 @@ from user import User, ROLE
 from engine import engine_uri
 
 import mfa
+from flask_qrcode import QRcode
 
 from db import db
 
@@ -48,6 +49,8 @@ db.init_app(app)
 # Initialize the login manager for Flask
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
+QRcode(app)
 
 
 @login_manager.user_loader
@@ -483,7 +486,9 @@ def car_delete(vehicle_id: int) -> str:
 @flask_login.login_required
 def route_enable_mfa() -> str:
     try:
-        return mfa.enable_mfa(flask_login.current_user)
+        flash(mfa.generate_mfa_uri(flask_login.current_user), "mfa_secret_uri")
+
+        return redirect(url_for("profile"))
     except Exception as e:
         app.logger.fatal(e)
         return "Something went wrong"

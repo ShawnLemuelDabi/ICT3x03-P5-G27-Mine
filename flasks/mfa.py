@@ -26,6 +26,12 @@ def generate_mfa(user: User) -> str:
     return new_mfa_secret
 
 
+def generate_mfa_uri(user: User) -> str:
+    mfa_secret = generate_mfa(user)
+
+    return pyotp.totp.TOTP(mfa_secret).provisioning_uri(name=user.email, issuer_name='Shallot')
+
+
 def verify_otp(user: User, otp: str) -> bool:
     if user.mfa_secret:
         return pyotp.TOTP(user.mfa_secret).verify(otp)
