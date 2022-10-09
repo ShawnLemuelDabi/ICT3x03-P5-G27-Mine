@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Car Management{% endblock %}
 {% block content %}
-<!-- Simple Heading Text -->
+{# Simple Heading Text #}
 <div class="container">
     <div>
         <h1 class="text-center">Vehicle Management</h1>
     </div>
 </div>
-<!-- Main page content -->
+{# Main page content #}
 <div class="container">
     <div class="row">
-        <!-- Vehicle manager Interfaces -->
+        {# Vehicle manager Interfaces #}
         <div class="col md-12">
-            <!-- Insert Data interface -->
+            {# Insert Data interface #}
             <h2>Vehicle List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel">Add Vehicle</button></h2>
             
-            <!-- Modal For Creating a New Vehicle -->
-            <div  class="modal fade" id="myModel" role="dialog">
+            {# Modal For Creating a New Vehicle #}
+            <div class="modal fade" id="myModel" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <!-- A flash Verification message for successful data insertion/update/delete -->
+            {# A flash Verification message for successful data insertion/update/delete #}
             {%with messages = get_flashed_messages()%}
             {%if messages%}
             {%for message in messages%}
@@ -77,9 +77,9 @@
             {%endif%}
             {%endwith%}
 
-            <!-- Table User Interface for Read/Update/Delete -->
+            {# Table User Interface for Read/Update/Delete #}
             <table class="table table-striped">
-                <!-- Table Column Headings -->
+                {# Table Column Headings #}
                 <tr>
                     <th>Image</th>
                     <th>Vehicle ID</th>
@@ -93,7 +93,7 @@
                     <th>Action</th>                           
                 </tr>
 
-                <!-- For loop to display Vehicle table content Read DB -->
+                {# For loop to display Vehicle table content Read DB #}
                 {% for row in vehicle_list %}
                 <tr>
                     {%if row.image_b64%}
@@ -121,7 +121,7 @@
                     </td>
                 </tr>
                 
-                <!-- Modal For Updating a Vehicle -->
+                {# Modal For Updating a Vehicle #}
                 <div class="modal fade" id="modelEdit{{ row.vehicle_id }}" role="dialog">
                     <div class="modal-dialog">
                         <div class="modal-content">

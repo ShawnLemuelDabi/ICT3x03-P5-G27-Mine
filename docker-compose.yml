@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  flasks:
+    build: flasks/.
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    volumes:
+      - ./flasks:/app
+    env_file:
+      - ./flasks/mysql.env
+      - ./flasks/flask.env
+    restart: always
+    security_opt:
+      - label:disable
+  db:
+    image: docker.io/library/mariadb:10.9.2-jammy
+    expose:
+      - "3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    env_file:
+      - ./flasks/mysql.env
+      - ./mariadb/mysql_root.env
+    restart: always
+    security_opt:
+      - label:disable
+volumes:
+  mariadb-data:

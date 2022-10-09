@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Bookings{% endblock %}
+{% block content %}
+<div class="container">
+  <div>
+      <h1 class="text-center">Vehicle Management</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col md-12">
+      {# Insert Data interface #}
+      <h2>Booking List <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModel">Add booking</button></h2>
+
+      <div class="modal fade" id="myModel" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Please Insert New Booking</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                  <form action="{{ url_for('add_booking') }}" method="POST">
+                      <div class="form-group">
+                        <label>Start date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="start_date"
+                          name="start_date"
+                          placeholder="Enter start date"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="end_date"
+                          name="end_date"
+                          placeholder="Enter end date"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Insert Data</button>    
+                      </div>
+                  </form>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(category_filter=["success"]) %}
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">X</span>
+        </button>
+        {{ message }}
+      </div>      
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <div id="bookings">
+        {% for booking in bookings %}
+        <div class="card border-dark">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <a href={{ url_for('read_booking', target_booking_id=booking.booking_id) }} >{{booking.booking_id}}</a>
+            <div class="dropdown">
+              <button
+                type="button"
+                class="btn btn-primary dropdown-toggle"
+                data-bs-toggle="dropdown"
+                id="dropdownMenuButton1" aria-haspopup="true" aria-expanded="false"
+              ></button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li>
+                  <a href={{ url_for('delete_booking', target_booking_id=booking.booking_id) }} class="dropdown-item">Delete</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-text">{{ booking.user.email }}</div>
+            <div class="card-text">{{ booking.start_date }} to {{ booking.end_date }}</div>
+            <div class="card-text">Units: {{ booking.units_purchased }}</div>
+            <div class="card-text">Is paid: {{ booking.is_paid }}</div>
+          </div>
+          <div class="card-footer text-muted">PLACEHOLDER</div>
+        </div>
+        <br/ >
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

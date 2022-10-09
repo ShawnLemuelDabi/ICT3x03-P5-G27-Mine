@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+{% block content %}
+
+    {# Body #}
+    <body>
+        {# Simple Heading Text #}
+        <div class="container">
+            <div class="well">
+                <h1 class="text-center">User Management</h1>
+            </div>
+        </div>
+
+        {# Main page content #}
+        <div class="container">
+            <dic class="row">
+                {# User manager Interfaces #}
+                <div class="col md-12">
+                    {# Insert Data interface #}
+                    <h2>User List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel">Add User</button> </h2>
+                    
+                    {# Modal For Creating a New User #}
+                    <div  class="modal fade" id="myModel" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Please Insert New User</h4>
+                                </div>
+                                
+                                <div class="modal-body">
+                                    <form action="{{ url_for('user_create') }}" method="POST" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <label>Email</label>
+                                            <input type="email" class="form-control" name="email">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Password</label>
+                                            <input type="password" class="form-control" name="password">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>First Name</label>
+                                            <input type="text" class="form-control" name="first_name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Last Name</label>
+                                            <input type="text" class="form-control" name="last_name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Phone Number</label>
+                                            <input type="text" class="form-control" name="phone_number">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Role</label>
+                                            <select class="form-control" name="role">
+                                                {% for r, r_str in roles.items() %}
+                                                <option value="{{r}}">{{ r_str[0].upper() + r_str[1:] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>License</label>
+                                            <input type="file" class="form-control" name="license_blob">
+                                        </div>
+                                        <div class="form-group">
+                                            <button class="btn btn-primary" type="submit">Insert Data</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# A flash Verification message for successful data insertion/update/delete #}
+                    {%with messages = get_flashed_messages()%}
+                    {%if messages%}
+                    {%for message in messages%}
+                    <div class="alert alert-success alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                            <span aria-hidden="true">X</span>
+                        </button>
+                        {{ message }}
+                    </div>
+                    {%endfor%}
+                    {%endif%}
+                    {%endwith%} 
+
+                    {# Table User Interface for Read/Update/Delete #}
+                    <table class="table table-striped">
+                        {# Table Column Headings #}
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Phone Number</th>
+                            <th>Role</th>
+                            <th>License</th>
+                            <th>Action</th>
+                        </tr>
+
+                        {# For loop to display User table content Read DB #}
+                        {% for row in user_list %}
+                        <tr>
+                            <td>{{row.user_id}}</td>
+                            <td>{{row.email}}</td>
+                            <td>{{row.first_name}}</td>
+                            <td>{{row.last_name}}</td>
+                            <td>{{row.phone_number}}</td>
+                            <td>{{ roles[row.role][0].upper() + roles[row.role][1:] }}</td>
+                            <td><img height="50px" src="data:{{row.license_mime}};base64,{{row.get_b64_license()}}" alt="{{row.license_filename}}"/></td>
+                            <td>
+                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
+                                <a href={{ url_for("user_delete", target_user_id=row.user_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>
+                            </td>
+                        </tr>
+
+                        {# Modal For Updating a User #}
+                        <div class="modal fade" id="modelEdit{{row.user_id}}" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Please Edit Your User Details</h4>
+                                    </div>
+                                    
+                                    <div class="modal-body">
+                                        <div class="well">
+                                            <h4 class="text-center" name="" type="number" value={{row.user_id}}>Updating User : {{row.user_id}}</h4>
+                                        </div>
+                                        <form action="{{ url_for('user_update', target_user_id=row.user_id) }}" method="POST" enctype="multipart/form-data">
+                                            <div class="form-group">
+                                                <label>Email</label>
+                                                <input type="email" class="form-control" name="email" value={{row.email}}>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>First Name</label>
+                                                <input type="text" class="form-control" name="first_name" value={{row.first_name}}>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Last Name</label>
+                                                <input type="text" class="form-control" name="last_name" value={{row.last_name}}>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Phone Number</label>
+                                                <input type="text" class="form-control" name="phone_number" value={{row.phone_number}}>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Role</label>
+                                                <select class="form-control" name="role">
+                                                    {% for r, r_str in roles.items() %}
+                                                    <option value="{{r}}" {% if r == row.role %}selected="true"{% endif %}>{{ r_str[0].upper() + r_str[1:] }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                            <label>License</label>
+                                                <input type="file" class="form-control" name="license_blob">
+                                            </div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary" type="submit">Update Data</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}                        
+                    </table>
+                </div>
+            </dic>
+        </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+<h1>Account Detail</h1>
+<hr />
+<div>
+    <div>
+        <h2>Name</h2>
+        {{user_profile.first_name}} {{user_profile.last_name}}
+    </div>
+    <div>
+        <h2>Email</h2>
+        {{user_profile.email}}
+    </div>
+    <div>
+        <h2>Phone Number</h2>
+        {{user_profile.phone_number}}
+    </div>
+    <div>
+        <h2>License</h2>
+        <img height="150px" src="data:{{user_profile.license_mime}};base64,{{user_profile.get_b64_license()}}" alt="{{user_profile.license_filename}}"/>
+    </div>
+
+</div>

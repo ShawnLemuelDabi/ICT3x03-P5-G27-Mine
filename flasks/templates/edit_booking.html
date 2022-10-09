@@ -1,0 +1,27 @@
+<form method="POST" action={{ url_for('update_booking', target_booking_id=booking.booking_id) }}>
+  <h3 align="center">Update Booking</h3>
+  <div class="form-group">
+    <label for="start_date">Start Date</label>
+    <input
+      type="date"
+      class="form-control"
+      id="start_date"
+      name="start_date"
+      placeholder="Enter start date"
+      value={{ booking.start_date }}
+    />
+  </div>
+  <div class="form-group">
+    <label for="end_date">End Date</label>
+    <input
+      type="date"
+      class="form-control"
+      id="end_date"
+      name="end_date"
+      placeholder="Enter end date"
+      value={{ booking.end_date }}
+    />
+  </div>
+  <br />
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
