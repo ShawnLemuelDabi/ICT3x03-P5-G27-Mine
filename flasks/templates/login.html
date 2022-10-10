@@ -4,7 +4,8 @@
 {% endif %}
 {% endwith %}
 <form action={{ url_for("login") }} method="POST">
-    <input type="text" name="email">
-    <input type="password" name="password">
+    <input type="text" name="email" placeholder="email">
+    <input type="password" name="password" placeholder="password">
+    <input type="number" name="otp" placeholder="otp">
     <input type="submit">
 </form>

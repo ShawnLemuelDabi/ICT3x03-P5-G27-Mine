@@ -1,6 +1,11 @@
 <h1>Account Detail</h1>
 <hr />
 <div>
+    {% with mfa_secret = get_flashed_messages(category_filter=["mfa_secret_uri"]) %}
+    {% if mfa_secret %}
+    <img src="{{ qrcode(mfa_secret[0]) }}">
+    {% endif %}
+    {% endwith %}
     <div>
         <h2>Name</h2>
         {{user_profile.first_name}} {{user_profile.last_name}}
@@ -16,6 +21,14 @@
     <div>
         <h2>License</h2>
         <img height="150px" src="data:{{user_profile.license_mime}};base64,{{user_profile.get_b64_license()}}" alt="{{user_profile.license_filename}}"/>
+    </div>
+    <div>
+        <h2>MFA</h2>
+        {% if user_profile.mfa_secret %}
+        Regenerate secret
+        {% else %}
+        <a href={{ url_for("route_enable_mfa") }}>Enable MFA</a>
+        {% endif %}
     </div>
 
 </div>

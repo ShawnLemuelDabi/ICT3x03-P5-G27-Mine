@@ -2,12 +2,15 @@
     // if you are using cpell library...
     "cSpell.words": [
         "backref",
+        "Ionicon",
         "MEDIUMBLOB",
         "ondelete",
         "onupdate",
         "pymysql",
+        "pyotp",
         "SQLALCHEMY",
         "TINYINT",
+        "TOTP",
         "werkzeug"
     ],
     "python.languageServer": "Pylance",

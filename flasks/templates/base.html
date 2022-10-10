@@ -1,83 +1,200 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      crossorigin="anonymous"
-    />
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Shallot - {% block title %}{% endblock %}</title>
 
-    <title>{% block title %}Home{% endblock %}</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar">
-        <div class="navbar-nav">
-          {% if user.is_authenticated %}
-          <a class="nav-item nav-link" id="home" href={{ url_for("index") }}>Home</a>
-          <a class="nav-item nav-link" id="logout" href={{ url_for("logout") }}>Logout</a>
-          {% else %}
-          <a class="nav-item nav-link" id="login" href={{ url_for("login") }}>Login</a>
-          <a class="nav-item nav-link" id="signUp" href={{ url_for("register") }}>Sign Up</a>
-          {% endif %}
-        </div>
-      </div>
-    </nav>
+        {# favicon #}
+        <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
 
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %} {% if category ==
-    'error' %}
-    <div class="alert alert-danger alter-dismissable fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    {% else %}
-    <div class="alert alert-success alter-dismissable fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    {% endif %} {% endfor %} {% endif %} {% endwith %}
+        {# Ionicon #}
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-    <div class="container">{% block content %} {% endblock %}</div>
-    <script
-      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"
-    ></script>
+        {# custom css link #}
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/style.css') }}">
 
-    <script
-      type="text/javascript"
-      src="{{ url_for('static', filename='index.js') }}"
-    ></script>
-  </body>
+        {# Template CSS Files #}
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/bootstrap-select.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/line-awesome.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/owl.carousel.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/owl.theme.default.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/jquery.fancybox.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/daterangepicker.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/animate.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/animated-headline.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/jquery-ui.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/flag-icon.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/style.css') }}">
+
+        {#<link rel="stylesheet" href="./assets/css/font-awesome.min.css">#}
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+
+
+        {# google font link #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
+    </head>
+
+    <body>
+        {# ================================ START HEADER AREA ====================================== #}
+        <header class="header-area">
+            <div class="header-top-bar padding-right-100px padding-left-100px">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="header-top-content">
+                                <div class="header-left">
+                                    <ul class="list-items">
+                                        <li><a href="#"><i class="fa fa-phone mr-1"></i>+65 8123 4567</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="header-top-content">
+                                <div class="header-right d-flex align-items-center justify-content-end">
+                                    <div class="header-right-action">
+                                        <ul class="list-items">
+                                        <li><a href="#"><i class="fa fa-envelope mr-1"></i>hello@shallot.com</a></li>
+                                    </ul>                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-menu-wrapper padding-right-100px padding-left-100px">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="menu-wrapper">
+                                <a href="#" class="down-button"><i class="fa fa-angle-down"></i></a>
+                                <div class="logo">
+                                    <a href="#"><img src="{{ url_for('static', filename='../static/images/logo.png')  }}" alt="logo"></a>
+                                    <div class="menu-toggler">
+                                        <i class="fa fa-bars"></i>
+                                        <i class="fa fa-times"></i>
+                                    </div>{# end menu-toggler #}
+                                </div>{# end logo #}
+                                <div class="main-menu-content">
+                                    <nav>
+                                        <ul>
+                                            <li>
+                                                <a href="#">Home {#<button class="navbar-toggler" type="button"></button>#}</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">About Us {#<button class="navbar-toggler" type="button"></button>#}</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">Cars <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
+                                                <ul class="dropdown-menu-item">
+                                                    <li><a href="#">Category 1</a></li>
+                                                    <li><a href="#">Category 2</a></li>
+                                                    <li><a href="#">Category 3</a></li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a href="#">Contact Us {#<button class="navbar-toggler" type="button"></button>#}</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>{# end main-menu-content #}
+                                <div class="nav-btn">
+                                <a href="#" class="theme-btn theme-btn-small theme-btn-transparent mr-1" data-toggle="modal" data-target="#signupPopupForm">Sign Up</a>
+                                        <a href="#" class="theme-btn theme-btn-small" data-toggle="modal" data-target="#loginPopupForm">Login</a>
+                                </div>{# end nav-btn #}
+                            </div>{# end menu-wrapper #}
+                        </div>{# end col-lg-12 #}
+                    </div>{# end row #}
+                </div>{# end container-fluid #}
+            </div>{# end header-menu-wrapper #}
+        </header>
+        {# ================================ END HEADER AREA ======================================== #}
+
+        {# ================================ START OF CONTENTS AREA ================================= #}
+        {% block content %}{% endblock %}
+        {# ================================ END OF CONTENTS  AREA ================================== #}
+
+        {# ================================ FOOTER AREA ============================================ #}
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-top">
+
+                    <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <img src="{{ url_for('static', filename='../static/images/logo.png') }}" alt="Shallot logo">
+                    </a>
+
+                    <p class="footer-text">
+                        Shallot Pte. Ltd. on-demand rental service company which provides car rental services.
+                    </p>
+                    </div>
+
+                    <ul class="footer-list">
+
+                    <li>
+                        <p class="footer-list-title">Company</p>
+                    </li>
+
+                    <li>
+                        <a href="#" class="footer-link">About us</a>
+                    </li>
+
+                    <li>
+                        <a href="#" class="footer-link">Our Vehicles</a>
+                    </li>
+
+                    <li>
+                        <a href="#" class="footer-link">Contact Us</a>
+                    </li>
+
+                    <li>
+                        <a href="#" class="footer-link">Locate Us</a>
+                    </li>
+
+                    </ul>
+
+
+                </div>
+                <div class="footer-bottom">
+
+                    <ul class="social-list">
+                    <li>
+                        <a href="#" class="social-link">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        </a>
+                    </li>
+
+                    </ul>
+
+                    <p class="copyright">
+                    &copy; 2022 <a href="#">ICT3203</a>. All Rights Reserved
+                    </p>
+
+                </div>
+            </div>
+        </footer>
+
+        {# custom js link #}
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/script.js') }}"></script>
+        {# Template JS Files #}
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery-ui.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/popper.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/bootstrap-select.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/moment.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/daterangepicker.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/owl.carousel.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery.fancybox.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery.countTo.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/animated-headline.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/jquery.ripples-min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='../static/js/main.js') }}"></script>
+    </body>
 </html>
