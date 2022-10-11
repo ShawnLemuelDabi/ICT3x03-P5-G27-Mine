@@ -18,6 +18,8 @@ from update_vehicle import update_vehicle
 from delete_vehicle import delete_vehicle
 
 import flask_login
+from flask import Flask
+from flask_mail import Mail, Message
 
 from user import User, ROLE
 from engine import engine_uri
@@ -29,6 +31,8 @@ from db import db
 
 import os
 import base64
+import random
+import string
 
 EMPTY_STRING = ""
 
@@ -179,6 +183,39 @@ def logout() -> str:
     flask_login.logout_user()
     # redirect to login for now
     return redirect(url_for('login'))
+
+@app.route("/forget_password", methods=["POST", "GET"])
+def forget_password() -> str:
+    if request.method == "POST":
+        email = request.form.get("email", EMPTY_STRING)
+        app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+        app.config['MAIL_PORT'] = 465
+        app.config['MAIL_USE_TLS'] = False
+        app.config['MAIL_USE_SSL'] = True
+        app.config['MAIL_USERNAME'] = "3203.g27@gmail.com"
+        app.config['MAIL_PASSWORD'] = "sazsgjdacndkauga"
+        mail = Mail(app)
+
+        # TO-DO:
+        # Overwrite the password field where 'email' = database 'email' record
+        characters = string.ascii_letters + string.digits
+        password = ''.join(random.choice(characters) for i in range(8))
+
+        msg = Message()
+        msg.subject = "Reset Password"
+        msg.recipients = [email]
+        msg.sender = "3203.g27@gmail.com"
+        # Send the newly generated password as part of the body 
+        msg.body = 'You have requested for a password reset. Please login with the password <b><u>' + password + '</u></b> and updates it upon login.'
+
+        # mail.send(msg)
+
+        # TO-DO: 
+        # Kill all existing sessions (to be implemented after session management code)
+        return msg.body
+        
+    else:
+        return render_template("forget_password.html")
 
 
 # PROFILE
