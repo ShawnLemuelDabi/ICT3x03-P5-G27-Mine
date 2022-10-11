@@ -9,7 +9,7 @@ pipeline {
 	}	
 	post {
 		success {
-			dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+			dependencyCheckPublisher pattern: 'DependencyCheck-report.xml'
 		}
 	}
 }
