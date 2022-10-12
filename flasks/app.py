@@ -35,6 +35,7 @@ import base64
 import random
 import string
 import jwt
+from werkzeug.security import generate_password_hash
 
 EMPTY_STRING = ""
 
@@ -223,10 +224,18 @@ def verify_reset(token) -> str:
         if email:
             return render_template("reset_password.html", email=email)
     else:
-        email = request.form.get("email", EMPTY_STRING)
-        password = request.form.get("password", EMPTY_STRING)
-        return email + ":" + password
-        # TO-DO: Overwrite new password to database
+        find_email = request.form.get("email", EMPTY_STRING)
+        password = generate_password_hash(request.form.get("password", EMPTY_STRING))
+
+        update_dict = {
+            "password" : password
+        }
+
+        t = User.query.filter_by(email=find_email)
+        t.update(update_dict)
+        db.session.commit()
+        flash('Login with your newly resetted password!')
+        return redirect(url_for('login'))
 
 
 def get_reset_token(email, expires=500):
