@@ -1,4 +1,5 @@
 from functools import wraps
+import time
 from flask import Flask, request, render_template, url_for, redirect, flash, abort
 
 # User imports
@@ -33,6 +34,7 @@ import os
 import base64
 import random
 import string
+import jwt
 
 EMPTY_STRING = ""
 
@@ -196,27 +198,46 @@ def forget_password() -> str:
         app.config['MAIL_PASSWORD'] = "sazsgjdacndkauga"
         mail = Mail(app)
 
-        # TO-DO:
-        # Overwrite the password field where 'email' = database 'email' record
-        characters = string.ascii_letters + string.digits
-        password = ''.join(random.choice(characters) for i in range(8))
+        token = get_reset_token(email)
 
         msg = Message()
         msg.subject = "Reset Password"
         msg.recipients = [email]
         msg.sender = "3203.g27@gmail.com"
-        # Send the newly generated password as part of the body 
-        msg.body = 'You have requested for a password reset. Please login with the password <b><u>' + password + '</u></b> and updates it upon login.'
+        msg.html = render_template('reset_email_msgbody.html',user=email,token=token)
+        mail.send(msg)
 
-        # mail.send(msg)
+        # to remove
+        return "debug: email sent"
 
         # TO-DO: 
         # Kill all existing sessions (to be implemented after session management code)
-        return msg.body
-        
     else:
         return render_template("forget_password.html")
 
+@app.route("/verify_reset/<token>", methods=["POST", "GET"])
+def verify_reset(token) -> str:
+    if request.method == "GET":
+        flag = verify_reset_token(token)
+        if flag:
+            return render_template("reset_password.html")
+    else:
+        password = request.form.get("password", EMPTY_STRING)
+        # TO-DO: Overwrite new password to database
+
+
+def get_reset_token(email, expires=500):
+    # TO-DO: Put key to somewhere else instead of hardcoding
+    return jwt.encode({'reset_password': email, 'exp': time.time() + expires}, key="SUPERSECRETKEYTEST", algorithm="HS256")
+
+@staticmethod
+def verify_reset_token(token):
+    try:
+        # TO-DO: Put key to somewhere else instead of hardcoding
+        username = jwt.decode(token, key="SUPERSECRETKEYTEST", algorithms="HS256")['reset_password']
+        return username
+    except Exception as e:
+        return e
 
 # PROFILE
 @app.route("/profile", methods=["GET"])
