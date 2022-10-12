@@ -218,11 +218,14 @@ def forget_password() -> str:
 @app.route("/verify_reset/<token>", methods=["POST", "GET"])
 def verify_reset(token) -> str:
     if request.method == "GET":
-        flag = verify_reset_token(token)
-        if flag:
-            return render_template("reset_password.html")
+        # returns email if reset token verified
+        email = verify_reset_token(token)
+        if email:
+            return render_template("reset_password.html", email=email)
     else:
+        email = request.form.get("email", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
+        return email + ":" + password
         # TO-DO: Overwrite new password to database
 
 
