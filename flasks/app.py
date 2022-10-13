@@ -1,7 +1,7 @@
 from distutils.util import strtobool
 from functools import wraps
 import time
-from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response
+from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, Response
 
 # User imports
 from create_user import create_user
