@@ -21,6 +21,8 @@ class vehicle(db.Model):
     image_mime = db.Column(sa_mysql.VARCHAR(255))
     price_per_unit = db.Column(sa_mysql.FLOAT)
 
+    booking = db.relationship("Booking", back_populates="vehicle")
+
     def __repr__(self):
         return {
             'vehicle_id': self.vehicle_id,

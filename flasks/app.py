@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, url_for, redirect, flash, abo
 
 # User imports
 from create_user import create_user
+#from flasks.create_fault import create_fault
 from read_user import read_user
 from get_user import get_user
 from update_user import update_user
@@ -16,6 +17,10 @@ from create_vehicle import create_vehicle
 from read_vehicle import read_vehicle
 from update_vehicle import update_vehicle
 from delete_vehicle import delete_vehicle
+
+# Fault imports
+from fault import Fault
+from vehicle import vehicle
 
 import flask_login
 
@@ -203,10 +208,11 @@ def profile() -> str:
 @app.route("/booking")
 @flask_login.login_required
 def booking() -> str:
+    vehicles = vehicle.query.all()
     bookings = Booking.query.filter_by(user_id=flask_login.current_user.user_id).all()
 
     return render_template(
-        "bookings.html", user=flask_login.current_user, bookings=bookings
+        "bookings.html", user=flask_login.current_user, bookings=bookings, vehicles=vehicles
     )
 
 
@@ -218,6 +224,7 @@ def add_booking() -> str:
     else:
         start_date = request.form.get("start_date")
         end_date = request.form.get("end_date")
+        vehicle_id = request.form.get("vehicle_id", EMPTY_STRING)
 
         if not start_date:
             flash("Start Date cannot be empty", category="error")
@@ -228,6 +235,7 @@ def add_booking() -> str:
                 start_date=start_date,
                 end_date=end_date,
                 user_id=flask_login.current_user.user_id,
+                vehicle_id=vehicle_id
             )
             flash("Booking created!", category="success")
             return redirect(url_for("booking"))
@@ -493,6 +501,87 @@ def car_delete(vehicle_id: int) -> str:
     return redirect(url_for('car_manager'))
 
 
+# FAULT
+@app.route("/ufault")
+@flask_login.login_required
+def ufault() -> str:
+    user_id = flask_login.current_user.user_id
+    faults = Fault.query.join(Fault.booking, aliased=True).filter_by(user_id=user_id).all()
+
+    bookings = Booking.query.filter_by(user_id=user_id).all()
+    # bookings = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    return render_template("user-faults.html", booking_list=bookings, fault_list=faults)
+
+
+@app.route("/fault")
+def fault() -> str:
+    faults = Fault.query.all()
+    bookings = Booking.query.all()
+    # bookings = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    return render_template("manager-faults.html", booking_list=bookings, fault_list=faults)
+
+
+@app.route("/fault/create", methods=["POST"])
+def add_fault():
+    if request.method == "POST":
+        booking_id = request.form.get("booking_id")
+        reported_date = request.form.get("reported_date")
+        description = request.form.get("description")
+
+        new_fault = Fault(
+            booking_id=booking_id,
+            reported_date=reported_date,
+            description=description
+        )
+
+        db.session.add(new_fault)
+        db.session.commit()
+
+        return redirect(url_for("fault"))
+        '''
+        if not booking_id:
+            flash("Booking ID cannot be empty", category="error")
+        elif not reported_date:
+            flash("Reported Date cannot be empty", category="error")
+        elif not description:
+            flash("Description cannot be empty", category="error")
+        else:
+            flash("Fault created!", category="success")
+            return redirect(url_for("fault"))
+        '''
+
+
+@app.route("/fault/update/<int:target_fault_id>", methods=["POST"])
+def update_fault(target_fault_id: int) -> str:
+    booking_id = request.form.get("booking_id")
+    reported_date = request.form.get("reported_date")
+    description = request.form.get("description")
+
+    update_dict = {
+        "booking_id": booking_id,
+        "reported_date": reported_date,
+        "description": description
+    }
+
+    update_dict = {k: v for k, v in update_dict.items() if v is not None}
+
+    Fault.query.filter_by(fault_id=target_fault_id).update(update_dict)
+    db.session.commit()
+
+    flash("Fault updated!", category="success")
+    return redirect(url_for("fault"))
+
+
+@app.route("/fault/delete/<int:target_fault_id>", methods=["GET"])
+def delete_fault(target_fault_id: int) -> str:
+    Fault.query.filter_by(fault_id=target_fault_id).delete()
+    db.session.commit()
+    flash("Fault deleted!", category="success")
+    return redirect(url_for("fault"))
+
+
 @app.route("/profile/enable_mfa", methods=["GET"])
 @flask_login.login_required
 def route_enable_mfa() -> str:
@@ -503,6 +592,13 @@ def route_enable_mfa() -> str:
     except Exception as e:
         app.logger.fatal(e)
         return "Something went wrong"
+
+
+@app.route("/dev/init", methods=["GET"])
+def init() -> str:
+    db.drop_all()
+    db.create_all()
+    return "OK"
 
 
 if __name__ == "__main__":
