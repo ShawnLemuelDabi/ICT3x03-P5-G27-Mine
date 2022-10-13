@@ -23,6 +23,14 @@
                 
                 <div class="modal-body">
                   <form action="{{ url_for('add_booking') }}" method="POST">
+                    <div class="form-group">
+                      <label>Vehicle ID</label>
+                      <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="vehicle_id">
+                          {% for row in vehicles %}
+                          <option value="{{ row.vehicle_id }}">{{ row.vehicle_model }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
                       <div class="form-group">
                         <label>Start date</label>
                         <input
