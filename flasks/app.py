@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import Flask, request, render_template, url_for, redirect, flash, abort
+from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response
 
 # User imports
 from create_user import create_user
@@ -154,23 +154,34 @@ def register() -> str:
 
 @app.route("/login", methods=["POST", "GET"])
 def login() -> str:
+    def login_error() -> str:
+        flash("Incorrect credentials")
+        return render_template("login.html")
+
+    def login_success() -> Response:
+        # if successfully authenticated
+        flask_login.login_user(user)
+        return redirect(url_for('profile'))
+
     if request.method == "POST":
         email = request.form.get("email", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
         otp = request.form.get("otp", EMPTY_STRING)
 
-        if all([i != EMPTY_STRING for i in [email, password, otp]]):
+        if all([i != EMPTY_STRING for i in [email, password]]):
             user = get_user(email, password)
 
-            if user and mfa.verify_otp(user, otp):
-                # if successfully authenticated
-                flask_login.login_user(user)
-                return redirect(url_for('profile'))
+            if user:
+                if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
+                    return login_success()
+                elif user.mfa_secret == EMPTY_STRING:
+                    return login_success()
+                else:
+                    return login_error()
             else:
-                flash("Incorrect credentials")
-                return render_template("login.html")
+                return login_error()
         else:
-            return "Something was empty"
+            return login_error()
     elif request.method == "GET":
         if not flask_login.current_user.is_anonymous:
             return redirect(url_for('profile'))

@@ -8,6 +8,7 @@
         "onupdate",
         "pymysql",
         "pyotp",
+        "qrcode",
         "SQLALCHEMY",
         "TINYINT",
         "TOTP",
