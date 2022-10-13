@@ -28,5 +28,14 @@ services:
     restart: always
     security_opt:
       - label:disable
+  jenkins:
+    image: docker.io/jenkins/jenkins:lts-jdk11
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    restart: always
 volumes:
   mariadb-data:
+  jenkins_home:
