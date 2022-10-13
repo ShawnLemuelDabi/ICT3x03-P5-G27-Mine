@@ -1,3 +1,4 @@
+from distutils.util import strtobool
 from functools import wraps
 import time
 from flask import Flask, request, render_template, url_for, redirect, flash, abort
@@ -19,7 +20,6 @@ from update_vehicle import update_vehicle
 from delete_vehicle import delete_vehicle
 
 import flask_login
-from flask import Flask
 from flask_mail import Mail, Message
 
 from user import User, ROLE
@@ -32,8 +32,6 @@ from db import db
 
 import os
 import base64
-import random
-import string
 import jwt
 from werkzeug.security import generate_password_hash
 
@@ -58,6 +56,15 @@ login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
 QRcode(app)
+
+app.config['MAIL_SERVER'] = os.environ.get("SMTP_SERVER_HOST")
+app.config['MAIL_PORT'] = os.environ.get("SMTP_SERVER_PORT")
+app.config['MAIL_USE_TLS'] = strtobool(os.environ.get("SMTP_USE_TLS")) == 1
+app.config['MAIL_USE_SSL'] = strtobool(os.environ.get("SMTP_USE_SSL")) == 1
+app.config['MAIL_USERNAME'] = os.environ.get("SMTP_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
+
+mail = Mail(app)
 
 
 @login_manager.user_loader
@@ -187,69 +194,77 @@ def logout() -> str:
     # redirect to login for now
     return redirect(url_for('login'))
 
+
 @app.route("/forget_password", methods=["POST", "GET"])
 def forget_password() -> str:
     if request.method == "POST":
         email = request.form.get("email", EMPTY_STRING)
-        app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-        app.config['MAIL_PORT'] = 465
-        app.config['MAIL_USE_TLS'] = False
-        app.config['MAIL_USE_SSL'] = True
-        app.config['MAIL_USERNAME'] = "3203.g27@gmail.com"
-        app.config['MAIL_PASSWORD'] = "sazsgjdacndkauga"
-        mail = Mail(app)
 
-        token = get_reset_token(email)
+        user: User = User.query.filter_by(email=email).first()
 
-        msg = Message()
-        msg.subject = "Reset Password"
-        msg.recipients = [email]
-        msg.sender = "3203.g27@gmail.com"
-        msg.html = render_template('reset_email_msgbody.html',user=email,token=token)
-        mail.send(msg)
+        if user:
+            token = get_reset_token(email)
+
+            msg = Message()
+            msg.subject = "Reset Password"
+            msg.recipients = [email]
+            msg.sender = os.environ.get("SMTP_USERNAME")
+            msg.html = render_template('reset_email_msgbody.html', user=email, token=token)
+            mail.send(msg)
 
         # to remove
-        return "debug: email sent"
+        flash("An email has been sent to your mailbox if the account is valid", category="error")
+        return redirect(url_for("/forget_password"))
 
-        # TO-DO: 
-        # Kill all existing sessions (to be implemented after session management code)
+        # TODO: Kill all existing sessions (to be implemented after session management code)
     else:
         return render_template("forget_password.html")
 
-@app.route("/verify_reset/<token>", methods=["POST", "GET"])
-def verify_reset(token) -> str:
+
+@app.route("/verify_reset/<string:token>", methods=["POST", "GET"])
+def verify_reset(token: str) -> str:
     if request.method == "GET":
         # returns email if reset token verified
         email = verify_reset_token(token)
         if email:
-            return render_template("reset_password.html", email=email)
+            return render_template("reset_password.html", email=email, token=token)
     else:
         find_email = request.form.get("email", EMPTY_STRING)
-        password = generate_password_hash(request.form.get("password", EMPTY_STRING))
+        password_1 = request.form.get("password", EMPTY_STRING)
+        password_2 = request.form.get("confirm_password", EMPTY_STRING)
 
-        update_dict = {
-            "password" : password
-        }
+        if password_1 == password_2 and password_1 != EMPTY_STRING:
+            password = generate_password_hash(password_1)
 
-        t = User.query.filter_by(email=find_email)
-        t.update(update_dict)
-        db.session.commit()
-        flash('Login with your newly resetted password!')
-        return redirect(url_for('login'))
+            update_dict = {
+                "password": password
+            }
+
+            t = User.query.filter_by(email=find_email)
+            t.update(update_dict)
+            db.session.commit()
+            flash('Login with your newly resetted password!')
+            return redirect(url_for('login'))
+        else:
+            flash('The passwords does not match!', category="error")
+            return redirect(url_for("verify_reset", token=token))
 
 
-def get_reset_token(email, expires=500):
-    # TO-DO: Put key to somewhere else instead of hardcoding
-    return jwt.encode({'reset_password': email, 'exp': time.time() + expires}, key="SUPERSECRETKEYTEST", algorithm="HS256")
+def get_reset_token(email: str, expires: int = 500) -> str:
+    return jwt.encode({
+        'reset_password': email,
+        'exp': time.time() + expires
+    }, key=os.environ.get("RESET_PASSWORD_JWT_KEY"), algorithm="HS256")
+
 
 @staticmethod
-def verify_reset_token(token):
+def verify_reset_token(token: str) -> str:
     try:
-        # TO-DO: Put key to somewhere else instead of hardcoding
-        username = jwt.decode(token, key="SUPERSECRETKEYTEST", algorithms="HS256")['reset_password']
-        return username
+        email = jwt.decode(token, key=os.environ.get("RESET_PASSWORD_JWT_KEY"), algorithms="HS256")['reset_password']
+        return email
     except Exception as e:
         return e
+
 
 # PROFILE
 @app.route("/profile", methods=["GET"])
