@@ -10,6 +10,7 @@
         "pymysql",
         "pyotp",
         "resetted",
+        "qrcode",
         "SQLALCHEMY",
         "TINYINT",
         "TOTP",
