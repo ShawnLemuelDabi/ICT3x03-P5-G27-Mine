@@ -27,15 +27,22 @@
                         <div class="modal-body">
                             <form action="{{ url_for('add_fault') }}" method="POST" enctype="multipart/form-data">
                                 <div class="form-group">
-                                    <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                                    <label>Booking ID</label>
+                                    <select class="form-select form-select-sm" aria-label=".form-select-sm" name="booking_id">
                                         {% for row in booking_list %}
-                                        <option value="{{ row }}">{{ row }}</option>
+                                        <option value="{{ row.booking_id }}">{{ row.booking_id }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Reported Date</label>
-                                    <input type="text" class="form-control" name="reported_date" value="" required="1">
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        name="reported_date"
+                                        placeholder="Enter reported date"
+                                        required
+                                    />
                                 </div>
                                 <div class="form-group">
                                     <label>Description</label>
@@ -87,7 +94,8 @@
                     <td>{{ row.reported_date }}</td>
                     <td>{{ row.description }}</td>
                     <td>
-                        <a href={{ url_for("update_fault", target_fault_id=row.fault_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.fault_id }}">Edit</a>                                
+                        <a href={{ url_for("update_fault", target_fault_id=row.fault_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.fault_id }}">Edit</a>
+                        <a href={{ url_for("delete_fault", target_fault_id=row.fault_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete fault {{ row.fault_id }}?')">Delete</a>
                     </td>
                 </tr>
                 
@@ -102,7 +110,7 @@
                             
                             <div class="modal-body">
                                 <div class="well">
-                                    <h4 class="text-center" name="" type="number" value={{ row.fault_id }}>Updating Fault : {{ row.fault_id }}</h4>
+                                    <h4 class="text-center" type="number" value={{ row.fault_id }}>Updating Fault : {{ row.fault_id }}</h4>
                                 </div>
                                 <form action="{{ url_for('update_fault', target_fault_id=row.fault_id) }}" method="POST" enctype="multipart/form-data">
                                     <div class="form-group">                                                
@@ -110,19 +118,21 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Booking ID</label>
-                                        <select class="form-select form-select-sm" aria-label=".form-select-sm example">
-                                            {% for row in booking_list %}
-                                            <option value="{{ row }}">{{ row }}</option>
-                                            {% endfor %}
-                                        </select>
+                                        <input type="text" class="form-control" name="booking_id" value={{ row.booking_id }} readonly>
                                     </div>
                                     <div class="form-group">
                                         <label>Reported Date</label>
-                                        <input type="text" class="form-control" name="reported_date" value={{ row.reported_date }} required="1">
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            name="reported_date"
+                                            value={{ row.reported_date }}
+                                            readonly
+                                        />
                                     </div>
                                     <div class="form-group">
                                         <label>Description</label>
-                                        <textarea class="form-control" name="description" rows="3"  value={{ row.description }} required="1"></textarea>
+                                        <textarea class="form-control" name="description" rows="3" required="1">{{ row.description }}</textarea>
                                     </div>                         
                                     <div class="form-group">
                                         <button class="btn btn-primary" type="submit">Update Data</button>    
