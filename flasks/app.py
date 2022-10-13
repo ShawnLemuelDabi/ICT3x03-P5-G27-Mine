@@ -1,8 +1,10 @@
 from functools import wraps
+from xmlrpc.client import Fault
 from flask import Flask, request, render_template, url_for, redirect, flash, abort
 
 # User imports
 from create_user import create_user
+#from flasks.create_fault import create_fault
 from read_user import read_user
 from get_user import get_user
 from update_user import update_user
@@ -16,6 +18,9 @@ from create_vehicle import create_vehicle
 from read_vehicle import read_vehicle
 from update_vehicle import update_vehicle
 from delete_vehicle import delete_vehicle
+
+# Fault imports
+from fault import Fault
 
 import flask_login
 
@@ -481,6 +486,56 @@ def car_delete(vehicle_id: int) -> str:
     # return and render the page template
     return redirect(url_for('car_manager'))
 
+
+# FAULT
+@app.route("/fault")
+def fault() -> str:
+    fault1 = Fault(1, 1, 210521, "hello, this is fault 1")
+    fault2 = Fault(2, 1, 210521, "hello, this is fault 2")
+    fault3 = Fault(3, 1, 210521, "hello, this is fault 3")
+    fault4 = Fault(4, 1, 210521, "hello, this is fault 4")
+    fault5 = Fault(5, 1, 210521, "hello, this is fault 5")
+    
+    faults = [fault1, fault2, fault3, fault4, fault5]
+    bookings = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    return render_template("manager-faults.html", booking_list=bookings, fault_list=faults)
+
+
+@app.route("/fault/create", methods=["POST"])
+def add_fault():
+    if request.method == "POST":
+        booking_id = request.form.get("booking_id")
+        reported_date = request.form.get("reported_date")
+        description = request.form.get("description")
+        return redirect(url_for("fault"))
+        '''
+        if not booking_id:
+            flash("Booking ID cannot be empty", category="error")
+        elif not reported_date:
+            flash("Reported Date cannot be empty", category="error")
+        elif not description:
+            flash("Description cannot be empty", category="error")
+        else:
+            flash("Fault created!", category="success")
+            return redirect(url_for("fault"))
+        '''
+
+@app.route("/fault/update/<int:target_fault_id>", methods=["POST"])
+def update_fault(target_fault_id: int) -> str:
+    # booking_id = request.form.get("booking_id")
+    # reported_date = request.form.get("reported_date")
+    # description = request.form.get("description")
+
+    #flash("Fault updated!", category="success")
+    return redirect(url_for("fault"))
+
+
+@app.route("/fault/delete/<int:target_fault_id>", methods=["GET"])
+def delete_fault(target_fault_id: int) -> str:
+    flash("Fault deleted!", category="success")
+    return redirect(url_for("fault"))
+    
 
 @app.route("/profile/enable_mfa", methods=["GET"])
 @flask_login.login_required
