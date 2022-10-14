@@ -29,7 +29,7 @@
                                 </div>
                                 
                                 <div class="modal-body">
-                                    <form action="{{ url_for('user_create') }}" method="POST" enctype="multipart/form-data">
+                                    <form action="{{ url_for('bp_ucp.admin_create_user') }}" method="POST" enctype="multipart/form-data">
                                         <div class="form-group">
                                             <label>Email</label>
                                             <input type="email" class="form-control" name="email">
@@ -111,11 +111,11 @@
                             <td>{{row.first_name}}</td>
                             <td>{{row.last_name}}</td>
                             <td>{{row.phone_number}}</td>
-                            <td>{{ roles[row.role][0].upper() + roles[row.role][1:] }}</td>
+                            <td>{{ roles[row.role].title() }}</td>
                             <td><img height="50px" src="data:{{row.license_mime}};base64,{{row.get_b64_license()}}" alt="{{row.license_filename}}"/></td>
                             <td>
                                 <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
-                                <a href={{ url_for("user_delete", target_user_id=row.user_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>
+                                <a href={{ url_for("bp_ucp.admin_delete_user", user_id=row.user_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>
                             </td>
                         </tr>
 
@@ -132,7 +132,8 @@
                                         <div class="well">
                                             <h4 class="text-center" name="" type="number" value={{row.user_id}}>Updating User : {{row.user_id}}</h4>
                                         </div>
-                                        <form action="{{ url_for('user_update', target_user_id=row.user_id) }}" method="POST" enctype="multipart/form-data">
+                                        {# TODO: may need to change form action depending on the user (admin/manager) #}
+                                        <form action="{{ url_for('bp_ucp.admin_update_user', user_id=row.user_id) }}" method="POST" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <label>Email</label>
                                                 <input type="email" class="form-control" name="email" value={{row.email}}>
@@ -153,7 +154,7 @@
                                                 <label>Role</label>
                                                 <select class="form-control" name="role">
                                                     {% for r, r_str in roles.items() %}
-                                                    <option value="{{r}}" {% if r == row.role %}selected="true"{% endif %}>{{ r_str[0].upper() + r_str[1:] }}</option>
+                                                    <option value="{{r}}" {% if r == row.role %}selected="true"{% endif %}>{{ r_str.title() }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>

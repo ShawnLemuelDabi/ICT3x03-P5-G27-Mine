@@ -6,7 +6,7 @@ from sqlalchemy.dialects import mysql as sa_mysql
 # class for the data structure of the vehicle table
 
 
-class vehicle(db.Model):
+class Vehicle(db.Model):
     # The table from the db to reference from
     __tablename__ = "vehicles"
     # Expected column and their data type for the vehicle table
