@@ -1,11 +1,10 @@
 from distutils.util import strtobool
 from functools import wraps
 import time
-from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, Response
+from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response
 
 # User imports
 from create_user import create_user
-#from flasks.create_fault import create_fault
 from read_user import read_user
 from get_user import get_user
 from update_user import update_user
@@ -49,8 +48,6 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = engine_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # to suppress the warning
 
-# should be safe enough. generated using:
-# openssl rand -base64 48
 app.secret_key = os.environ.get("FLASK_LOGIN_SECRET")
 
 # Initialize the SQLAlchemy middleware
@@ -230,7 +227,7 @@ def forget_password() -> str:
 
         # to remove
         flash("An email has been sent to your mailbox if the account is valid", category="error")
-        return redirect(url_for("/forget_password"))
+        return redirect(url_for("forget_password"))
 
         # TODO: Kill all existing sessions (to be implemented after session management code)
     else:
