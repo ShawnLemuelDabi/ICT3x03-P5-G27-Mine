@@ -8929,6 +8929,39 @@ body {
   text-indent: 0;
   font-weight: 900;
 }
+
+.icon-element-check-only::before {
+  margin-top: 20px !important;
+  display: block;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #00a33c;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  position: relative;
+  font-size: 25px;
+  color: #fff;
+  position: absolute;
+  content: "\f00c";
+  font-family: "FontAwesome";
+  top: 0;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 26px;
+  text-indent: 0;
+  font-weight: 900;
+}
+
 .step-bar-list .step-bar.step-bar-active::after,
 .step-bar-list .step-bar.step-bar-active::before {
   background-color: #40cc6f;
@@ -11103,11 +11136,4 @@ body {
     justify-content: center !important;
     text-align: center !important;
   }
-}
-.pull-right{  
-  text-align:right;
-}
-.row {
-  margin-right: -15px;
-  margin-left: -15px;
 }

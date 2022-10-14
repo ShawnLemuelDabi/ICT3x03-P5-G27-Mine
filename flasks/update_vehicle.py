@@ -1,4 +1,4 @@
-from vehicle import vehicle
+from vehicle import Vehicle
 from db import db
 
 
@@ -20,6 +20,6 @@ def update_vehicle(find_vehicle_id: int, changed_model: str, changed_license_pla
         del update_dict['image_mime']
 
     # Action mariaDB will have the execute using SQLAlchemy
-    vehicle.query.filter_by(vehicle_id=find_vehicle_id).update(update_dict)
+    Vehicle.query.filter_by(vehicle_id=find_vehicle_id).update(update_dict)
     # This are the function for updating vehicle details from the db using SQLAlchemy
     db.session.commit()

@@ -21,5 +21,5 @@ class Booking(db.Model):
     is_paid = db.Column(sa_mysql.TINYINT(1))
 
     user = db.relationship("User", back_populates="bookings")
-    vehicle = db.relationship("vehicle", back_populates="booking")
+    vehicle = db.relationship("Vehicle", back_populates="booking")
     fault = db.relationship("Fault", back_populates="booking")

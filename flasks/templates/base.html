@@ -7,7 +7,8 @@
         <title>Shallot - {% block title %}{% endblock %}</title>
 
         {# favicon #}
-        <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+        {#<link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">#}
+        <link rel="shortcut icon" href="{{ url_for('static', filename='../static/images/logo.png') }}" type="image/png">
 
         {# Ionicon #}
         <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
@@ -30,8 +31,9 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/flag-icon.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/style.css') }}">
 
-        {#<link rel="stylesheet" href="./assets/css/font-awesome.min.css">#}
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/css/font-awesome.css') }}">
+        {#<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">#}
+        <link rel="stylesheet" href="{{ url_for('static', filename='../static/fonts/fontawesome-webfont.woff2') }}">
 
 
         {# google font link #}
@@ -85,7 +87,7 @@
                                     <nav>
                                         <ul>
                                             <li>
-                                                <a href="#">Home {#<button class="navbar-toggler" type="button"></button>#}</a>
+                                                <a href="{{ url_for('index') }}">Home {#<button class="navbar-toggler" type="button"></button>#}</a>
                                             </li>
                                             <li>
                                                 <a href="#">About Us {#<button class="navbar-toggler" type="button"></button>#}</a>
@@ -105,8 +107,13 @@
                                     </nav>
                                 </div>{# end main-menu-content #}
                                 <div class="nav-btn">
-                                <a href="#" class="theme-btn theme-btn-small theme-btn-transparent mr-1" data-toggle="modal" data-target="#signupPopupForm">Sign Up</a>
-                                        <a href="#" class="theme-btn theme-btn-small" data-toggle="modal" data-target="#loginPopupForm">Login</a>
+                                    {% if user_profile and user_profile.is_authenticated %}
+                                    <a href="{{ url_for('profile') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1" data-toggle="modal" data-target="#signupPopupForm">Profile</a>
+                                    <a href="{{ url_for('logout') }}" class="theme-btn theme-btn-small" data-toggle="modal" data-target="#loginPopupForm">Logout</a>
+                                    {% else %}
+                                    <a href="{{ url_for('register') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1" data-toggle="modal" data-target="#signupPopupForm">Sign Up</a>
+                                    <a href="{{ url_for('login') }}" class="theme-btn theme-btn-small">Login</a>
+                                    {% endif %}
                                 </div>{# end nav-btn #}
                             </div>{# end menu-wrapper #}
                         </div>{# end col-lg-12 #}

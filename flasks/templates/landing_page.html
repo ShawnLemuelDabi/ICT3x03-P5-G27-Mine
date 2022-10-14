@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+
+<main>
+  <article>
+
+    {# 
+      - #HERO
+    #}
+
+    <section class="section hero" id="home">
+      <div class="container">
+
+        <div class="hero-content">
+          <h2 class="h1 hero-title">Search Click Rent Rev</h2>
+
+          <p class="hero-text">
+            Singapore's Only Exotic Car Rental!
+          </p>
+        </div>
+
+        <div class="hero-banner"></div>
+        <div class="breadcrumb-wrap">
+      <div class="container">
+          <div class="row align-items-center">
+              <div class="col-lg-12">
+                  <div class="search-result-content">
+                      <div class="search-fields-container margin-top-30px">
+                          <div class="contact-form-action">
+                              <form action="#" class="row">
+                                  <div class="col-lg-4 col-sm-6 pr-0">
+                                      <div class="input-box">
+                                          <label class="label-text">Pick-up Location</label>
+                                          <div class="form-group">
+                                              <span class="fa fa-map-marker form-icon"></span>
+                                              {#<input class="form-control" type="text" placeholder="Destination">#}
+                                              <select class="form-control" name="location" style="height: 50px;">
+                                                <option>Test</option>
+                                              </select>
+                                          </div>
+                                      </div>
+                                  </div>{# end col-lg-4 #}
+                                  <div class="col-lg-4 col-sm-4 pr-0">
+                                      <div class="input-box">
+                                          <label class="label-text">Pick-up Date</label>
+                                          <div class="form-group">
+                                              <span class="fa fa-calendar form-icon"></span>
+                                              <input class="date-range form-control" type="text" name="daterange-single" readonly="readonly" value="07/10/2022">
+                                          </div>
+                                      </div>
+                                  </div>{# end col-lg-2 #}
+                                  <div class="col-lg-4 col-sm-4 pr-0">
+                                      <div class="input-box">
+                                          <label class="label-text">Drop-off Date</label>
+                                          <div class="form-group">
+                                              <span class="fa fa-calendar form-icon"></span>
+                                              <input class="date-range form-control" type="text" name="daterange-single" readonly="readonly" value="07/10/2022">
+                                          </div>
+                                      </div>
+                                  </div>{# end col-lg-2 #}
+                              </form>
+                          </div>{# end contact-form-action #}
+                          <div class="btn-box pt-3">
+                              <button class="theme-btn" type="button">Search Now</button>
+                          </div>
+                      </div>{# end search-fields-container #}
+                  </div>{# end search-result-content #}
+              </div>{# end col-lg-12 #}
+          </div>{# end row #}
+      </div>{# end container #}
+  </div>{# end breadcrumb-wrap #}
+    </div></section>
+
+
+
+
+
+    {# 
+      - #FEATURED CAR
+    #}
+
+    <section class="section featured-car" id="featured-car">
+      <div class="container">
+
+        <div class="title-wrapper">
+          <h2 class="h2 section-title">Featured cars</h2>
+
+          <a href="#" class="featured-car-link">
+            <span>View more</span>
+
+            <ion-icon name="arrow-forward-outline" role="img" class="md hydrated" aria-label="arrow forward outline"></ion-icon>
+          </a>
+        </div>
+
+        <ul class="featured-car-list">
+
+          <li>
+            <div class="featured-car-card">
+
+              <figure class="card-banner">
+                <img src="./assets/images/supra-1.png" alt="Toyota Supra" loading="lazy" class="w-100" width="440" height="300">
+              </figure>
+
+              <div class="card-content">
+
+                <div class="card-title-wrapper">
+                  <h3 class="h3 card-title">
+                    <a href="#">Toyota SUPRA</a>
+                  </h3>
+
+                  <data class="year" value="2021">2021</data>
+                </div>
+
+                <ul class="card-list">
+
+                  <li class="card-list-item">
+                    <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
+
+                    <span class="card-item-text">2 People</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="flash-outline" role="img" class="md hydrated" aria-label="flash outline"></ion-icon>
+
+                    <span class="card-item-text">Petrol</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="speedometer-outline" role="img" class="md hydrated" aria-label="speedometer outline"></ion-icon>
+
+                    <span class="card-item-text">13.1km / 1-litre</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="hardware-chip-outline" role="img" class="md hydrated" aria-label="hardware chip outline"></ion-icon>
+
+                    <span class="card-item-text">Automatic</span>
+                  </li>
+
+                </ul>
+
+                <div class="card-price-wrapper">
+
+                  <p class="card-price">
+                    <strong>$150</strong> / Day
+                  </p>
+
+                  <button class="btn">Rent now</button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+
+          <li>
+            <div class="featured-car-card">
+
+              <figure class="card-banner">
+                <img src="./assets/images/supra-1.png" alt="Toyota Supra" loading="lazy" class="w-100" width="440" height="300">
+              </figure>
+
+              <div class="card-content">
+
+                <div class="card-title-wrapper">
+                  <h3 class="h3 card-title">
+                    <a href="#">Toyota SUPRA</a>
+                  </h3>
+
+                  <data class="year" value="2021">2021</data>
+                </div>
+
+                <ul class="card-list">
+
+                  <li class="card-list-item">
+                    <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
+
+                    <span class="card-item-text">2 People</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="flash-outline" role="img" class="md hydrated" aria-label="flash outline"></ion-icon>
+
+                    <span class="card-item-text">Petrol</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="speedometer-outline" role="img" class="md hydrated" aria-label="speedometer outline"></ion-icon>
+
+                    <span class="card-item-text">13.1km / 1-litre</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="hardware-chip-outline" role="img" class="md hydrated" aria-label="hardware chip outline"></ion-icon>
+
+                    <span class="card-item-text">Automatic</span>
+                  </li>
+
+                </ul>
+
+                <div class="card-price-wrapper">
+
+                  <p class="card-price">
+                    <strong>$150</strong> / Day
+                  </p>
+
+                  <button class="btn">Rent now</button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+
+          <li>
+            <div class="featured-car-card">
+
+              <figure class="card-banner">
+                <img src="./assets/images/supra-1.png" alt="Toyota Supra" loading="lazy" class="w-100" width="440" height="300">
+              </figure>
+
+              <div class="card-content">
+
+                <div class="card-title-wrapper">
+                  <h3 class="h3 card-title">
+                    <a href="#">Toyota SUPRA</a>
+                  </h3>
+
+                  <data class="year" value="2021">2021</data>
+                </div>
+
+                <ul class="card-list">
+
+                  <li class="card-list-item">
+                    <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
+
+                    <span class="card-item-text">2 People</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="flash-outline" role="img" class="md hydrated" aria-label="flash outline"></ion-icon>
+
+                    <span class="card-item-text">Petrol</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="speedometer-outline" role="img" class="md hydrated" aria-label="speedometer outline"></ion-icon>
+
+                    <span class="card-item-text">13.1km / 1-litre</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="hardware-chip-outline" role="img" class="md hydrated" aria-label="hardware chip outline"></ion-icon>
+
+                    <span class="card-item-text">Automatic</span>
+                  </li>
+
+                </ul>
+
+                <div class="card-price-wrapper">
+
+                  <p class="card-price">
+                    <strong>$150</strong> / Day
+                  </p>
+
+                  <button class="btn">Rent now</button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+
+          <li>
+            <div class="featured-car-card">
+
+              <figure class="card-banner">
+                <img src="./assets/images/supra-1.png" alt="Toyota Supra" loading="lazy" class="w-100" width="440" height="300">
+              </figure>
+
+              <div class="card-content">
+
+                <div class="card-title-wrapper">
+                  <h3 class="h3 card-title">
+                    <a href="#">Toyota SUPRA</a>
+                  </h3>
+
+                  <data class="year" value="2021">2021</data>
+                </div>
+
+                <ul class="card-list">
+
+                  <li class="card-list-item">
+                    <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
+
+                    <span class="card-item-text">2 People</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="flash-outline" role="img" class="md hydrated" aria-label="flash outline"></ion-icon>
+
+                    <span class="card-item-text">Petrol</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="speedometer-outline" role="img" class="md hydrated" aria-label="speedometer outline"></ion-icon>
+
+                    <span class="card-item-text">13.1km / 1-litre</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="hardware-chip-outline" role="img" class="md hydrated" aria-label="hardware chip outline"></ion-icon>
+
+                    <span class="card-item-text">Automatic</span>
+                  </li>
+
+                </ul>
+
+                <div class="card-price-wrapper">
+
+                  <p class="card-price">
+                    <strong>$150</strong> / Day
+                  </p>
+
+                  <button class="btn">Rent now</button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+
+          <li>
+            <div class="featured-car-card">
+
+              <figure class="card-banner">
+                <img src="./assets/images/supra-1.png" alt="Toyota Supra" loading="lazy" class="w-100" width="440" height="300">
+              </figure>
+
+              <div class="card-content">
+
+                <div class="card-title-wrapper">
+                  <h3 class="h3 card-title">
+                    <a href="#">Toyota SUPRA</a>
+                  </h3>
+
+                  <data class="year" value="2021">2021</data>
+                </div>
+
+                <ul class="card-list">
+
+                  <li class="card-list-item">
+                    <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
+
+                    <span class="card-item-text">2 People</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="flash-outline" role="img" class="md hydrated" aria-label="flash outline"></ion-icon>
+
+                    <span class="card-item-text">Petrol</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="speedometer-outline" role="img" class="md hydrated" aria-label="speedometer outline"></ion-icon>
+
+                    <span class="card-item-text">13.1km / 1-litre</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="hardware-chip-outline" role="img" class="md hydrated" aria-label="hardware chip outline"></ion-icon>
+
+                    <span class="card-item-text">Automatic</span>
+                  </li>
+
+                </ul>
+
+                <div class="card-price-wrapper">
+
+                  <p class="card-price">
+                    <strong>$150</strong> / Day
+                  </p>
+
+                  <button class="btn">Rent now</button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+
+          <li>
+            <div class="featured-car-card">
+
+              <figure class="card-banner">
+                <img src="./assets/images/supra-1.png" alt="Toyota Supra" loading="lazy" class="w-100" width="440" height="300">
+              </figure>
+
+              <div class="card-content">
+
+                <div class="card-title-wrapper">
+                  <h3 class="h3 card-title">
+                    <a href="#">Toyota SUPRA</a>
+                  </h3>
+
+                  <data class="year" value="2021">2021</data>
+                </div>
+
+                <ul class="card-list">
+
+                  <li class="card-list-item">
+                    <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
+
+                    <span class="card-item-text">2 People</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="flash-outline" role="img" class="md hydrated" aria-label="flash outline"></ion-icon>
+
+                    <span class="card-item-text">Petrol</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="speedometer-outline" role="img" class="md hydrated" aria-label="speedometer outline"></ion-icon>
+
+                    <span class="card-item-text">13.1km / 1-litre</span>
+                  </li>
+
+                  <li class="card-list-item">
+                    <ion-icon name="hardware-chip-outline" role="img" class="md hydrated" aria-label="hardware chip outline"></ion-icon>
+
+                    <span class="card-item-text">Automatic</span>
+                  </li>
+
+                </ul>
+
+                <div class="card-price-wrapper">
+
+                  <p class="card-price">
+                    <strong>$150</strong> / Day
+                  </p>
+
+                  <button class="btn">Rent now</button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+
+        </ul>
+
+      </div>
+    </section>
+
+  </article>
+</main>
+
+{% endblock %}

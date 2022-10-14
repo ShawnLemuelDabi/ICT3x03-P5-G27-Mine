@@ -25,7 +25,7 @@
                         </div>
                         
                         <div class="modal-body">
-                            <form action="{{ url_for('car_create') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ url_for('bp_vcp.manager_create_vehicle') }}" method="POST" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label>Vehicle Model</label>
                                     <input type="text" class="form-control" name="vehicle_model" placeholder="Toyota" required="1">
@@ -116,8 +116,8 @@
                     <td>{{ row.location }}</td>
                     <td>$ {{ row.price_per_unit }}</td>
                     <td>
-                        <a href={{ url_for("car_update", vehicle_id=row.vehicle_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.vehicle_id }}">Edit</a>
-                        <a href={{ url_for("car_delete", vehicle_id=row.vehicle_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete vehicle {{ row.vehicle_id }}?')">Delete</a>                                
+                        <a href={{ url_for("bp_vcp.manager_update_vehicle", vehicle_id=row.vehicle_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.vehicle_id }}">Edit</a>
+                        <a href={{ url_for("bp_vcp.manager_delete_vehicle", vehicle_id=row.vehicle_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete vehicle {{ row.vehicle_id }}?')">Delete</a>                                
                     </td>
                 </tr>
                 
@@ -134,7 +134,7 @@
                                 <div class="well">
                                     <h4 class="text-center" name="" type="number" value={{ row.vehicle_id }}>Updating Vehicle : {{ row.vehicle_id }}</h4>
                                 </div>
-                                <form action="{{ url_for('car_update', vehicle_id=row.vehicle_id) }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ url_for('bp_vcp.manager_update_vehicle', vehicle_id=row.vehicle_id) }}" method="POST" enctype="multipart/form-data">
                                     <div class="form-group">                                                
                                         <input type="hidden" name="vehicle_id" value={{ row.vehicle_id }}>
                                     </div>

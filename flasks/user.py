@@ -7,8 +7,8 @@ import base64
 
 
 ROLE = {
-    0: 'guest',
-    1: 'user',
+    0: 'unverified User',
+    1: 'verified User',
     2: 'manager',
     3: 'admin',
 }
