@@ -50,3 +50,6 @@ class User(UserMixin, db.Model):
 
     def get_b64_license(self) -> str:
         return base64.b64encode(self.license_blob).decode('utf8')
+
+    def get_b64_license_data_uri(self) -> str:
+        return f"data:{self.license_mime};base64,{self.get_b64_license()}"

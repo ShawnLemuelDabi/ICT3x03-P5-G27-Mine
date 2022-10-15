@@ -1,4 +1,4 @@
-<form method="POST" action={{ url_for('update_booking', target_booking_id=booking.booking_id) }}>
+<form method="POST" action={{ url_for('bp_bookings.customer_update_booking', booking_id=booking.booking_id) }}>
   <h3 align="center">Update Booking</h3>
   <div class="form-group">
     <label for="start_date">Start Date</label>

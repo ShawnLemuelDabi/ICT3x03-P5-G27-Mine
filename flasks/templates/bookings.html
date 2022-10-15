@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
   <div>
-      <h1 class="text-center">Vehicle Management</h1>
+      <h1 class="text-center">Bookings</h1>
   </div>
 </div>
 
@@ -22,7 +22,7 @@
                 </div>
                 
                 <div class="modal-body">
-                  <form action="{{ url_for('add_booking') }}" method="POST">
+                  <form action="{{ url_for('bp_bookings.customer_create_booking') }}" method="POST">
                     <div class="form-group">
                       <label>Vehicle ID</label>
                       <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="vehicle_id">
@@ -81,7 +81,7 @@
         {% for booking in bookings %}
         <div class="card border-dark">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <a href={{ url_for('read_booking', target_booking_id=booking.booking_id) }} >{{booking.booking_id}}</a>
+            <a href={{ url_for('bp_bookings.customer_read_booking', booking_id=booking.booking_id) }} >{{booking.booking_id}}</a>
             <div class="dropdown">
               <button
                 type="button"
@@ -91,7 +91,7 @@
               ></button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                 <li>
-                  <a href={{ url_for('delete_booking', target_booking_id=booking.booking_id) }} class="dropdown-item">Delete</a>
+                  <a href={{ url_for('bp_bookings.customer_delete_booking', booking_id=booking.booking_id) }} class="dropdown-item">Delete</a>
                 </li>
               </ul>
             </div>

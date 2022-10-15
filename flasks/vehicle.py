@@ -3,7 +3,7 @@ from db import db
 
 from sqlalchemy.dialects import mysql as sa_mysql
 
-# class for the data structure of the vehicle table
+import base64
 
 
 class Vehicle(db.Model):
@@ -22,6 +22,12 @@ class Vehicle(db.Model):
     price_per_unit = db.Column(sa_mysql.FLOAT)
 
     booking = db.relationship("Booking", back_populates="vehicle")
+
+    def get_b64_image(self) -> str:
+        return base64.b64encode(self.image).decode('utf8')
+
+    def get_b64_image_data_uri(self) -> str:
+        return f"data:{self.image_mime};base64,{self.get_b64_image()}"
 
     def __repr__(self):
         return {

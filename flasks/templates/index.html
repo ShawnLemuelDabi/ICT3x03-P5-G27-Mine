@@ -1,10 +1,10 @@
 <h1>Hello world</h1>
 
-{% if user_profile.is_authenticated %}
-{% if user_profile.is_admin() %}
+{% if user.is_authenticated %}
+{% if user.is_admin() %}
 <a href={{ url_for('admin') }}>Admin</a>
 {% endif %}
-<a href={{ url_for('bp_bookings.user_read_bookings') }}>Bookings</a>
+<a href={{ url_for('bp_bookings.customer_read_bookings') }}>Bookings</a>
 <a href={{ url_for('profile') }}>Profile</a>
 <a href={{ url_for('logout') }}>Logout</a>
 {% else %}
