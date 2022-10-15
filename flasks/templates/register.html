@@ -1,83 +1,90 @@
-<html>
-    <head>
-        <!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
-
-    </head>
-
-    <body>
-      {% with messages = get_flashed_messages(category_filter=["error"]) %}
-      {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-success alert-dismissable" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="close">
-            <span aria-hidden="true">X</span>
-        </button>
-        {{ message }}
-      </div>      
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
-      <form method="POST" enctype="multipart/form-data">
-          <h3 align="center">Register</h3>
-          <div class="form-group">
-            <label for="first_name">First Name</label>
-            <input
-              type="text"
-              class="form-control"
-              id="first_name"
-              name="first_name"
-              placeholder="Enter first name"
-            />
+{% extends "base.html" %}
+{% block title %}Registration{% endblock %}
+{% block content %}
+{# Simple Heading Text #}
+<div class="col-lg-8 mt-3">
+  <div class="form-box">
+      <div class="form-title-wrap">
+          <h3 class="title">Register</h3>
+      </div><!-- form-title-wrap -->
+      <div class="form-content ">
+          <div class="contact-form-action">
+            {% with messages = get_flashed_messages(category_filter=["error"]) %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-success alert-dismissable" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                  <span aria-hidden="true">X</span>
+              </button>
+              {{ message }}
+            </div>      
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <form method="POST" enctype="multipart/form-data">
+              <div class="row">
+                <div class="col-lg-6 responsive-column">
+                  <div class="input-box">
+                    <label class="label-text">First Name</label>
+                    <div class="form-group">
+                        <span class="fa fa-user-o form-icon"></span>
+                        <input class="form-control" type="text" id="first_name" name="first_name" placeholder="First name">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6 responsive-column">
+                  <div class="input-box">
+                    <label class="label-text">Last Name</label>
+                    <div class="form-group">
+                        <span class="fa fa-user-o form-icon"></span>
+                        <input class="form-control" type="text" id="last_name" name="last_name" placeholder="Last name">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6 responsive-column">
+                  <div class="input-box">
+                    <label class="label-text">Password</label>
+                    <div class="form-group">
+                        <span class="fa fa-lock form-icon"></span>
+                        <input class="form-control" type="password" id="password" name="password" placeholder="Password">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6 responsive-column">
+                  <div class="input-box">
+                    <label class="label-text">Email</label>
+                    <div class="form-group">
+                        <span class="fa fa-envelope-o form-icon"></span>
+                        <input class="form-control" type="email" id="email" name="email" placeholder="Email">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6 responsive-column">
+                  <div class="input-box">
+                    <label class="label-text">Phone Number</label>
+                    <div class="form-group">
+                        <span class="fa fa-phone form-icon"></span>
+                        <input class="form-control" type="number" id="phone_number" name="phone_number" placeholder="phone_number">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6 responsive-column">
+                  <div class="input-box">
+                    <label class="label-text">License</label>
+                    <div class="form-group">
+                        <span class="fa fa-file-o form-icon"></span>
+                        <input class="form-control" type="file" name="license_blob">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="btn-box">
+                      <button class="theme-btn" type="submit">Submit</button>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
-          <div class="form-group">
-            <label for="last_name">Last Name</label>
-            <input
-              type="text"
-              class="form-control"
-              id="last_name"
-              name="last_name"
-              placeholder="Enter last name"
-            />
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              name="password"
-              placeholder="Enter password"
-            />
-          </div>
-          <div class="form-group">
-              <label for="email">Email</label>
-              <input
-                type="email"
-                class="form-control"
-                id="email"
-                name="email"
-                placeholder="Enter email"
-              />
-          </div>
-          <div class="form-group">
-              <label for="phone_number">Phone_number</label>
-              <input
-                type="number"
-                class="form-control"
-                id="phone_number"
-                name="phone_number"
-                placeholder="Enter phone number"
-              />
-          </div>
-          <div class="form-group">
-            <label>License</label>
-              <input type="file" class="form-control" name="license_blob">
-          </div>
-          <br />
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </body>
-</html>
+      </div>
+  </div>
+{% endblock %}
