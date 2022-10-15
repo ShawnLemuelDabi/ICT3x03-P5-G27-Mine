@@ -96,9 +96,9 @@
                 {# For loop to display Vehicle table content Read DB #}
                 {% for row in vehicle_list %}
                 <tr>
-                    {%if row.image_b64%}
+                    {% if row.image %}
                     <td>
-                        <img height="50px" src="data:{{ row.image_mime }};base64,{{ row.image_b64 }}" alt="{{ row.image_name }}"/>
+                        <img height="50px" src="{{ row.get_b64_image_data_uri() }}" alt="{{ row.image_name }}"/>
                     </td>
                     {%else%}
                     <td>No Image Found</td>

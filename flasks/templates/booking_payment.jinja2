@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}Enter your new password!{% endblock %}
+{% block content %}
+
+<section class="booking-area padding-top-100px padding-bottom-70px">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-box payment-received-wrap mb-0">
+                    <div class="form-title-wrap">
+                        <div class="step-bar-wrap text-center">
+                            <ul class="step-bar-list d-flex align-items-center justify-content-around">
+                                <li class="step-bar flex-grow-1 step-bar-active">
+                                    <span class="icon-element">1</span>
+                                    <p class="pt-2 color-text-2">Choose Your Vehicle</p>
+                                </li>
+                                <li class="step-bar flex-grow-1 step-bar-active">
+                                    <span class="icon-element">2</span>
+                                    <p class="pt-2 color-text-2">Your Booking &amp; Payment Details</p>
+                                </li>
+                                <li class="step-bar flex-grow-1">
+                                    <span class="icon-element">3</span>
+                                    <p class="pt-2 color-text-2">Booking Completed!</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <br>
+            </div>
+            <div class="col-lg-8">
+                <div class="form-box">
+                    <div class="form-title-wrap">
+                        <h3 class="title">Your Personal Information</h3>
+                    </div>{# form-title-wrap #}
+                    <div class="form-content ">
+                        <div class="contact-form-action">
+                            <div class="row">
+                                <div class="col-lg-6 responsive-column">
+                                    <div class="input-box">
+                                        <label class="label-text">First Name</label>
+                                        <div class="form-group">
+                                            <span class="fa fa-user-o form-icon"></span>
+                                            <input class="form-control" type="text" value="{{ user.first_name }}" readonly="true">
+                                        </div>
+                                    </div>
+                                </div>{# end col-lg-6 #}
+                                <div class="col-lg-6 responsive-column">
+                                    <div class="input-box">
+                                        <label class="label-text">Last Name</label>
+                                        <div class="form-group">
+                                            <span class="fa fa-user-o form-icon"></span>
+                                            <input class="form-control" type="text" value="{{ user.last_name }}" readonly="true">
+                                        </div>
+                                    </div>
+                                </div>{# end col-lg-6 #}
+                                <div class="col-lg-6 responsive-column">
+                                    <div class="input-box">
+                                        <label class="label-text">Your Email</label>
+                                        <div class="form-group">
+                                            <span class="fa fa-envelope-o form-icon"></span>
+                                            <input class="form-control" type="email" value="{{ user.email }}" readonly="true">
+                                        </div>
+                                    </div>
+                                </div>{# end col-lg-6 #}
+                                <div class="col-lg-6 responsive-column">
+                                    <div class="input-box">
+                                        <label class="label-text">Phone Number</label>
+                                        <div class="form-group">
+                                            <span class="fa fa-phone form-icon"></span>
+                                            <input class="form-control" type="text" id="phone_number" value="{{ user.phone_number }}" readonly="true">
+                                        </div>
+                                    </div>
+                                </div>{# end col-lg-6 #}
+                            </div>
+                        </div>{# end contact-form-action #}
+                    </div>{# end form-content #}
+                </div>{# end form-box #}
+                <div class="form-box">
+                    <div class="form-title-wrap">
+                        <h3 class="title">Your Payment Information</h3>
+                    </div>{# form-title-wrap #}
+                    <div class="form-content">
+                        <div class="section-tab check-mark-tab text-center pb-4">
+                            <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="credit-card-tab" data-toggle="tab"
+                                        href="#credit-card" role="tab" aria-controls="credit-card"
+                                        aria-selected="false">
+                                        {# <i class="fa fa-check icon-element"></i> #}
+                                        <img src="{{ url_for('static', filename='../static/images/logo-PayNow.png') }}" alt="" width="200" height="100">
+                                        <span class="d-block pt-2">Pay with PayNow</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {# end section-tab #}
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="credit-card" role="tabpanel"
+                                aria-labelledby="credit-card-tab">
+                                <div class="contact-form-action">
+                                    <form method="POST" action="{{ url_for('bp_bookings.customer_create_booking') }}">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="input-box">
+                                                    <div class="form-group">
+                                                        <div class="custom-checkbox">
+                                                            <input class="form-check-input" type="checkbox" id="same_as_phone_number" onclick="follow_phone_number(this)">
+                                                            <label class="form-check-label" for="same_as_phone_number">
+                                                                Same phone number as above</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>{# end col-lg-12 #}
+                                            <div class="col-lg-6 responsive-column">
+                                                <div class="input-box">
+                                                    <label class="label-text">PayNow Number</label>
+                                                    <div class="form-group">
+                                                        <span class="fa fa-phone form-icon"></span>
+                                                        <input class="form-control" type="text" name="paynow_number" id="paynow_number"
+                                                            placeholder="Phone Number">
+                                                    </div>
+                                                </div>
+                                            </div>{# end col-lg-6 #}
+                                            <div class="col-lg-12">
+                                                <div class="input-box">
+                                                    <div class="form-group">
+                                                        <div class="custom-checkbox">
+                                                            <input class="form-check-input" type="checkbox" value=""
+                                                                id="agreechb" required="true">
+                                                            <label class="form-check-label" for="agreechb">
+                                                                By continuing, you agree to the Terms and
+                                                                Conditions.</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>{# end col-lg-12 #}
+                                            <input type="hidden" name="vehicle_id" value="{{ vehicle.vehicle_id }}">
+                                            <input type="hidden" name="start_date" value="{{ booking_details.start_date }}">
+                                            <input type="hidden" name="end_date" value="{{ booking_details.end_date }}">
+                                            <div class="col-lg-12">
+                                                <div class="btn-box">
+                                                    <button class="theme-btn" type="submit">Confirm Booking</button>
+                                                </div>
+                                            </div>{# end col-lg-12 #}
+                                        </div>
+                                    </form>
+                                </div>
+                                {# end contact-form-action #}
+                            </div>
+                            {# end tab-pane#}
+                        </div>{# end tab-content #}
+                    </div>{# end form-content #}
+                </div>{# end form-box #}
+            </div>{# end col-lg-8 #}
+            <div class="col-lg-4">
+                <div class="form-box booking-detail-form">
+                    <div class="form-title-wrap">
+                        <h3 class="title">Booking Details</h3>
+                    </div>{# end form-title-wrap #}
+                    <div class="form-content">
+                        <div class="card-item shadow-none radius-none mb-0">
+                            <div class="card-img pb-4">
+                                <a href="#" class="d-block">
+                                    <img src="{{ vehicle.get_b64_image_data_uri() }}" alt="car-img">
+                                </a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="card-title">{{ vehicle.vehicle_model }}</h3>
+                                        <p class="card-meta">{{ vehicle.location }}, Singapore</p>
+                                    </div>
+                                </div>
+                                <div class="section-block"></div>
+                                <ul class="list-items list-items-2 list-items-flush py-2">
+                                    <li class="font-size-15"><span class="w-auto d-block mb-n1"><i
+                                                class="fa fa-calendar mr-1 font-size-17"></i>Date</span>{{ booking_details.start_date }} to
+                                        {{ booking_details.end_date }}</li>
+                                    {#<li class="font-size-15"><span class="w-auto d-block mb-n1"><i
+                                                class="fa fa-clock-o mr-1 font-size-17"></i>Time</span>12:10 pm to 3:50
+                                        pm</li>#}
+                                    <li class="font-size-15"><span class="w-auto d-block mb-n1"><i
+                                                class="fa fa-map-marker mr-1 font-size-17"></i>Location</span>{{ vehicle.location }}
+                                    </li>
+                                </ul>
+                                <h3 class="card-title pb-3">Order Details</h3>
+                                <div class="section-block"></div>
+                                <ul class="list-items list-items-2 py-3">
+                                    {#<li><span>Mileage Included:</span>1,000 KM</li>
+                                    <li><span>Damage Protection:</span>$50.00 SGD</li>#}
+                                    <li><span>Rental day{% if booking_details.days > 1 %}s{% endif %}:</span>{{ booking_details.days }}</li>
+                                    <li><span>Per Day Price:</span>${{ vehicle.price_per_unit }}</li>
+                                </ul>
+                                <div class="section-block"></div>
+                                <ul class="list-items list-items-2 pt-3">
+                                    {#<li><span>Sub Total:</span>$240</li>
+                                    <li><span>Taxes And Fees:</span>$5</li>#}
+                                    <li><span>Total Price:</span>${{ booking_details.days * vehicle.price_per_unit }}</li>
+                                </ul>
+                            </div>
+                        </div>{# end card-item #}
+                    </div>{# end form-content #}
+                </div>{# end form-box #}
+            </div>{# end col-lg-4 #}
+        </div>{# end row #}
+    </div>{# end container #}
+</section>
+
+<script>
+const follow_phone_number = (dom) => {
+    console.log(dom)
+    console.log(dom.checked)
+    dom.checked ? document.querySelector("#paynow_number").value = document.querySelector("#phone_number").value : document.querySelector("#paynow_number").value = ""
+}
+</script>
+{% endblock %}

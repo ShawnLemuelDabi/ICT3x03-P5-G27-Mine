@@ -9,12 +9,16 @@ from get_user import get_user
 import flask_login
 
 from user import User, ROLE
+from vehicle import Vehicle
+from booking import Booking
 from engine import engine_uri
 
 import mfa
 from flask_qrcode import QRcode
 
 from db import db
+
+from db_helper import vehicle_distinct_locations
 
 import os
 
@@ -83,7 +87,7 @@ def check_access(access_level):
 
 @app.route("/", methods=["GET"])
 def index() -> str:
-    return render_template("landing_page.html", user_profile=flask_login.current_user)
+    return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations())
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -147,7 +151,7 @@ def register() -> str:
                 role=0,
             )
             return redirect(url_for('login'))
-    return render_template("register.html", user_profile=flask_login.current_user)
+    return render_template("register.html", user=flask_login.current_user)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -198,7 +202,7 @@ def logout() -> str:
 @app.route("/profile", methods=["GET"])
 @flask_login.login_required
 def profile() -> str:
-    return render_template("profile.html", user_profile=flask_login.current_user)
+    return render_template("profile.html", user=flask_login.current_user)
 
 
 @app.route("/admin", methods=["GET"])
@@ -206,7 +210,7 @@ def profile() -> str:
 def admin() -> str:
     # TODO: use a privilege function then to perform this check every time
     if not flask_login.current_user.is_anonymous and ROLE[flask_login.current_user.role] == "admin":
-        return render_template("admin.html", user_profile=flask_login.current_user)
+        return render_template("admin.html", user=flask_login.current_user)
     else:
         abort(401)
 
@@ -228,11 +232,40 @@ def route_enable_mfa() -> str:
         return "Something went wrong"
 
 
+@app.route("/search", methods=["POST"])
+def search() -> str:
+    location = request.form.get("location", EMPTY_STRING)
+    start_date = request.form.get("start_date", EMPTY_STRING)
+    end_date = request.form.get("end_date", EMPTY_STRING)
+
+    if all([i != "" for i in [location, start_date, end_date]]):
+        search_term = {
+            "location": location,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+        booking_result = Booking.query.join(Booking.vehicle, aliased=True).filter(Vehicle.location == location, Booking.start_date <= start_date, Booking.end_date >= end_date).all()
+
+        reject_vehicle_id: list[int] = [i.vehicle_id for i in booking_result]
+
+        search_result = Vehicle.query.filter(Vehicle.location == location).filter(Vehicle.vehicle_id.notin_(reject_vehicle_id))
+
+        search_result = search_result or []
+
+        return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
+    else:
+        abort(400)
+
+
 @app.route("/dev/init", methods=["GET"])
 def init() -> str:
-    db.drop_all()
-    db.create_all()
-    return "OK"
+    if app.debug:
+        db.drop_all()
+        db.create_all()
+        return "OK"
+    else:
+        abort(404)
 
 
 if __name__ == "__main__":

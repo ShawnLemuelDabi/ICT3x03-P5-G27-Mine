@@ -44,8 +44,8 @@ def customer_create_fault():
     return redirect(url_for("bp_faults.customer_read_faults"))
 
 
-@bp_faults.route("/fault/update/<int:target_fault_id>", methods=["POST"])
-def customer_update_fault(target_fault_id: int) -> str:
+@bp_faults.route("/fault/update/<int:fault_id>", methods=["POST"])
+def customer_update_fault(fault_id: int) -> str:
     booking_id = request.form.get("booking_id")
     reported_date = request.form.get("reported_date")
     description = request.form.get("description")
@@ -58,16 +58,16 @@ def customer_update_fault(target_fault_id: int) -> str:
 
     update_dict = {k: v for k, v in update_dict.items() if v is not None}
 
-    Fault.query.filter_by(fault_id=target_fault_id).update(update_dict)
+    Fault.query.filter_by(fault_id=fault_id).update(update_dict)
     db.session.commit()
 
     flash("Fault updated!", category="success")
     return redirect(url_for("bp_faults.customer_read_faults"))
 
 
-@bp_faults.route("/fault/delete/<int:target_fault_id>", methods=["GET"])
-def customer_delete_fault(target_fault_id: int) -> str:
-    Fault.query.filter_by(fault_id=target_fault_id).delete()
+@bp_faults.route("/fault/delete/<int:fault_id>", methods=["GET"])
+def customer_delete_fault(fault_id: int) -> str:
+    Fault.query.filter_by(fault_id=fault_id).delete()
     db.session.commit()
     flash("Fault deleted!", category="success")
     return redirect(url_for("bp_faults.customer_read_faults"))

@@ -8,23 +8,23 @@
     {% endwith %}
     <div>
         <h2>Name</h2>
-        {{user_profile.first_name}} {{user_profile.last_name}}
+        {{user.first_name}} {{user.last_name}}
     </div>
     <div>
         <h2>Email</h2>
-        {{user_profile.email}}
+        {{user.email}}
     </div>
     <div>
         <h2>Phone Number</h2>
-        {{user_profile.phone_number}}
+        {{user.phone_number}}
     </div>
     <div>
         <h2>License</h2>
-        <img height="150px" src="data:{{user_profile.license_mime}};base64,{{user_profile.get_b64_license()}}" alt="{{user_profile.license_filename}}"/>
+        <img height="150px" src="{{ user.get_b64_license_data_uri() }}" alt="{{user.license_filename}}"/>
     </div>
     <div>
         <h2>MFA</h2>
-        {% if user_profile.mfa_secret %}
+        {% if user.mfa_secret %}
         Regenerate secret
         {% else %}
         <a href={{ url_for("route_enable_mfa") }}>Enable MFA</a>
