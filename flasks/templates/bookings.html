@@ -51,6 +51,7 @@
                           placeholder="Enter end date"
                         />
                       </div>
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                       <div class="form-group">
                         <button class="btn btn-primary" type="submit">Insert Data</button>    
                       </div>

@@ -49,7 +49,8 @@
                                 <div class="form-group">
                                     <label>Image</label>
                                     <input type="file" class="form-control" name="image">
-                                </div>                        
+                                </div>           
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>             
                                 <div class="form-group">
                                     <button class="btn btn-primary" type="submit">Insert Data</button>    
                                 </div>
@@ -161,7 +162,8 @@
                                     <div class="form-group">
                                     <label>Image</label>
                                         <input type="file" class="form-control" name="image">
-                                    </div>                        
+                                    </div> 
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>                       
                                     <div class="form-group">
                                         <button class="btn btn-primary" type="submit">Update Data</button>    
                                     </div>

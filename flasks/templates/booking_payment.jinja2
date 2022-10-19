@@ -138,6 +138,7 @@
                                             <input type="hidden" name="vehicle_id" value="{{ vehicle.vehicle_id }}">
                                             <input type="hidden" name="start_date" value="{{ booking_details.start_date }}">
                                             <input type="hidden" name="end_date" value="{{ booking_details.end_date }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <div class="col-lg-12">
                                                 <div class="btn-box">
                                                     <button class="theme-btn" type="submit">Confirm Booking</button>
