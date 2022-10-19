@@ -46,7 +46,8 @@
                                 <div class="form-group">
                                     <label>Description</label>
                                     <textarea class="form-control" name="description" rows="3" required="1"></textarea>
-                                </div>                      
+                                </div>        
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>              
                                 <div class="form-group">
                                     <button class="btn btn-primary" type="submit">Insert Data</button>    
                                 </div>
@@ -138,6 +139,7 @@
                                         <label>Description</label>
                                         <textarea class="form-control" name="description" rows="3" required="1">{{ row.description }}</textarea>
                                     </div>
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <div class="form-group">
                                         <button class="btn btn-primary" type="submit">Update Data</button>    
                                     </div>

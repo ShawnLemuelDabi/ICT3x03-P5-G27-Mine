@@ -31,6 +31,8 @@ from bp_forgot_password import bp_forgot_password
 
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE
 
+from flask_wtf.csrf import CSRFProtect
+
 # Initialize Flask
 app = Flask(__name__)
 
@@ -42,6 +44,10 @@ app.secret_key = os.environ.get("FLASK_LOGIN_SECRET")
 
 # Initialize the SQLAlchemy middleware
 db.init_app(app)
+
+# Initialize CSRF Protection globally
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 # Initialize the login manager for Flask
 login_manager = flask_login.LoginManager()
