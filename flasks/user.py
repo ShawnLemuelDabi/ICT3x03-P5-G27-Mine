@@ -7,10 +7,11 @@ import base64
 
 
 ROLE = {
-    0: 'unverified User',
-    1: 'verified User',
-    2: 'manager',
-    3: 'admin',
+    0: 'anonymous user',
+    1: 'unverified user',
+    2: 'verified user',
+    3: 'manager',
+    4: 'admin',
 }
 
 
@@ -33,20 +34,24 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"User(user_id={self.user_id!r}, email={self.email!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, password={self.password!r}, phone_number={self.phone_number!r}, license_blob={self.license_blob!r}, license_filename={self.license_filename!r}, license_mime={self.license_mime!r}, mfa_secret={self.mfa_secret!r}, role={self.role!r})"
 
-    def get_id(self):
+    def get_id(self) -> int:
         return self.user_id
 
-    def get_role(self):
+    def get_role(self) -> int:
         return self.role
 
-    def get_role_str(self):
+    def get_role_str(self) -> str:
         return ROLE[self.role]
 
-    def is_admin(self):
+    def is_admin(self) -> bool:
         return ROLE[self.role] == "admin"
 
-    def allowed(self, role):
-        return self.role >= role
+    def is_manager(self) -> bool:
+        return ROLE[self.role] == "manager"
+
+    # i think its a bad idea to do integer comparison as manager and admin cannot create booking
+    # def allowed(self, role):
+    #     return self.role >= role
 
     def get_b64_license(self) -> str:
         return base64.b64encode(self.license_blob).decode('utf8')

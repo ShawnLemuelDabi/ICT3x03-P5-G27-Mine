@@ -1,5 +1,5 @@
 from distutils.util import strtobool
-from functools import wraps
+# from functools import wraps
 from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response
 
 # User imports
@@ -8,7 +8,7 @@ from get_user import get_user
 
 import flask_login
 
-from user import User, ROLE
+from user import User
 from vehicle import Vehicle
 from booking import Booking
 from engine import engine_uri
@@ -18,7 +18,7 @@ from flask_qrcode import QRcode
 
 from db import db
 
-from db_helper import vehicle_distinct_locations
+from db_helper import vehicle_distinct_locations, vehicle_distinct_vehicle_types
 
 import os
 
@@ -28,6 +28,9 @@ from bp_vcp import bp_vcp
 from bp_faults import bp_faults
 from bp_bookings import bp_bookings
 from bp_forgot_password import bp_forgot_password
+
+from authorizer import http_unauthorized, universal_get_current_user_role
+from error_handler import ErrorHandler
 
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE
 
@@ -69,31 +72,37 @@ def load_user(user_id: int) -> User:
     return User.query.get(int(user_id))
 
 
-def check_access(access_level):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not flask_login.current_user.is_authenticated:
-                return abort(401)
+@login_manager.unauthorized_handler
+def unauthorized() -> Response:
+    return http_unauthorized(redirect_to_login=True)
 
-            if not flask_login.current_user.allowed(access_level):
-                return abort(401)
-            return f(*args, **kwargs)
+# is this even used?
+# def check_access(access_level):
+#     def decorator(f):
+#         @wraps(f)
+#         def decorated_function(*args, **kwargs):
+#             if not flask_login.current_user.is_authenticated:
+#                 return abort(401)
 
-        return decorated_function
+#             if not flask_login.current_user.allowed(access_level):
+#                 return abort(401)
+#             return f(*args, **kwargs)
 
-    return decorator
+#         return decorated_function
+
+#     return decorator
 
 
 @app.route("/", methods=["GET"])
 def index() -> str:
-    return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations())
+    return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations(), distinct_vehicle_types=vehicle_distinct_vehicle_types())
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register() -> str:
     # TODO: typing
-    error_list = []
+    # error_list = []
+    err_handler = ErrorHandler(app)
 
     if request.method == "POST":
         uploaded_file = request.files['license_blob']
@@ -109,34 +118,67 @@ def register() -> str:
         license_filename = uploaded_file.filename or EMPTY_STRING
         license_mime = uploaded_file.mimetype
 
+        # TODO: input validation?
+
+        valid_tld_for_email = ["gmail.com"]
+
+        valid_email_tld = False
+
+        for i in valid_tld_for_email:
+            if email.endswith(i):
+                valid_email_tld = True
+
+        if not valid_email_tld:
+            err_handler.push(
+                user_message="Illegal email TLD",
+                log_message=f"Illegal email TLD. {email} did not end with {','.join(valid_tld_for_email)}"
+            )
+
         if len(password) < 7:
-            error_list.append(
-                {
-                    'message': "Password length too short",
-                    'log': 'Something something'
-                }
+            # error_list.append(
+            #     {
+            #         'message': "Password length too short",
+            #         'log': 'Something something'
+            #     }
+            # )
+            err_handler.push(
+                user_message="Password length too short",
+                log_message="Password length too short"
             )
 
         user_exists: User = User.query.filter_by(email=email).first()
 
         if user_exists:
-            error_list.append(
-                {
-                    'message': "Username exists.",
-                    'log': 'Something something'
-                }
+            # error_list.append(
+            #     {
+            #         'message': "Username exists.",
+            #         'log': 'Something something'
+            #     }
+            # )
+            err_handler.push(
+                user_message="Username exists.",
+                log_message="Username exists"
             )
 
         if license_blob_size >= MEDIUMBLOB_BYTE_SIZE:
-            error_list.append(
-                {
-                    'message': "Maximize size exceeded.",
-                    'log': 'Something something'
-                }
+            # error_list.append(
+            #     {
+            #         'message': "Maximize size exceeded.",
+            #         'log': 'Something something'
+            #     }
+            # )
+            err_handler.push(
+                user_message="Maximize size exceeded.",
+                log_message="Maximize size exceeded for license blob"
             )
 
-        if error_list:
-            flash(error_list[0], category="error")
+        # if error_list:
+        #     flash(error_list[0], category="error")
+
+        err_handler.commit_log()
+
+        if err_handler.has_error():
+            flash(err_handler.first().user_message, category="error")
         else:
             create_user(
                 email=email,
@@ -148,7 +190,7 @@ def register() -> str:
                 license_filename=license_filename,
                 license_mime=license_mime,
                 mfa_secret=EMPTY_STRING,
-                role=0,
+                role=1,
             )
             return redirect(url_for('login'))
     return render_template("register.html", user=flask_login.current_user)
@@ -195,7 +237,7 @@ def login() -> str:
 @flask_login.login_required
 def logout() -> str:
     flask_login.logout_user()
-    # redirect to login for now
+    # redirect to login page for now
     return redirect(url_for('login'))
 
 
@@ -209,15 +251,11 @@ def profile() -> str:
 @flask_login.login_required
 def admin() -> str:
     # TODO: use a privilege function then to perform this check every time
-    if not flask_login.current_user.is_anonymous and ROLE[flask_login.current_user.role] == "admin":
+    # if not flask_login.current_user.is_anonymous and ROLE[flask_login.current_user.role] == "admin":
+    if universal_get_current_user_role(flask_login.current_user) > 0 and flask_login.current_user.is_admin():
         return render_template("admin.html", user=flask_login.current_user)
     else:
         abort(401)
-
-
-@login_manager.unauthorized_handler
-def unauthorized() -> None:
-    abort(401, "Unauthorized")
 
 
 @app.route("/profile/enable_mfa", methods=["GET"])
