@@ -4,6 +4,7 @@ from flask import Flask, request, render_template, url_for, redirect, flash, abo
 
 # User imports
 from create_user import create_user
+from recaptcha import recaptchaForm
 from get_user import get_user
 
 import flask_login
@@ -32,7 +33,9 @@ from bp_forgot_password import bp_forgot_password
 from authorizer import http_unauthorized, universal_get_current_user_role
 from error_handler import ErrorHandler
 
-from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE
+from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email
+
+from flask_wtf.csrf import CSRFProtect
 
 # Initialize Flask
 app = Flask(__name__)
@@ -45,6 +48,10 @@ app.secret_key = os.environ.get("FLASK_LOGIN_SECRET")
 
 # Initialize the SQLAlchemy middleware
 db.init_app(app)
+
+# Initialize CSRF Protection globally
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 # Initialize the login manager for Flask
 login_manager = flask_login.LoginManager()
@@ -59,13 +66,15 @@ app.config['MAIL_USE_SSL'] = strtobool(os.environ.get("SMTP_USE_SSL")) == 1
 app.config['MAIL_USERNAME'] = os.environ.get("SMTP_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
 
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY")
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
+
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
 app.register_blueprint(bp_vcp)
 app.register_blueprint(bp_faults)
 app.register_blueprint(bp_bookings)
 app.register_blueprint(bp_forgot_password)
-
 
 @login_manager.user_loader
 def load_user(user_id: int) -> User:
@@ -103,8 +112,8 @@ def register() -> str:
     # TODO: typing
     # error_list = []
     err_handler = ErrorHandler(app)
-
-    if request.method == "POST":
+    form = recaptchaForm()
+    if request.method == "POST" and form.validate_on_submit():
         uploaded_file = request.files['license_blob']
 
         email = request.form.get("email", EMPTY_STRING)
@@ -118,20 +127,10 @@ def register() -> str:
         license_filename = uploaded_file.filename or EMPTY_STRING
         license_mime = uploaded_file.mimetype
 
-        # TODO: input validation?
-
-        valid_tld_for_email = ["gmail.com"]
-
-        valid_email_tld = False
-
-        for i in valid_tld_for_email:
-            if email.endswith(i):
-                valid_email_tld = True
-
-        if not valid_email_tld:
+        if not validate_email(email):
             err_handler.push(
-                user_message="Illegal email TLD",
-                log_message=f"Illegal email TLD. {email} did not end with {','.join(valid_tld_for_email)}"
+                user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                log_message="Something something"
             )
 
         if len(password) < 7:
@@ -193,7 +192,8 @@ def register() -> str:
                 role=1,
             )
             return redirect(url_for('login'))
-    return render_template("register.html", user=flask_login.current_user)
+    
+    return render_template("register.html", user=flask_login.current_user, form=form)
 
 
 @app.route("/login", methods=["GET", "POST"])

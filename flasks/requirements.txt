@@ -7,3 +7,4 @@ pyotp==2.7.0
 Flask-QRcode==3.1.0
 flask-mail==0.9.1
 pyjwt==2.5.0
+Flask-WTF==1.0.1
