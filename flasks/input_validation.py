@@ -42,11 +42,12 @@ def validate_email(input_str: str):
     1. gmail.com
     2. hotmail.com
     3. yahoo.com
-    4. singaporetech.edu.sg
+    4. outlook.com
+    5. singaporetech.edu.sg
 
     returns a boolean value whether the input matches the email domain or not
     """
 
-    regex_pattern = ".*\@((gmail|hotmail|yahoo).com|singaporetech.edu.sg)$"
+    regex_pattern = ".*\@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
     validity = bool(re.match(regex_pattern, input_str))
     return validity
