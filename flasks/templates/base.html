@@ -95,9 +95,9 @@
                                             <li>
                                                 <a href="#">Cars <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
                                                 <ul class="dropdown-menu-item">
-                                                    <li><a href="#">Category 1</a></li>
-                                                    <li><a href="#">Category 2</a></li>
-                                                    <li><a href="#">Category 3</a></li>
+                                                    {% for distinct_vehicle_type in distinct_vehicle_types %}
+                                                    <li><a href="#">{{ distinct_vehicle_type }}</a></li>
+                                                    {% endfor %}
                                                 </ul>
                                             </li>
                                             <li>
@@ -109,9 +109,9 @@
                                 <div class="nav-btn">
                                     {% if user and user.is_authenticated %}
                                     <a href="{{ url_for('profile') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1">Profile</a>
-                                    <a href="{{ url_for('logout') }}" class="theme-btn theme-btn-small" data-toggle="modal" data-target="#loginPopupForm">Logout</a>
+                                    <a href="{{ url_for('logout') }}" class="theme-btn theme-btn-small">Logout</a>
                                     {% else %}
-                                    <a href="{{ url_for('register') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1" data-toggle="modal" data-target="#signupPopupForm">Sign Up</a>
+                                    <a href="{{ url_for('register') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1">Sign Up</a>
                                     <a href="{{ url_for('login') }}" class="theme-btn theme-btn-small">Login</a>
                                     {% endif %}
                                 </div>{# end nav-btn #}
