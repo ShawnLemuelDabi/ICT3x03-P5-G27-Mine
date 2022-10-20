@@ -30,9 +30,6 @@ from bp_faults import bp_faults
 from bp_bookings import bp_bookings
 from bp_forgot_password import bp_forgot_password
 
-from authorizer import http_unauthorized, universal_get_current_user_role
-from error_handler import ErrorHandler
-
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email
 
 from flask_wtf.csrf import CSRFProtect
