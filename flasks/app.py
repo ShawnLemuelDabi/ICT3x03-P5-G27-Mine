@@ -4,6 +4,7 @@ from flask import Flask, request, render_template, url_for, redirect, flash, abo
 
 # User imports
 from create_user import create_user
+from recaptcha import recaptchaForm
 from get_user import get_user
 
 import flask_login
@@ -31,6 +32,8 @@ from bp_forgot_password import bp_forgot_password
 
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email
 
+from flask_wtf.csrf import CSRFProtect
+
 # Initialize Flask
 app = Flask(__name__)
 
@@ -42,6 +45,10 @@ app.secret_key = os.environ.get("FLASK_LOGIN_SECRET")
 
 # Initialize the SQLAlchemy middleware
 db.init_app(app)
+
+# Initialize CSRF Protection globally
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 # Initialize the login manager for Flask
 login_manager = flask_login.LoginManager()
@@ -56,13 +63,15 @@ app.config['MAIL_USE_SSL'] = strtobool(os.environ.get("SMTP_USE_SSL")) == 1
 app.config['MAIL_USERNAME'] = os.environ.get("SMTP_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
 
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY")
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
+
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
 app.register_blueprint(bp_vcp)
 app.register_blueprint(bp_faults)
 app.register_blueprint(bp_bookings)
 app.register_blueprint(bp_forgot_password)
-
 
 @login_manager.user_loader
 def load_user(user_id: int) -> User:
@@ -94,8 +103,8 @@ def index() -> str:
 def register() -> str:
     # TODO: typing
     error_list = []
-
-    if request.method == "POST":
+    form = recaptchaForm()
+    if request.method == "POST" and form.validate_on_submit():
         uploaded_file = request.files['license_blob']
 
         email = request.form.get("email", EMPTY_STRING)
@@ -159,7 +168,8 @@ def register() -> str:
                 role=0,
             )
             return redirect(url_for('login'))
-    return render_template("register.html", user=flask_login.current_user)
+    
+    return render_template("register.html", user=flask_login.current_user, form=form)
 
 
 @app.route("/login", methods=["GET", "POST"])
