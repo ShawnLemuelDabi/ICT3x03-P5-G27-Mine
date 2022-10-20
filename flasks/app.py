@@ -29,7 +29,7 @@ from bp_faults import bp_faults
 from bp_bookings import bp_bookings
 from bp_forgot_password import bp_forgot_password
 
-from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE
+from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email
 
 # Initialize Flask
 app = Flask(__name__)
@@ -108,6 +108,14 @@ def register() -> str:
         license_blob_size = uploaded_file.content_length
         license_filename = uploaded_file.filename or EMPTY_STRING
         license_mime = uploaded_file.mimetype
+
+        if not validate_email(email):
+            error_list.append(
+                {
+                    'message': "Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                    'log': 'Something something'
+                }
+            )
 
         if len(password) < 7:
             error_list.append(
