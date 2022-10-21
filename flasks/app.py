@@ -1,7 +1,8 @@
 from distutils.command import upload
 from distutils.util import strtobool
 # from functools import wraps
-from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response
+from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, session
+# from flask_session import Session
 
 # User imports
 from create_user import create_user
@@ -13,6 +14,8 @@ import flask_login
 from user import User
 from vehicle import Vehicle
 from booking import Booking
+from recovery_code import Recovery_Codes
+
 from engine import engine_uri
 
 import mfa
@@ -212,8 +215,8 @@ def register() -> str:
 
 @app.route("/login", methods=["GET", "POST"])
 def login() -> str:
-    def login_error() -> str:
-        flash("Incorrect credentials")
+    def login_error(msg="Incorrect credentials") -> str:
+        flash(msg)
         return redirect(url_for("login"))
 
     def login_success() -> Response:
@@ -225,16 +228,41 @@ def login() -> str:
         email = request.form.get("email", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
         otp = request.form.get("otp", EMPTY_STRING)
+        recovery_code = request.form.get("recovery_code", EMPTY_STRING)
 
         if all([i != EMPTY_STRING for i in [email, password]]):
             user = get_user(email, password)
 
             if user:
+                """
+                email and password matches
+                """
                 if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
+                    """
+                    If mfa is enabled and otp is correct
+                    """
                     return login_success()
                 elif user.mfa_secret == EMPTY_STRING:
+                    """
+                    If mfa is not enabled
+                    """
                     return login_success()
+                elif user.mfa_secret != EMPTY_STRING and recovery_code != EMPTY_STRING:
+                    """
+                    If mfa is enabled and recovery_code is entered
+                    """
+                    matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(Recovery_Codes.code == recovery_code, Recovery_Codes.is_used is False).first()
+
+                    if matched_code:
+                        matched_code.is_used = True
+                        db.session.commit()
+                        return login_success()
+                    else:
+                        return login_error()
                 else:
+                    """
+                    None of the above
+                    """
                     return login_error()
             else:
                 return login_error()
@@ -275,13 +303,48 @@ def admin() -> str:
 @app.route("/profile/enable_mfa", methods=["GET"])
 @flask_login.login_required
 def route_enable_mfa() -> str:
-    try:
-        flash(mfa.generate_mfa_uri(flask_login.current_user), "mfa_secret_uri")
+    if flask_login.current_user.mfa_secret:
+        abort(400)
+    else:
+        try:
+            mfa_secret = mfa.generate_mfa()
+            mfa_secret_uri = mfa.generate_mfa_uri(flask_login.current_user, mfa_secret)
 
-        return redirect(url_for("profile"))
-    except Exception as e:
-        app.logger.fatal(e)
-        return "Something went wrong"
+            session['mfa_secret'] = mfa_secret
+
+            flash(mfa_secret_uri, "mfa_secret_uri")
+            # flash(mfa.generate_mfa_uri(flask_login.current_user), "mfa_recovery_codes")
+
+            return render_template("mfa_confirm.html")
+        except Exception as e:
+            app.logger.fatal(e)
+            return "Something went wrong"
+
+
+@app.route("/profile/confirm_mfa_enabled", methods=["POST"])
+@flask_login.login_required
+def route_confirm_mfa_enabled() -> str:
+    if flask_login.current_user.mfa_secret:
+        abort(400)
+    else:
+        otp = request.form.get("otp", EMPTY_STRING)
+
+        try:
+            mfa_secret = session.get("mfa_secret")
+
+            if otp:
+                try:
+                    recovery_codes = mfa.confirm_mfa_enabled(flask_login.current_user, mfa_secret, otp)
+
+                    return ", ".join(recovery_codes)
+                except Exception as e2:
+                    app.logger.fatal(e2)
+                    return "something went wrong?2"
+            else:
+                return "No OTP entered"
+        except Exception as e:
+            app.logger.fatal(e)
+            return "something went wrong?1"
 
 
 @app.route("/search", methods=["POST"])
