@@ -36,6 +36,7 @@ def validate_str_input(input_str: list[str], regex: list[bytes], return_stripped
 
     return retval
 
+
 def validate_email(input_str: str):
     """
     Validates if the input matches the following email domain:
@@ -48,7 +49,7 @@ def validate_email(input_str: str):
     returns a boolean value whether the input matches the email domain or not
     """
 
-    regex_pattern = ".*\@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
+    regex_pattern = r".*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
     validity = bool(re.match(regex_pattern, input_str))
     return validity
 
