@@ -130,7 +130,7 @@ def register() -> str:
         if not validate_email(email):
             err_handler.push(
                 user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
-                log_message="Something something"
+                log_message='Something something'
             )
 
         if len(password) < 7:
