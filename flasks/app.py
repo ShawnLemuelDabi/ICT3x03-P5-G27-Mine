@@ -76,6 +76,7 @@ app.register_blueprint(bp_faults)
 app.register_blueprint(bp_bookings)
 app.register_blueprint(bp_forgot_password)
 
+
 @login_manager.user_loader
 def load_user(user_id: int) -> User:
     return User.query.get(int(user_id))
@@ -192,7 +193,7 @@ def register() -> str:
                 role=1,
             )
             return redirect(url_for('login'))
-    
+
     return render_template("register.html", user=flask_login.current_user, form=form)
 
 
