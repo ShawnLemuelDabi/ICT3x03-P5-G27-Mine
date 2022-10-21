@@ -1,4 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash, current_app, abort
+import flask_login
 
 from user import User, ROLE
 
@@ -19,7 +20,7 @@ def admin_read_users() -> str:
     data = read_user()
     # return and render the page template
 
-    return render_template("user_manager.html", user_list=data, roles=ROLE)
+    return render_template("user_manager.html", user_list=data, roles=ROLE, user=flask_login.current_user)
 
 
 @bp_ucp.route("/admin/ucp/user/<int:user_id>", methods=["GET", "POST"])
