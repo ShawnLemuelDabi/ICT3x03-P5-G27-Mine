@@ -51,6 +51,12 @@ class User(UserMixin, db.Model):
     def is_manager(self) -> bool:
         return ROLE[self.role] == "manager"
 
+    def is_customer(self) -> bool:
+        return self.role <= 2
+
+    def is_verified(self) -> bool:
+        return self.role > 1
+
     # i think its a bad idea to do integer comparison as manager and admin cannot create booking
     # def allowed(self, role):
     #     return self.role >= role
