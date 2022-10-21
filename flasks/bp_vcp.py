@@ -1,4 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash, abort
+import flask_login
 
 from create_vehicle import create_vehicle
 from read_vehicle import read_vehicle
@@ -17,7 +18,7 @@ def manager_read_vehicles() -> str:
     data = read_vehicle()
 
     # return and render the page template
-    return render_template('car_manager.html', vehicle_list=data)
+    return render_template('car_manager.html', vehicle_list=data, user=flask_login.current_user)
 
 
 @bp_vcp.route('/manager/vcp/vehicle/read/<int:vehicle_id>', methods=["GET"])

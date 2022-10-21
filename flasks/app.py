@@ -1,7 +1,7 @@
 from distutils.command import upload
 from distutils.util import strtobool
 # from functools import wraps
-from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, session
+from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, session, g
 # from flask_session import Session
 
 # User imports
@@ -34,7 +34,7 @@ from bp_faults import bp_faults
 from bp_bookings import bp_bookings
 from bp_forgot_password import bp_forgot_password
 
-from authorizer import http_unauthorized, universal_get_current_user_role
+from authorizer import http_unauthorized
 from error_handler import ErrorHandler
 
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email, validate_image, validate_name, validate_phone_number
@@ -107,9 +107,14 @@ def unauthorized() -> Response:
 #     return decorator
 
 
+@app.before_request
+def before_request_func():
+    g.distinct_vehicle_types = vehicle_distinct_vehicle_types()
+
+
 @app.route("/", methods=["GET"])
 def index() -> str:
-    return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations(), distinct_vehicle_types=vehicle_distinct_vehicle_types())
+    return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations())
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -289,15 +294,15 @@ def profile() -> str:
     return render_template("profile.html", user=flask_login.current_user)
 
 
-@app.route("/admin", methods=["GET"])
-@flask_login.login_required
-def admin() -> str:
-    # TODO: use a privilege function then to perform this check every time
-    # if not flask_login.current_user.is_anonymous and ROLE[flask_login.current_user.role] == "admin":
-    if universal_get_current_user_role(flask_login.current_user) > 0 and flask_login.current_user.is_admin():
-        return render_template("admin.html", user=flask_login.current_user)
-    else:
-        abort(401)
+# @app.route("/admin", methods=["GET"])
+# @flask_login.login_required
+# def admin() -> str:
+#     # TODO: use a privilege function then to perform this check every time
+#     # if not flask_login.current_user.is_anonymous and ROLE[flask_login.current_user.role] == "admin":
+#     if universal_get_current_user_role(flask_login.current_user) > 0 and flask_login.current_user.is_admin():
+#         return render_template("admin.html", user=flask_login.current_user)
+#     else:
+#         abort(401)
 
 
 @app.route("/profile/enable_mfa", methods=["GET"])

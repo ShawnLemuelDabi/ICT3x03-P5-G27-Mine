@@ -95,7 +95,7 @@
                                             <li>
                                                 <a href="#">Cars <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
                                                 <ul class="dropdown-menu-item">
-                                                    {% for distinct_vehicle_type in distinct_vehicle_types %}
+                                                    {% for distinct_vehicle_type in g['distinct_vehicle_types'] %}
                                                     <li><a href="#">{{ distinct_vehicle_type }}</a></li>
                                                     {% endfor %}
                                                 </ul>
@@ -103,6 +103,29 @@
                                             <li>
                                                 <a href="#">Contact Us {#<button class="navbar-toggler" type="button"></button>#}</a>
                                             </li>
+                                            {% if user and user.is_authenticated and user.is_customer() %}
+                                            <li>
+                                                <a href="{{ url_for('bp_bookings.customer_read_bookings') }}">My bookings {#<button class="navbar-toggler" type="button"></button>#}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% if user and user.is_authenticated and user.is_manager() %}
+                                            <li>
+                                                <a href="#">Manage <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
+                                                <ul class="dropdown-menu-item">
+                                                    <li><a href="{{ url_for('bp_ucp.admin_read_users') }}">Users</a></li>
+                                                    <li><a href="{{ url_for('bp_vcp.manager_read_vehicles') }}">Vehicles</a></li>
+                                                    <li><a href="{{ url_for('bp_fcp.manager_read_faults') }}">Faults</a></li>
+                                                </ul>
+                                            </li>
+                                            {% endif %}
+                                            {% if user and user.is_authenticated and user.is_admin() %}
+                                            <li>
+                                                <a href="#">Manage <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
+                                                <ul class="dropdown-menu-item">
+                                                    <li><a href="{{ url_for('bp_ucp.admin_read_users') }}">Users</a></li>
+                                                </ul>
+                                            </li>
+                                            {% endif %}
                                         </ul>
                                     </nav>
                                 </div>{# end main-menu-content #}
