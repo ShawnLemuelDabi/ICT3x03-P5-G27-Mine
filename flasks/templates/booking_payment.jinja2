@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Enter your new password!{% endblock %}
+{% block title %}Payment{% endblock %}
 {% block content %}
 
 <section class="booking-area padding-top-100px padding-bottom-70px">
@@ -41,7 +41,7 @@
                                         <label class="label-text">First Name</label>
                                         <div class="form-group">
                                             <span class="fa fa-user-o form-icon"></span>
-                                            <input class="form-control" type="text" value="{{ user.first_name }}" readonly="true">
+                                            <input class="form-control" type="text" value="{{ current_user.first_name }}" readonly="true">
                                         </div>
                                     </div>
                                 </div>{# end col-lg-6 #}
@@ -50,7 +50,7 @@
                                         <label class="label-text">Last Name</label>
                                         <div class="form-group">
                                             <span class="fa fa-user-o form-icon"></span>
-                                            <input class="form-control" type="text" value="{{ user.last_name }}" readonly="true">
+                                            <input class="form-control" type="text" value="{{ current_user.last_name }}" readonly="true">
                                         </div>
                                     </div>
                                 </div>{# end col-lg-6 #}
@@ -59,7 +59,7 @@
                                         <label class="label-text">Your Email</label>
                                         <div class="form-group">
                                             <span class="fa fa-envelope-o form-icon"></span>
-                                            <input class="form-control" type="email" value="{{ user.email }}" readonly="true">
+                                            <input class="form-control" type="email" value="{{ current_user.email }}" readonly="true">
                                         </div>
                                     </div>
                                 </div>{# end col-lg-6 #}
@@ -68,7 +68,7 @@
                                         <label class="label-text">Phone Number</label>
                                         <div class="form-group">
                                             <span class="fa fa-phone form-icon"></span>
-                                            <input class="form-control" type="text" id="phone_number" value="{{ user.phone_number }}" readonly="true">
+                                            <input class="form-control" type="text" id="phone_number" value="{{ current_user.phone_number }}" readonly="true">
                                         </div>
                                     </div>
                                 </div>{# end col-lg-6 #}

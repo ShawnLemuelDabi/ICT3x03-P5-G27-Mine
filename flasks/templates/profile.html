@@ -21,7 +21,7 @@
                                         </div>
                                     </td>
                                     <td>:</td>
-                                    <td>{{user.first_name}}</td>
+                                    <td>{{current_user.first_name}}</td>
                                 </tr>
                                 <tr>
                                     <td class="pl-0">
@@ -30,7 +30,7 @@
                                         </div>
                                     </td>
                                     <td>:</td>
-                                    <td>{{user.last_name}}</td>
+                                    <td>{{current_user.last_name}}</td>
                                 </tr>
                                 <tr>
                                     <td class="pl-0">
@@ -39,7 +39,7 @@
                                         </div>
                                     </td>
                                     <td>:</td>
-                                    <td>{{user.email}}</td>
+                                    <td>{{current_user.email}}</td>
                                 </tr>
                                 <tr>
                                     <td class="pl-0">
@@ -48,9 +48,24 @@
                                         </div>
                                     </td>
                                     <td>:</td>
-                                    <td>{{user.phone_number}}</td>
+                                    <td>{{current_user.phone_number}}</td>
                                 </tr>
-                                {% if user and (user.is_manager() or user.is_admin()) %}
+                                <tr>
+                                    <td class="pl-0">
+                                        <div class="table-content">
+                                            <h3 class="title font-weight-medium">MFA</h3>
+                                        </div>
+                                    </td>
+                                    <td>:</td>
+                                    {% if current_user.mfa_secret %}
+                                    <td>Enabled</td>
+                                    {% else %}
+                                    <td>
+                                        <a href={{ url_for("route_enable_mfa") }}>Enable MFA</a>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% if user and (current_user.is_manager() or current_user.is_admin()) %}
                                 <tr>
                                     <td class="pl-0">
                                         <div class="table-content">
@@ -59,7 +74,7 @@
                                     </td>
                                     <td>:</td>
                                     <td>
-                                        {{ user.get_role_str().title() }}
+                                        {{ current_user.get_role_str().title() }}
                                     </td>
                                 </tr>
                                 {% else %}
@@ -71,7 +86,7 @@
                                     </td>
                                     <td>:</td>
                                     <td>
-                                        <img height="150px" src="{{ user.get_b64_license_data_uri() }}" alt="{{user.license_filename}}"/>
+                                        <img height="150px" src="{{ current_user.get_b64_license_data_uri() }}" alt="{{current_user.license_filename}}"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -81,53 +96,17 @@
                                         </div>
                                     </td>
                                     <td>:</td>
-                                    <td>{% if user.is_verified() %}<i class="fa fa-check">{% else %}<i class="fa fa-close"></i>{% endif %}</i></td>
+                                    <td>{% if current_user.is_verified() %}<i class="fa fa-check">{% else %}<i class="fa fa-close"></i>{% endif %}</i></td>
                                 </tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
                     <div class="section-block"></div>
-                    <p>To edit your profile please write in to help@shallot-rental.shop</p>
+                    <p>To edit your profile, please write in to help@shallot-rental.shop</p>
                 </div>
-            </div><!-- end form-box -->
+            </div>
         </div>
     </div>
 </section>
-{#
-<h1>Account Detail</h1>
-<hr />
-<div>
-    {% with mfa_secret = get_flashed_messages(category_filter=["mfa_secret_uri"]) %}
-    {% if mfa_secret %}
-    <img src="{{ qrcode(mfa_secret[0]) }}">
-    {% endif %}
-    {% endwith %}
-    <div>
-        <h2>Name</h2>
-        {{user.first_name}} {{user.last_name}}
-    </div>
-    <div>
-        <h2>Email</h2>
-        {{user.email}}
-    </div>
-    <div>
-        <h2>Phone Number</h2>
-        {{user.phone_number}}
-    </div>
-    <div>
-        <h2>License</h2>
-        <img height="150px" src="{{ user.get_b64_license_data_uri() }}" alt="{{user.license_filename}}"/>
-    </div>
-    <div>
-        <h2>MFA</h2>
-        {% if user.mfa_secret %}
-        Regenerate secret
-        {% else %}
-        <a href={{ url_for("route_enable_mfa") }}>Enable MFA</a>
-        {% endif %}
-    </div>
-
-</div>
-#}
 {% endblock %}

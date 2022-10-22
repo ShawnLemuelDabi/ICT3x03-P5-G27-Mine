@@ -1,6 +1,14 @@
 from db import db
 from sqlalchemy.dialects import mysql as sa_mysql
 
+BOOKING_STATUS = [
+    'unpaid',
+    'paid',
+    'confirmed',
+    'completed',
+    'cancelled',
+]
+
 
 class Booking(db.Model):
     __tablename__ = "bookings"
@@ -19,6 +27,9 @@ class Booking(db.Model):
     end_date = db.Column(sa_mysql.DATETIME)
     units_purchased = db.Column(sa_mysql.INTEGER(11))
     is_paid = db.Column(sa_mysql.TINYINT(1))
+    status = db.Column(sa_mysql.VARCHAR(255))
+    paynow_number = db.Column(sa_mysql.VARCHAR(255))
+    paynow_reference_number = db.Column(sa_mysql.VARCHAR(255))
 
     user = db.relationship("User", back_populates="bookings")
     vehicle = db.relationship("Vehicle", back_populates="booking")

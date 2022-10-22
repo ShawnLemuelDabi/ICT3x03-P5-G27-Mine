@@ -30,7 +30,7 @@ def validate_str_input(input_str: list[str], regex: list[bytes], return_stripped
     for test_str, regex_pattern in zip(input_str, regex):
         result: list[str] = re.findall(regex_pattern, test_str)
 
-        result_str = "".join(result)
+        result_str = EMPTY_STRING.join(result)
 
         retval.append(result_str)
 
