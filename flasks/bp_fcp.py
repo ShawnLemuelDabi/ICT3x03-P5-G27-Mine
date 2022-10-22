@@ -1,5 +1,4 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash, abort
-import flask_login
 
 from db import db
 
@@ -14,7 +13,7 @@ def manager_read_faults() -> str:
     faults = Fault.query.all()
     bookings = Booking.query.all()
 
-    return render_template("manager-faults.html", booking_list=bookings, fault_list=faults, user=flask_login.current_user)
+    return render_template("manager-faults.html", booking_list=bookings, fault_list=faults)
 
 
 @bp_fcp.route("/manager/fcp/fault/create", methods=["POST"])

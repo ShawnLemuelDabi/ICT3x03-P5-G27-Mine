@@ -20,7 +20,7 @@
 <section class="contact-area padding-bottom-50px">
   <div class="container">
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-12">
         <div class="form-box">
             <div class="form-title-wrap">
                 <div class="d-flex align-items-center justify-content-between">
@@ -36,6 +36,7 @@
                     <table class="table">
                         <thead>
                         <tr>
+                            <th scope="col">Booking ID</th>
                             <th scope="col">Title</th>
                             <th scope="col">Location</th>
                             <th scope="col">Order Date</th>
@@ -43,6 +44,7 @@
                             <th scope="col">Days</th>
                             <th scope="col">Price</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -53,6 +55,7 @@
                               <h3 class="title">{{ booking.vehicle.vehicle_model }}</h3>
                             </div>
                           </td>
+                          <td>{{ booking.booking_id }}</td>
                           <td>{{ booking.vehicle.location }}</td>
                           <td>{{ booking.start_date }}</td>
                           <td>{{ booking.end_date }}</td>
@@ -63,12 +66,20 @@
                             <span class="badge badge-danger py-1 px-2">{{ status[0].title() }}</span>
                             {% elif booking.status == status[1] %}
                             <span class="badge badge-primary py-1 px-2">{{ status[1].title() }}</span>
-                            {% elif booking.status == status[2] %}
-                            <span class="badge badge-success py-1 px-2">{{ status[2].title() }}</span>
-                            {% elif booking.status == status[3] %}
-                            <span class="badge badge-secondary py-1 px-2">{{ status[3].title() }}</span>
+                            {% elif booking.status == status[2] or booking.status == status[3] %}
+                            <span class="badge badge-success py-1 px-2">{{ booking.status.title() }}</span>
+                            {% elif booking.status == status[4] %}
+                            <span class="badge badge-secondary py-1 px-2">{{ status[4].title() }}</span>
                             {% endif %}
                           </td>
+                        <td>
+                          {% if booking.status == status[0] %}
+                          <button class="btn btn-primary">Edit</button>
+                          <button class="btn btn-danger">Cancel</button>
+                          {% elif booking.status == status[2] %}
+                          <a href="{{ url_for('bp_faults.customer_create_fault', booking_id=booking.booking_id) }}" class="btn btn-secondary">Report Fault</a>
+                          {% endif %}
+                        </td>
                         </tr>
                         {% endfor %}
                         </tbody>

@@ -15,18 +15,18 @@ from datetime import datetime
 bp_bookings = Blueprint('bp_bookings', __name__, template_folder='templates')
 
 
-@bp_bookings.route("/booking")
+@bp_bookings.route("/bookings")
 @flask_login.login_required
 def customer_read_bookings() -> str:
     vehicles = Vehicle.query.all()
     bookings = Booking.query.filter_by(user_id=flask_login.current_user.user_id).all()
 
     return render_template(
-        "bookings.html", user=flask_login.current_user, bookings=bookings, vehicles=vehicles, status=BOOKING_STATUS
+        "bookings.html", bookings=bookings, vehicles=vehicles, status=BOOKING_STATUS
     )
 
 
-@bp_bookings.route("/booking/create", methods=["GET", "POST"])
+@bp_bookings.route("/bookings/create", methods=["GET", "POST"])
 @flask_login.login_required
 def customer_create_booking() -> str:
     if request.method == "GET":
@@ -38,11 +38,13 @@ def customer_create_booking() -> str:
         paynow_number = request.form.get("paynow_number", EMPTY_STRING)
 
         if not start_date:
-            flash("Start Date cannot be empty", category="error")
+            flash("Start Date cannot be empty", category="danger")
         elif not end_date:
-            flash("End Date cannot be empty", category="error")
+            flash("End Date cannot be empty", category="danger")
         elif not paynow_number:
-            flash("PayNow Number cannot be empty", category="error")
+            flash("PayNow Number cannot be empty", category="danger")
+        elif not flask_login.current_user.is_verified():
+            flash("Your account has not been verified yet!", category="danger")
         else:
             start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
             end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
@@ -61,11 +63,12 @@ def customer_create_booking() -> str:
                     paynow_number=paynow_number,
                     status=BOOKING_STATUS[0]
                 )
-                return render_template("booking_success.jinja2", user=flask_login.current_user, booking=booking)
+                return render_template("booking_success.jinja2", booking=booking)
+        return redirect(url_for("index"))
         abort(400, "something went wrong")  # redirect(url_for("bp_bookings.customer_create_booking"))
 
 
-@bp_bookings.route("/booking/read/<int:booking_id>", methods=["GET"])
+@bp_bookings.route("/bookings/read/<int:booking_id>", methods=["GET"])
 @flask_login.login_required
 def customer_read_booking(booking_id: int) -> str:
     booking = Booking.query.filter_by(user_id=flask_login.current_user.user_id, booking_id=booking_id).first()
@@ -76,7 +79,7 @@ def customer_read_booking(booking_id: int) -> str:
         abort(404)
 
 
-@bp_bookings.route("/booking/update/<int:booking_id>", methods=["POST"])
+@bp_bookings.route("/bookings/update/<int:booking_id>", methods=["POST"])
 @flask_login.login_required
 def customer_update_booking(booking_id: int) -> str:
     start_date = request.form.get("start_date")
@@ -98,13 +101,16 @@ def customer_update_booking(booking_id: int) -> str:
         abort(404)
 
 
-@bp_bookings.route("/booking/delete/<int:booking_id>", methods=["GET"])
+@bp_bookings.route("/bookings/delete/<int:booking_id>", methods=["GET"])
 @flask_login.login_required
 def customer_delete_booking(booking_id: int) -> str:
     booking = Booking.query.filter_by(user_id=flask_login.current_user.user_id, booking_id=booking_id)
 
     if booking.first():
-        booking.delete()
+        update_dict = {
+            "status": BOOKING_STATUS[-1]
+        }
+        booking.update(update_dict)
         db.session.commit()
         flash("Booking deleted!", category="success")
         return redirect(url_for("bp_bookings.customer_read_bookings"))
@@ -133,7 +139,7 @@ def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) ->
 
         if vehicle:
             return render_template(
-                "booking_payment.jinja2", user=flask_login.current_user, booking_details=booking_details, vehicle=vehicle
+                "booking_payment.jinja2", booking_details=booking_details, vehicle=vehicle
             )
         else:
             abort(400, "Invalid vehicle id")

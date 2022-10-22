@@ -23,8 +23,11 @@ from flask_qrcode import QRcode
 from db import db
 
 from db_helper import vehicle_distinct_locations, vehicle_distinct_vehicle_types
+from jwt_helper import generate_token, verify_token
+from email_helper import send_mail
 
 import os
+from datetime import datetime
 
 from bp_fcp import bp_fcp
 from bp_ucp import bp_ucp
@@ -118,19 +121,57 @@ def before_request_func():
 
 @app.route("/", methods=["GET"])
 def index() -> str:
-    return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations())
+    return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations())
 
 
 @app.route("/register", methods=["GET", "POST"])
-def register() -> str:
-    # TODO: typing
-    # error_list = []
-    err_handler = ErrorHandler(app)
+def register() -> str | Response:
     form = recaptchaForm()
+
     if request.method == "POST" and form.validate_on_submit():
-        uploaded_file = request.files['license_blob']
+        err_handler = ErrorHandler(app)
 
         email = request.form.get("email", EMPTY_STRING)
+
+        if not validate_email(email):
+            err_handler.push(
+                user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
+            )
+
+        # check if user already exist
+        if User.query.filter(User.email == email).first() is not None:
+            err_handler.push(
+                user_message="An account with this email exists",
+                log_message=f"An account with this email exists. Email given: {email}"
+            )
+
+        err_handler.commit_log()
+
+        if err_handler.has_error():
+            flash(err_handler.first().user_message, category="danger")
+        else:
+            token = generate_token(email)
+
+            send_mail(
+                app_context=app,
+                subject="Registration",
+                recipients=[email],
+                email_body=render_template("register_email_body.jinja2", token=token))
+
+            return render_template("register_email_sent.jinja2")
+    return render_template("register.html", form=form)
+
+
+@app.route("/register/<string:token>", methods=["GET", "POST"])
+def register_verified(token: str) -> str:
+    form = recaptchaForm()
+
+    if request.method == "POST" and form.validate_on_submit():
+        err_handler = ErrorHandler(app)
+
+        uploaded_file = request.files['license_blob']
+
         first_name = request.form.get("first_name", EMPTY_STRING)
         last_name = request.form.get("last_name", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
@@ -141,19 +182,22 @@ def register() -> str:
         license_filename = uploaded_file.filename or EMPTY_STRING
         license_mime = uploaded_file.mimetype
 
+        try:
+            email = verify_token(token)
+        except Exception as e:
+            err_handler.push(
+                user_message="Invalid token",
+                log_message=f"Invalid token. {e}"
+            )
+
         if not validate_email(email):
             err_handler.push(
                 user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
-                log_message='Something something'
+                log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
             )
 
         if len(password) < 7:
-            # error_list.append(
-            #     {
-            #         'message': "Password length too short",
-            #         'log': 'Something something'
-            #     }
-            # )
+
             err_handler.push(
                 user_message="Password length too short",
                 log_message="Password length too short"
@@ -162,36 +206,23 @@ def register() -> str:
         user_exists: User = User.query.filter_by(email=email).first()
 
         if user_exists:
-            # error_list.append(
-            #     {
-            #         'message': "Username exists.",
-            #         'log': 'Something something'
-            #     }
-            # )
+
             err_handler.push(
                 user_message="Username exists.",
                 log_message="Username exists"
             )
 
         if license_blob_size >= MEDIUMBLOB_BYTE_SIZE:
-            # error_list.append(
-            #     {
-            #         'message': "Maximize size exceeded.",
-            #         'log': 'Something something'
-            #     }
-            # )
+
             err_handler.push(
                 user_message="Maximize size exceeded.",
                 log_message="Maximize size exceeded for license blob"
             )
 
-        # if error_list:
-        #     flash(error_list[0], category="error")
-
         err_handler.commit_log()
 
         if err_handler.has_error():
-            flash(err_handler.first().user_message, category="error")
+            flash(err_handler.first().user_message, category="danger")
         else:
             create_user(
                 email=email,
@@ -206,14 +237,30 @@ def register() -> str:
                 role=1,
             )
             return redirect(url_for('login'))
+    elif request.method == "GET":
+        err_handler = ErrorHandler(app)
 
-    return render_template("register.html", user=flask_login.current_user, form=form)
+        try:
+            email = verify_token(token)
+            return render_template("register_verified.jinja2", form=form, token=token, email=email)
+        except Exception as e:
+            err_handler.push(
+                user_message="Invalid token",
+                log_message=f"Invalid token. {e}"
+            )
+
+        err_handler.commit_log()
+
+        if err_handler.has_error():
+            flash(err_handler.first().user_message, category="danger")
+
+    return render_template("register_verified.jinja2", form=form, token=token)
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login() -> str:
     def login_error(msg="Incorrect credentials") -> str:
-        flash(msg)
+        flash(msg, category="danger")
         return redirect(url_for("login"))
 
     def login_success() -> Response:
@@ -283,7 +330,7 @@ def logout() -> str:
 @app.route("/profile", methods=["GET"])
 @flask_login.login_required
 def profile() -> str:
-    return render_template("profile.html", user=flask_login.current_user)
+    return render_template("profile.html")
 
 
 # @app.route("/admin", methods=["GET"])
@@ -292,7 +339,7 @@ def profile() -> str:
 #     # TODO: use a privilege function then to perform this check every time
 #     # if not flask_login.current_user.is_anonymous and ROLE[flask_login.current_user.role] == "admin":
 #     if universal_get_current_user_role(flask_login.current_user) > 0 and flask_login.current_user.is_admin():
-#         return render_template("admin.html", user=flask_login.current_user)
+#         return render_template("admin.html")
 #     else:
 #         abort(401)
 
@@ -309,10 +356,7 @@ def route_enable_mfa() -> str:
 
             session['mfa_secret'] = mfa_secret
 
-            flash(mfa_secret_uri, "mfa_secret_uri")
-            # flash(mfa.generate_mfa_uri(flask_login.current_user), "mfa_recovery_codes")
-
-            return render_template("mfa_confirm.html")
+            return render_template("mfa_confirm.html", mfa_secret_uri=mfa_secret_uri, mfa_secret=mfa_secret)
         except Exception as e:
             app.logger.fatal(e)
             return "Something went wrong"
@@ -327,15 +371,15 @@ def route_confirm_mfa_enabled() -> str:
         otp = request.form.get("otp", EMPTY_STRING)
 
         try:
-            mfa_secret = session.get("mfa_secret")
+            mfa_secret = session.pop("mfa_secret")
 
             if otp:
                 try:
                     recovery_codes = mfa.confirm_mfa_enabled(flask_login.current_user, mfa_secret, otp)
 
-                    return ", ".join(recovery_codes)
+                    return render_template("mfa_recovery_codes.jinja2", recovery_codes=recovery_codes)
                 except Exception as e2:
-                    app.logger.fatal(e2)
+                    app.logger.fatal(f"Unknown key {e2} in sessions")
                     return "something went wrong?2"
             else:
                 return "No OTP entered"
@@ -350,24 +394,44 @@ def search() -> str:
     start_date = request.form.get("start_date", EMPTY_STRING)
     end_date = request.form.get("end_date", EMPTY_STRING)
 
-    if all([i != "" for i in [location, start_date, end_date]]):
+    if all([i != EMPTY_STRING for i in [location, start_date, end_date]]):
         search_term = {
             "location": location,
             "start_date": start_date,
             "end_date": end_date,
         }
 
-        booking_result = Booking.query.join(Booking.vehicle, aliased=True).filter(Vehicle.location == location, Booking.start_date <= start_date, Booking.end_date >= end_date).all()
+        start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
+        end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
 
-        reject_vehicle_id: list[int] = [i.vehicle_id for i in booking_result]
+        booking_timedelta: datetime = end_date_obj - start_date_obj
 
-        search_result = Vehicle.query.filter(Vehicle.location == location).filter(Vehicle.vehicle_id.notin_(reject_vehicle_id))
+        if booking_timedelta.days <= 0:
+            flash("End date cannot be earlier than start date!", category="danger")
+            return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=[])
+        else:
+            # TODO: write a better query. this is inefficient to have 2 queries
+            booking_result = Booking.query.join(Booking.vehicle, aliased=True).filter(Vehicle.location == location, Booking.start_date <= start_date, Booking.end_date >= end_date).all()
 
-        search_result = search_result or []
+            reject_vehicle_id: list[int] = [i.vehicle_id for i in booking_result]
 
-        return render_template("landing_page.html", user=flask_login.current_user, distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
+            search_result = Vehicle.query.filter(Vehicle.location == location).filter(Vehicle.vehicle_id.notin_(reject_vehicle_id))
+            search_result = search_result or []
+
+            return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
     else:
         abort(400)
+
+
+@app.route("/vehicles/<string:vehicle_type>", methods=["GET"])
+def vehicles_by_type(vehicle_type: str) -> str:
+    if vehicle_type not in vehicle_distinct_vehicle_types():
+        flash("Invalid vehicle type", category="danger")
+    else:
+        vehicles = Vehicle.query.filter(Vehicle.vehicle_type == vehicle_type).all()
+
+        return render_template("vehicle_type.jinja2", vehicles=vehicles, vehicle_type=vehicle_type)
+    return render_template("vehicle_type.jinja2")
 
 
 @app.route("/dev/init", methods=["GET"])

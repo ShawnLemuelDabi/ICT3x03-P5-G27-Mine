@@ -6,6 +6,7 @@ BOOKING_STATUS = [
     'paid',
     'confirmed',
     'completed',
+    'cancelled',
 ]
 
 

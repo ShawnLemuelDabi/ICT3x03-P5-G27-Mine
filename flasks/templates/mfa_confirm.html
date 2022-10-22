@@ -1,17 +1,41 @@
-<h1>Enable OTP</h1>
-<hr />
-<div>
-    {% with mfa_secret = get_flashed_messages(category_filter=["mfa_secret_uri"]) %}
-    {% if mfa_secret %}
-    <img src="{{ qrcode(mfa_secret[0]) }}">
-    {% endif %}
-    {% endwith %}
-    
-    <div>
-        <form action="{{ url_for('route_confirm_mfa_enabled') }}" method="POST">
-            <input type="text" name="otp">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <input type="submit" />
-        </form>
+{% extends "base.html" %}
+{% block title %}2FA Registration{% endblock %}
+{% block content %}
+
+<section class="booking-area padding-top-50px padding-bottom-70px">
+    <div class="container">
+        <div class="col-lg-5 col-md-7 mx-auto my-auto">
+            <div class="card">
+                <div class="card-body px-lg-5 py-lg-5 text-center">
+                    <h2 class="text-success">2FA Registration</h2>
+                    <p class="mb-4">Scan the QR code below using your authenticator app or <a href="#" onclick="toggle_visibility('#mfa_secret')">click here to show the secret</a> <code id="mfa_secret" class="d-none">{{ mfa_secret }}</code></p>
+                    <img src="{{ qrcode(mfa_secret_uri) }}" class="rounded mx-auto d-block" alt="2FA-QR-IMAGE" width="350" height="350">
+                    <p class="mb-4">Enter 6-digits code from your authenticator app to verification.</p>
+                    <form action="{{ url_for('route_confirm_mfa_enabled') }}" method="POST">
+                        <div class="row mb-4">
+                            <div class="col-lg-3 col-md-3 col-3 ps-0 ps-md-3"></div>
+                            <div class="col-lg-6 col-md-6 col-6 ps-0 ps-md-6">
+                                <input type="text" class="form-control text-lg text-center" placeholder="Verify your OTP" aria-label="2fa" name="otp">
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-3 ps-0 ps-md-3"></div>
+                        </div>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="justify-content-center">
+                            <button type="submit" class="theme-btn">Continue</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
+
+<script>
+const toggle_visibility = (selectors) => {
+    const D_NONE_CLASS = "d-none"
+    document.querySelector(selectors).classList.toggle(D_NONE_CLASS)
+}
+</script>
+
+
+{% endblock %}
