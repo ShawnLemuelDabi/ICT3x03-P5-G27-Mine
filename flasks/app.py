@@ -1,3 +1,4 @@
+from distutils.command import upload
 from distutils.util import strtobool
 from functools import wraps
 from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response
@@ -29,7 +30,7 @@ from bp_faults import bp_faults
 from bp_bookings import bp_bookings
 from bp_forgot_password import bp_forgot_password
 
-from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email
+from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email, validate_image, validate_name, validate_phone_number
 
 # Initialize Flask
 app = Flask(__name__)
@@ -112,10 +113,24 @@ def register() -> str:
         if not validate_email(email):
             error_list.append(
                 {
-                    'message': "Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                    'message': "Email provider must be from Gmail, Hotmail, Yahoo, Outlook or singaporetech.edu.sg",
                     'log': 'Something something'
                 }
             )
+
+        if not validate_name(first_name) or not validate_name(last_name) or not validate_phone_number(phone_number):
+            error_list.append(
+                {
+                    'message': "Illegal character caught",
+                    'log': 'Something something'
+                }
+            )
+        
+        if not validate_image(license_blob, license_filename, license_blob_size):
+            error_list.append({
+                'message': "Invalid image format",
+                'log': 'Something something'
+            })
 
         if len(password) < 7:
             error_list.append(
@@ -135,13 +150,6 @@ def register() -> str:
                 }
             )
 
-        if license_blob_size >= MEDIUMBLOB_BYTE_SIZE:
-            error_list.append(
-                {
-                    'message': "Maximize size exceeded.",
-                    'log': 'Something something'
-                }
-            )
 
         if error_list:
             flash(error_list[0], category="error")
