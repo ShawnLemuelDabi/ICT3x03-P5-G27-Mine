@@ -29,6 +29,6 @@ def update_user(find_user_id: int, email: str, password: str, first_name: str, l
     # remove any key-value pair when value is empty str or none
     update_dict = {k: v for k, v in update_dict.items() if v is not None and v != ""}
 
-    t = User.query.filter_by(user_id=find_user_id)
+    t = User.query.filter(User.user_id == find_user_id, User.role >= 1, User.role <= 2)
     t.update(update_dict)
     db.session.commit()

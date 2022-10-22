@@ -24,9 +24,10 @@
     "python.languageServer": "Pylance",
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
-    // I hate the linting complaining about lines being too long
+    // I hate the linting complaining about lines being too long (E501)
+    // unforunately we need to ignore this as sqlalchemy's filter() will return the wrong sql statement if we use `is not None` instead of `!=` (E711/E712)
     "python.linting.flake8Args": [
-        "--ignore=E501"
+        "--ignore=E501, E711, E712",
     ],
     "python.formatting.provider": "black",
 }

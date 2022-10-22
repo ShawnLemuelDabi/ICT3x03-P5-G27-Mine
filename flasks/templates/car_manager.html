@@ -84,7 +84,6 @@
                 <tr>
                     <th>Image</th>
                     <th>Vehicle ID</th>
-                    <th>Booked ID</th>
                     <th>Model</th>
                     <th>License Plate</th>
                     <th>Availability</th>
@@ -105,7 +104,6 @@
                     <td>No Image Found</td>
                     {%endif%}
                     <td>{{ row.vehicle_id }}</td>
-                    <td>{{ row.booking_id }}</td>
                     <td>{{ row.vehicle_model }}</td>
                     <td>{{ row.license_plate }}</td>
                     {% if row.is_available == 1 %}

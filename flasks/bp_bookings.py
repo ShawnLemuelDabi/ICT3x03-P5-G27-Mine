@@ -4,11 +4,13 @@ import flask_login
 from db import db
 
 from vehicle import Vehicle
-from booking import Booking
+from booking import Booking, BOOKING_STATUS
 
 from create_booking import create_booking
 
 from input_validation import EMPTY_STRING
+
+from datetime import datetime
 
 bp_bookings = Blueprint('bp_bookings', __name__, template_folder='templates')
 
@@ -20,7 +22,7 @@ def customer_read_bookings() -> str:
     bookings = Booking.query.filter_by(user_id=flask_login.current_user.user_id).all()
 
     return render_template(
-        "bookings.html", user=flask_login.current_user, bookings=bookings, vehicles=vehicles
+        "bookings.html", user=flask_login.current_user, bookings=bookings, vehicles=vehicles, status=BOOKING_STATUS
     )
 
 
@@ -42,14 +44,25 @@ def customer_create_booking() -> str:
         elif not paynow_number:
             flash("PayNow Number cannot be empty", category="error")
         else:
-            booking = create_booking(
-                start_date=start_date,
-                end_date=end_date,
-                user_id=flask_login.current_user.user_id,
-                vehicle_id=vehicle_id
-            )
-            return render_template("booking_success.jinja2", user=flask_login.current_user, booking=booking)
-        return "something went wrong"  # redirect(url_for("bp_bookings.customer_create_booking"))
+            start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
+            end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
+
+            booking_timedelta: datetime = end_date_obj - start_date_obj
+
+            if booking_timedelta.days <= 0:
+                abort(400, "Booking days is negative!")
+            else:
+                booking = create_booking(
+                    start_date=start_date,
+                    end_date=end_date,
+                    user_id=flask_login.current_user.user_id,
+                    vehicle_id=vehicle_id,
+                    units_purchased=booking_timedelta.days,
+                    paynow_number=paynow_number,
+                    status=BOOKING_STATUS[0]
+                )
+                return render_template("booking_success.jinja2", user=flask_login.current_user, booking=booking)
+        abort(400, "something went wrong")  # redirect(url_for("bp_bookings.customer_create_booking"))
 
 
 @bp_bookings.route("/booking/read/<int:booking_id>", methods=["GET"])
@@ -102,26 +115,50 @@ def customer_delete_booking(booking_id: int) -> str:
 @bp_bookings.route("/bookings/payment/<int:vehicle_id>/<string:start_date>/<string:end_date>", methods=["GET"])
 @flask_login.login_required
 def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) -> str:
-
-    # TODO: remove this library :<
-    from datetime import datetime
-
     start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
     end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
 
     booking_timedelta: datetime = end_date_obj - start_date_obj
 
-    booking_details = {
-        "start_date": start_date,
-        "end_date": end_date,
-        "days": booking_timedelta.days,
+    if booking_timedelta.days <= 0:
+        abort(400, "Booking days is negative!")
+    else:
+        booking_details = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "days": booking_timedelta.days,
+        }
+
+        vehicle = Vehicle.query.filter_by(vehicle_id=vehicle_id).first()
+
+        if vehicle:
+            return render_template(
+                "booking_payment.jinja2", user=flask_login.current_user, booking_details=booking_details, vehicle=vehicle
+            )
+        else:
+            abort(400, "Invalid vehicle id")
+
+
+@bp_bookings.route("/bookings/add_paynow_reference/<int:booking_id>", methods=["POST"])
+@flask_login.login_required
+def customer_add_paynow_reference_number(booking_id: int):
+    paynow_reference_number = request.form.get("paynow_reference_number", EMPTY_STRING)
+
+    update_dict = {
+        "paynow_reference_number": paynow_reference_number,
     }
 
-    vehicle = Vehicle.query.filter_by(vehicle_id=vehicle_id).first()
+    if paynow_reference_number:
+        booking = Booking.query.filter(Booking.user_id == flask_login.current_user.user_id, Booking.booking_id == booking_id, Booking.paynow_reference_number == None)
 
-    if vehicle:
-        return render_template(
-            "booking_payment.jinja2", user=flask_login.current_user, booking_details=booking_details, vehicle=vehicle
-        )
+        if booking.first():
+            booking.update(update_dict)
+            db.session.commit()
+            flash("Booking updated!", category="success")
+            return redirect(url_for("bp_bookings.customer_read_bookings"))
+        else:
+            abort(404)
     else:
-        abort(400, "Invalid vehicle id")
+        flash("Empty reference number", category="danger")
+        flash(paynow_reference_number, category="danger")
+        return redirect(url_for("bp_bookings.customer_read_bookings"))

@@ -50,6 +50,21 @@
                                     <td>:</td>
                                     <td>{{user.phone_number}}</td>
                                 </tr>
+                                <tr>
+                                    <td class="pl-0">
+                                        <div class="table-content">
+                                            <h3 class="title font-weight-medium">MFA</h3>
+                                        </div>
+                                    </td>
+                                    <td>:</td>
+                                    {% if user.mfa_secret %}
+                                    <td>Enabled</td>
+                                    {% else %}
+                                    <td>
+                                        <a href={{ url_for("route_enable_mfa") }}>Enable MFA</a>
+                                    </td>
+                                    {% endif %}
+                                </tr>
                                 {% if user and (user.is_manager() or user.is_admin()) %}
                                 <tr>
                                     <td class="pl-0">
@@ -88,7 +103,7 @@
                         </table>
                     </div>
                     <div class="section-block"></div>
-                    <p>To edit your profile please write in to help@shallot-rental.shop</p>
+                    <p>To edit your profile, please write in to help@shallot-rental.shop</p>
                 </div>
             </div><!-- end form-box -->
         </div>
