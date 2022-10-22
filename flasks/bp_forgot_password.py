@@ -67,7 +67,8 @@ def verify_reset(token: str) -> str:
         if email:
             return render_template("reset_password.html", email=email, token=token)
         else:
-            return "Invalid token"
+            flash("Invalid token", category="danger")
+            return redirect(url_for('bp_forgot_password.verify_reset'))
     else:
         # returns email if reset token verified
         email = verify_reset_token(token)
@@ -85,10 +86,10 @@ def verify_reset(token: str) -> str:
                 t = User.query.filter_by(email=email)
                 t.update(update_dict)
                 db.session.commit()
-                flash('Login with your newly resetted password!')
+                flash('Login with your newly resetted password!', category="danger")
                 return redirect(url_for('login'))
             else:
-                flash('The passwords does not match!', category="error")
+                flash('The passwords does not match!', category="danger")
                 return redirect(url_for("bp_forgot_password.verify_reset", token=token))
         else:
             return url_for("bp_forgot_password.verify_reset", token=token)

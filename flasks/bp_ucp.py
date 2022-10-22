@@ -1,5 +1,4 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash, current_app, abort
-import flask_login
 
 from db import db
 
@@ -23,7 +22,7 @@ def admin_read_users() -> str:
 
     valid_roles = {k: v for k, v in ROLE.items() if k in range(3, len(ROLE))}
 
-    return render_template("user_manager.html", user_list=data, valid_roles=valid_roles, roles=ROLE, user=flask_login.current_user)
+    return render_template("user_manager.html", user_list=data, valid_roles=valid_roles, roles=ROLE)
 
 
 @bp_ucp.route("/admin/ucp/user/<int:user_id>", methods=["GET", "POST"])
@@ -167,7 +166,7 @@ def manager_read_users() -> str:
 
     valid_roles = {k: v for k, v in ROLE.items() if k in range(1, 3)}
 
-    return render_template("manager_ucp.jinja2", user_list=data, valid_roles=valid_roles, roles=ROLE, user=flask_login.current_user)
+    return render_template("manager_ucp.jinja2", user_list=data, valid_roles=valid_roles, roles=ROLE)
 
 
 @bp_ucp.route("/manager/ucp/user/<int:user_id>", methods=["GET", "POST"])

@@ -1,5 +1,4 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash, abort
-import flask_login
 
 from create_vehicle import create_vehicle
 from read_vehicle import read_vehicle
@@ -18,7 +17,7 @@ def manager_read_vehicles() -> str:
     data = read_vehicle()
 
     # return and render the page template
-    return render_template('car_manager.html', vehicle_list=data, user=flask_login.current_user)
+    return render_template('car_manager.html', vehicle_list=data)
 
 
 @bp_vcp.route('/manager/vcp/vehicle/read/<int:vehicle_id>', methods=["GET"])
@@ -43,7 +42,7 @@ def manager_create_vehicle():
     # Calling the function to insert into the db
     create_vehicle(vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
     # Flash message
-    flash("A New Vehicle is now Available for Booking")
+    flash("A New Vehicle is now Available for Booking", category="success")
     # return and render the page template
     return redirect(url_for('bp_vcp.manager_read_vehicles'))
 
@@ -67,9 +66,9 @@ def manager_update_vehicle(vehicle_id: int) -> str:
     if image_size <= MEDIUMBLOB_BYTE_SIZE:
         update_vehicle(vehicle_id, vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
         # Flash message
-        flash("The Vehicle was updated")
+        flash("The Vehicle was updated", category="success")
     else:
-        flash("Something went wrong")
+        flash("Something went wrong", category="danger")
     # return and render the page template
     return redirect(url_for('bp_vcp.manager_read_vehicles'))
 
@@ -80,6 +79,6 @@ def manager_delete_vehicle(vehicle_id: int) -> str:
     # Function to delete the selected vehicle from vehicle db
     delete_vehicle(vehicle_id)
     # Flash message
-    flash("The Vehicle was deleted")
+    flash("The Vehicle was deleted", category="success")
     # return and render the page template
     return redirect(url_for('bp_vcp.manager_read_vehicles'))

@@ -1,5 +1,4 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash, abort
-import flask_login
 
 from db import db
 
@@ -12,7 +11,7 @@ bp_bcp = Blueprint('bp_bcp', __name__, template_folder='templates')
 def manager_read_bookings() -> str:
     bookings = Booking.query.all()
 
-    return render_template("manager_bcp.jinja2", bookings=bookings, user=flask_login.current_user, valid_status=BOOKING_STATUS)
+    return render_template("manager_bcp.jinja2", bookings=bookings, valid_status=BOOKING_STATUS)
 
 
 @bp_bcp.route("/manager/bcp/booking/create", methods=["POST"])
