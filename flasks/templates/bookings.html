@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Bookings{% endblock %}
 {% block content %}
-<div class="container">
-  <div>
-      <h1 class="text-center">Bookings</h1>
+
+<div class="container" style="margin-top: 30px;">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for category, message in messages %}
+  <div class="alert alert-{{ category }} alert-dismissable" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="close">
+          <span aria-hidden="true">X</span>
+      </button>
+      {{ message }}
   </div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
 </div>
 
-<section class="contact-area padding-top-50px padding-bottom-50px">
+<section class="contact-area padding-bottom-50px">
   <div class="container">
     <div class="row">
       <div class="col-lg-8">
@@ -49,7 +59,15 @@
                           <td>{{ booking.units_purchased }}</td>
                           <td>${{ booking.units_purchased*booking.vehicle.price_per_unit }}</td>
                           <td>
-                            <span class="badge badge-danger py-1 px-2">Incompleted</span>
+                            {% if booking.status == status[0] %}
+                            <span class="badge badge-danger py-1 px-2">{{ status[0].title() }}</span>
+                            {% elif booking.status == status[1] %}
+                            <span class="badge badge-primary py-1 px-2">{{ status[1].title() }}</span>
+                            {% elif booking.status == status[2] %}
+                            <span class="badge badge-success py-1 px-2">{{ status[2].title() }}</span>
+                            {% elif booking.status == status[3] %}
+                            <span class="badge badge-secondary py-1 px-2">{{ status[3].title() }}</span>
+                            {% endif %}
                           </td>
                         </tr>
                         {% endfor %}

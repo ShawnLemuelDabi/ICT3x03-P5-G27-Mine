@@ -29,6 +29,7 @@ import os
 from bp_fcp import bp_fcp
 from bp_ucp import bp_ucp
 from bp_vcp import bp_vcp
+from bp_bcp import bp_bcp
 from bp_faults import bp_faults
 from bp_bookings import bp_bookings
 from bp_forgot_password import bp_forgot_password
@@ -75,6 +76,7 @@ app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
 app.register_blueprint(bp_vcp)
+app.register_blueprint(bp_bcp)
 app.register_blueprint(bp_faults)
 app.register_blueprint(bp_bookings)
 app.register_blueprint(bp_forgot_password)
@@ -108,7 +110,10 @@ def unauthorized() -> Response:
 
 @app.before_request
 def before_request_func():
-    g.distinct_vehicle_types = vehicle_distinct_vehicle_types()
+    try:
+        g.distinct_vehicle_types = vehicle_distinct_vehicle_types()
+    except Exception as e:
+        app.logger.fatal(e)
 
 
 @app.route("/", methods=["GET"])
@@ -243,7 +248,7 @@ def login() -> str:
                     """
                     If mfa is enabled and recovery_code is entered
                     """
-                    matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(Recovery_Codes.code == recovery_code, Recovery_Codes.is_used is False).first()
+                    matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(Recovery_Codes.code == recovery_code, Recovery_Codes.is_used != False).first()
 
                     if matched_code:
                         matched_code.is_used = True
