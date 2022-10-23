@@ -1,7 +1,6 @@
 from distutils.util import strtobool
 # from functools import wraps
 from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, session, g
-# from flask_session import Session
 
 # User imports
 from create_user import create_user
@@ -40,7 +39,7 @@ from bp_forgot_password import bp_forgot_password
 from authorizer import http_unauthorized
 from error_handler import ErrorHandler
 
-from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email
+from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email, validate_image, validate_name, validate_phone_number
 
 from flask_wtf.csrf import CSRFProtect
 
@@ -75,6 +74,8 @@ app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
 
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY")
 app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
+
+app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
 
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
@@ -194,6 +195,18 @@ def register_verified(token: str) -> str:
             err_handler.push(
                 user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
                 log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
+            )
+
+        if not validate_name(first_name) or not validate_name(last_name) or not validate_phone_number(phone_number):
+            err_handler.push(
+                user_message="Illegal character caught",
+                log_message='Something something'
+            )
+
+        if not validate_image(license_blob, license_filename, license_blob_size):
+            err_handler.push(
+                user_message="Invalid image format",
+                log_message='Something something'
             )
 
         if len(password) < 7:

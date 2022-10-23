@@ -1,4 +1,6 @@
 import re
+import imghdr
+import os
 
 
 EMPTY_STRING = ""
@@ -51,4 +53,47 @@ def validate_email(input_str: str):
 
     regex_pattern = r".*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
     validity = bool(re.match(regex_pattern, input_str))
+    return validity
+
+
+def validate_phone_number(input_str: str):
+    """
+    Validates if the input is a singapore number or not.
+    Input must start with 8 or 9, followed by 7 numbers.
+    Returns a boolean value based on the validity.
+    """
+
+    regex_pattern = "^(8|9){1}[0-9]{7}$"
+    validity = bool(re.match(regex_pattern, input_str))
+    return validity
+
+
+def validate_name(input_str: str):
+    """
+    Validates if the input contains character other than alphabets and space
+
+    Returns a boolean value based on the validity.
+    """
+
+    regex_pattern = "^[a-zA-Z ]+$"
+    validity = bool(re.match(regex_pattern, input_str))
+    return validity
+
+
+def validate_image(image_stream, image_filename, image_size):
+    """
+    Validates if the image input has extension and magic header of either jpg or png,
+    and size must be within the blob size.
+
+    Returns a boolean value based on the validity.
+    """
+    validity = True
+    allowed_filetype = ['jpg', 'png']
+
+    format = imghdr.what(None, image_stream)
+    image_ext = os.path.splitext(image_filename)[1].split(".")[1]
+
+    if image_ext not in allowed_filetype or image_size >= MEDIUMBLOB_BYTE_SIZE or format not in allowed_filetype:
+        validity = False
+
     return validity
