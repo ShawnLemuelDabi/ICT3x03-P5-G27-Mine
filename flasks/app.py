@@ -1,8 +1,6 @@
-from distutils.command import upload
 from distutils.util import strtobool
 # from functools import wraps
 from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, session, g
-# from flask_session import Session
 
 # User imports
 from create_user import create_user
@@ -76,6 +74,8 @@ app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
 
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY")
 app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
+
+app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
 
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
@@ -202,7 +202,7 @@ def register_verified(token: str) -> str:
                 user_message="Illegal character caught",
                 log_message='Something something'
             )
-        
+
         if not validate_image(license_blob, license_filename, license_blob_size):
             err_handler.push(
                 user_message="Invalid image format",
