@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Locate Us{% endblock %}
+{% block content %}
+{# Simple Heading Text #}
+
+<style>
+.company_name {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 3vw;
+}
+
+.theheader {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.25vw;
+}
+</style>
+
+<br>
+<div class="container">
+    <div class="row">
+        <div class="column" style="width: 600px;">
+            <p class="company_name">Shallot Pte Ltd</p>
+            <br>
+            <p class="theheader">Address</p>
+            <p>
+                Nanyang Polytechnic <br>
+                172A Ang Mo Kio Avenue 8, Singapore 567739 <br>
+                (beside Blk Q of NYP campus)
+            </p>
+            <br>
+            <p class="theheader">Operating Hours</p>
+            <p>
+                Monday to Friday <br>
+                0800H to 1800H
+            </p>
+            <br>
+        </div>
+        <div class="column">
+            <img src="../static/images/NYP-SIT-Building.jpeg">
+        </div>
+    </div>
+    <div class="row">
+        <div class="column">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.66117758288!2d103.84676001482445!3d1.379955361862218!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da16e96db0a1ab%3A0x3d0be54fbbd6e1cd!2sSingapore%20Institute%20of%20Technology%20(SIT%40NYP)!5e0!3m2!1sen!2ssg!4v1666716822488!5m2!1sen!2ssg" width="1100" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+</div>
+<br>
+
+{% endblock %}

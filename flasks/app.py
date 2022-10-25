@@ -457,6 +457,11 @@ def aboutus() -> str:
     return render_template("aboutus.html")
 
 
+@app.route("/locateus", methods=["GET"])
+def locateus() -> str:
+    return render_template("locateus.html")
+
+
 @app.route("/dev/init", methods=["GET"])
 def init() -> str:
     if app.debug:
