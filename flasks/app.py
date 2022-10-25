@@ -125,6 +125,11 @@ def index() -> str:
     return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations())
 
 
+@app.route("/abcde", methods=["GET"])
+def test() -> str:
+    return render_template("aatest.html")
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register() -> str | Response:
     form = recaptchaForm()
@@ -445,6 +450,11 @@ def vehicles_by_type(vehicle_type: str) -> str:
 
         return render_template("vehicle_type.jinja2", vehicles=vehicles, vehicle_type=vehicle_type)
     return render_template("vehicle_type.jinja2")
+
+
+@app.route("/aboutus", methods=["GET"])
+def aboutus() -> str:
+    return render_template("aboutus.html")
 
 
 @app.route("/dev/init", methods=["GET"])
