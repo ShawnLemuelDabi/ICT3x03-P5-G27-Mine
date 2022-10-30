@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}Vehicle types{% endblock %}
 {% block content %}
 
 <main>
   <article>
-
     {#
-    - #HERO
+    - #FEATURED CAR
     #}
-
     
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -24,30 +22,6 @@
     </div>
     {% endif %}
     {% endwith %}
-
-    {% if not search_result and search_result != [] %}
-    <section class="section hero" id="home">
-      <div class="container">
-
-        <div class="hero-content">
-          <h2 class="h1 hero-title">Search Click Rent Rev</h2>
-
-          <p class="hero-text">
-            Singapore's Only Exotic Car Rental!
-          </p>
-        </div>
-
-        <div class="hero-banner"></div>
-        {% include "search_bar.jinja2" %}
-      </div>
-    </section>
-    {% else %}
-    {% include "search_bar.jinja2" %}
-    {% endif %}
-
-    {#
-    - #FEATURED CAR
-    #}
 
     <section class="section featured-car" id="featured-car">
       <div class="container">
@@ -65,9 +39,15 @@
         </div>
         #}
 
+        {% if vehicle_type %}
+        <h1>{{ vehicle_type }}</h1>
+        <hr/>
+        {% endif %}
+
+
         <ul class="featured-car-list">
 
-          {% for vehicle in search_result %}
+          {% for vehicle in vehicles %}
           <li>
             <div class="featured-car-card">
 
@@ -128,10 +108,6 @@
                   <p class="card-price">
                     <strong>${{ vehicle.price_per_unit }}</strong> / Day
                   </p>
-
-                  <a href="{{ url_for('bp_bookings.customer_confirm_booking', vehicle_id=vehicle.vehicle_id, start_date=search_term.start_date, end_date=search_term.end_date) }}">
-                    <button class="btn">Rent now</button>
-                  </a>
 
                 </div>
 

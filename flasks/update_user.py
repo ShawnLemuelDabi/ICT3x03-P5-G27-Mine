@@ -1,8 +1,10 @@
 from user import User
 from db import db
 
+from input_validation import EMPTY_STRING
 
-def update_user(find_user_id: int, email: str, password: str, first_name: str, last_name: str, phone_number: str, license_blob: bytes, license_filename: str, license_mime: str, role: int, mfa_secret: str = ""):
+
+def update_user(find_user_id: int, email: str, password: str, first_name: str, last_name: str, phone_number: str, license_blob: bytes, license_filename: str, license_mime: str, role: int, mfa_secret: str = EMPTY_STRING):
     # Action mariaDB will have the execute using SQLAlchemy
     # stmt = update(User).where(User.id == find_user_id).values(username=username, name=name, email=email, phone_number=phone_number, license_id=license_id, role=role)
     # This are the function for updating vehicle details from the db using SQLAlchemy
@@ -27,8 +29,8 @@ def update_user(find_user_id: int, email: str, password: str, first_name: str, l
         del update_dict['license_mime']
 
     # remove any key-value pair when value is empty str or none
-    update_dict = {k: v for k, v in update_dict.items() if v is not None and v != ""}
+    update_dict = {k: v for k, v in update_dict.items() if v is not None and v != EMPTY_STRING}
 
-    t = User.query.filter_by(user_id=find_user_id)
+    t = User.query.filter(User.user_id == find_user_id, User.role >= 1, User.role <= 2)
     t.update(update_dict)
     db.session.commit()

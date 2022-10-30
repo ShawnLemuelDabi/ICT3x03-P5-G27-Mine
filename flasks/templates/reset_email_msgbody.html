@@ -1,6 +1,6 @@
 <p>
     To reset your password,
-    <a href="{{ url_for('bp_forgot_password.verify_reset', token=token, _external=True) }}">
+    <a href="{{ url_for('bp_forgot_password.verify_reset', token=token, _external=True, _scheme='https') }}">
         click here
     </a>.
 </p>

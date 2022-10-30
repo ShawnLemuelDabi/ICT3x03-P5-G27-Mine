@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}2FA Enabled{% endblock %}
+{% block content %}
+
+<section class="contact-area padding-top-50px padding-bottom-50px">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 mx-auto">
+                <div class="form-box">
+                    <div class="form-title-wrap">
+                        <span class="icon-element-check-only"></span>
+                        <br><br>
+                        <h3 class="title d-flex justify-content-center">2FA Enabled</h3>
+                        <p class="font-size-15 pt-2 d-flex justify-content-center">For future logins you will need to enter a valid OTP code in order to access your account.</p>
+                        <br>
+                        <p class="font-size-15 pt-2 d-flex justify-content-center">Please take a screenshot of the backup keys listed here.</p>
+                        <div class="alert alert-danger" role="alert">
+                           This will only be shown once!
+                        </div>
+                        <table class="table table-borderless text-center">
+                          <thead>
+                          </thead>
+                          <tbody>
+                            {% for recovery_code in recovery_codes %}
+                            {% if loop.first %}
+                            <tr>
+                            {% endif %}
+                            <td>{{ recovery_code }}</td>
+                            {% if loop.index is divisibleby 2 or loop.last %}
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}

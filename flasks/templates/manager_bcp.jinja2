@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Booking Management{% endblock %}
+{% block content %}
+
+    {# Body #}
+    <body>
+        {# Simple Heading Text #}
+        <div class="container">
+            <div class="well">
+                <h1 class="text-center">Booking Management</h1>
+            </div>
+        </div>
+
+        {# Main page content #}
+        <div class="container">
+            <div class="row">
+                {# User manager Interfaces #}
+                <div class="col md-12">
+                    {# Insert Data interface #}
+                    {#<h2>Booking List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel">Add User</button> </h2>#}
+
+                    {# A flash Verification message for successful data insertion/update/delete #}
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                            <span aria-hidden="true">X</span>
+                        </button>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    {# Table User Interface for Read/Update/Delete #}
+                    <table class="table table-striped">
+                        {# Table Column Headings #}
+                        <tr>
+                            <th>ID</th>
+                            <th>Vehicle ID</th>
+                            <th>User ID</th>
+                            <th>Fault ID</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Days</th>
+                            <th>Status</th>
+                            <th>PayNow No.</th>
+                            <th>PayNow Reference No.</th>
+                            <th>Action</th>
+                        </tr>
+
+                        {# For loop to display User table content Read DB #}
+                        {% for row in bookings %}
+                        <tr>
+                            <td>{{ row.booking_id }}</td>
+                            <td>{{ row.vehicle.vehicle_id }}</td>
+                            <td>{{ row.user_id }}</td>
+                            <td>{{ row.fault.fault_id }}</td>
+                            <td>{{ row.start_date }}</td>
+                            <td>{{ row.end_date }}</td>
+                            <td>{{ row.units_purchased }}</td>
+                            <td>{{ row.status.title() }}</td>
+                            <td>{{ row.paynow_number }}</td>
+                            <td>{% if row.paynow_reference_number %}{{ row.paynow_reference_number }}{% else %}-{% endif %}</td>
+                            <td>
+                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.booking_id}}">Edit</a>
+                                <a href={{ url_for("bp_bcp.manager_delete_booking", booking_id=row.booking_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete booking {{row.booking_id}}?')">Delete</a>
+                            </td>
+                        </tr>
+
+                        {# Modal For Updating a Booking #}
+                        <div class="modal fade" id="modelEdit{{row.booking_id}}" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Please Edit Your Booking Details</h4>
+                                    </div>
+                                    
+                                    <div class="modal-body">
+                                        <div class="well">
+                                            <h4 class="text-center" name="" type="number" value={{row.booking_id}}>Updating Booking : {{row.booking_id}}</h4>
+                                        </div>
+                                        <form action="{{ url_for('bp_bcp.manager_update_booking', booking_id=row.booking_id) }}" method="POST" enctype="multipart/form-data">
+                                            <div class="form-group">
+                                                <label>PayNow Number</label>
+                                                <input type="text" class="form-control" name="paynow_number" readonly="true" value={{row.paynow_number}}>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>PayNow Reference No.</label>
+                                                <input type="text" class="form-control" name="paynow_reference_numbe" readonly="true" value="{% if row.paynow_reference_number %}{{row.paynow_reference_number}}{% endif %}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Status</label>
+                                                <select class="form-control" name="status">
+                                                    {% for i in valid_status %}
+                                                    <option value="{{ i }}" {% if i == row.status %}selected="true"{% endif %}>{{ i.title() }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary" type="submit">Update Data</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}                        
+                    </table>
+                </div>
+            </div>
+        </div>
+{% endblock %}

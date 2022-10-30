@@ -42,7 +42,7 @@ def manager_create_vehicle():
     # Calling the function to insert into the db
     create_vehicle(vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
     # Flash message
-    flash("A New Vehicle is now Available for Booking")
+    flash("A New Vehicle is now Available for Booking", category="success")
     # return and render the page template
     return redirect(url_for('bp_vcp.manager_read_vehicles'))
 
@@ -66,9 +66,9 @@ def manager_update_vehicle(vehicle_id: int) -> str:
     if image_size <= MEDIUMBLOB_BYTE_SIZE:
         update_vehicle(vehicle_id, vehicle_model, license_plate, vehicle_type, location, price_per_limit, image, image_name, image_mime)
         # Flash message
-        flash("The Vehicle was updated")
+        flash("The Vehicle was updated", category="success")
     else:
-        flash("Something went wrong")
+        flash("Something went wrong", category="danger")
     # return and render the page template
     return redirect(url_for('bp_vcp.manager_read_vehicles'))
 
@@ -79,6 +79,6 @@ def manager_delete_vehicle(vehicle_id: int) -> str:
     # Function to delete the selected vehicle from vehicle db
     delete_vehicle(vehicle_id)
     # Flash message
-    flash("The Vehicle was deleted")
+    flash("The Vehicle was deleted", category="success")
     # return and render the page template
     return redirect(url_for('bp_vcp.manager_read_vehicles'))

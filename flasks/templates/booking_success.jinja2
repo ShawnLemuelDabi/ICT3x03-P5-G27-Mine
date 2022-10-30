@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Enter your new password!{% endblock %}
+{% block title %}Booked!{% endblock %}
 {% block content %}
 
 <section class="booking-area padding-top-100px padding-bottom-70px">
@@ -38,7 +38,7 @@
                             <div class="d-flex align-items-center">
                                 <i class="fa fa-check icon-element flex-shrink-0 mr-3 ml-0"></i>
                                 <div>
-                                    <h3 class="title pb-1">Thanks {{ user.first_name }}!</h3>
+                                    <h3 class="title pb-1">Thanks {{ current_user.first_name }}!</h3>
                                     <h3 class="title">Your booking is confirmed.</h3>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                             </div>
                             <h3 class="title"><a href="#" class="text-black">Shallot Rental PTE LTD</a></h3>
                             <p>{{ booking.vehicle.location }}, Singapore</p>
-                            <p><strong class="text-black mr-1">Phone:</strong>What phone number is this for?</p>
+                            <p><strong class="text-black mr-1">Phone:</strong>+65 8765 4321</p>
                             <ul class="list-items list-items-3 list-items-4 py-4">
                                 <li><span class="text-black font-weight-bold">Vehicle Booked</span>{{ booking.vehicle.vehicle_model }}</li>
                                 <li><span class="text-black font-weight-bold">Check-in</span>{{ booking.start_date }}</li>
@@ -86,15 +86,15 @@
                             <div class="tab-pane fade show active" id="paynow-info" role="tabpanel"
                                 aria-labelledby="credit-card-tab">
                                 <div class="contact-form-action">
-                                    <form method="post">
+                                    <form method="post" action="{{ url_for('bp_bookings.customer_add_paynow_reference_number', booking_id=booking.booking_id) }}">
                                         <div class="row">
                                             <div class="col-lg-6 responsive-column">
                                                 <div class="input-box">
-                                                    <label class="label-text">Pay Now Reference Number</label>
+                                                    <label class="label-text">PayNow Reference Number</label>
                                                     <div class="form-group">
-                                                        <span class=""></span>
-                                                        <input class="form-control" type="text" name="text"
-                                                            placeholder="Reference Number">
+                                                        <span class="fa fa-paperclip form-icon"></span>
+                                                        <input class="form-control" type="text" name="paynow_reference_number"
+                                                            placeholder="Reference Number" required="true">
                                                     </div>
                                                 </div>
                                             </div>{# end col-lg-6 #}

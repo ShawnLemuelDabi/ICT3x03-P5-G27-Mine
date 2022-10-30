@@ -2,15 +2,17 @@ from user import User
 from db import db
 from werkzeug.security import generate_password_hash
 
+from input_validation import EMPTY_STRING
 
-def create_user(email: str, password: str, first_name: str, last_name: str, phone_number: str, license_blob: bytes, license_filename: str, license_mime: str, role: int, mfa_secret: str = ""):
+
+def create_user(email: str, password: str, first_name: str, last_name: str, phone_number: str, license_blob: bytes, license_filename: str, license_mime: str, role: int, mfa_secret: str = EMPTY_STRING):
 
     password = generate_password_hash(password)
 
     if len(license_blob) == 0 and not license_filename:
         license_blob = r''.encode('utf8')
-        license_filename = ""
-        license_mime = ""
+        license_filename = EMPTY_STRING
+        license_mime = EMPTY_STRING
 
     new_user = User(
         email=email,

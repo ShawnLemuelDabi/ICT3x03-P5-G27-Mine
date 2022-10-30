@@ -3,12 +3,12 @@
 
     </head>
     <body>
-        <h1>You are logged in as {{ user.username }} Hello world</h1>
-        <h1>Your role is {{ user.role }}</h1>
+        <h1>You are logged in as {{ current_user.username }} Hello world</h1>
+        <h1>Your role is {{ current_user.role }}</h1>
         <h1>You are admin</h1>
 
         <ul>
-            <li><a href={{ url_for('user_manager') }}>User Management</a></li>
+            <li><a href={{ url_for('bp_ucp.admin_read_users') }}>User Management</a></li>
         </ul>
     </body>
 </html>

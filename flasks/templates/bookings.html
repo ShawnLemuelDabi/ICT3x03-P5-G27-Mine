@@ -1,114 +1,94 @@
 {% extends "base.html" %}
 {% block title %}Bookings{% endblock %}
 {% block content %}
-<div class="container">
-  <div>
-      <h1 class="text-center">Bookings</h1>
+
+<div class="container" style="margin-top: 30px;">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for category, message in messages %}
+  <div class="alert alert-{{ category }} alert-dismissable" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="close">
+          <span aria-hidden="true">X</span>
+      </button>
+      {{ message }}
   </div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
 </div>
 
-<div class="container">
-  <div class="row">
-    <div class="col md-12">
-      {# Insert Data interface #}
-      <h2>Booking List <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModel">Add booking</button></h2>
-
-      <div class="modal fade" id="myModel" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                  <h4 class="modal-title">Please Insert New Booking</h4>
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                
-                <div class="modal-body">
-                  <form action="{{ url_for('bp_bookings.customer_create_booking') }}" method="POST">
-                    <div class="form-group">
-                      <label>Vehicle ID</label>
-                      <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="vehicle_id">
-                          {% for row in vehicles %}
-                          <option value="{{ row.vehicle_id }}">{{ row.vehicle_model }}</option>
-                          {% endfor %}
-                      </select>
-                  </div>
-                      <div class="form-group">
-                        <label>Start date</label>
-                        <input
-                          type="date"
-                          class="form-control"
-                          id="start_date"
-                          name="start_date"
-                          placeholder="Enter start date"
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label for="end_date">End Date</label>
-                        <input
-                          type="date"
-                          class="form-control"
-                          id="end_date"
-                          name="end_date"
-                          placeholder="Enter end date"
-                        />
-                      </div>
-                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                      <div class="form-group">
-                        <button class="btn btn-primary" type="submit">Insert Data</button>    
-                      </div>
-                  </form>
-                </div>
-
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+<section class="contact-area padding-bottom-50px">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="form-box">
+            <div class="form-title-wrap">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h3 class="title">Booking Results</h3>
+                        {#<p class="font-size-14">Showing 2 of 2 entries</p>#}
+                    </div>
+                    <span>Total Bookings <strong class="color-text">({{ bookings|length }})</strong></span>
                 </div>
             </div>
-        </div>
-      </div>
-
-      {% with messages = get_flashed_messages(category_filter=["success"]) %}
-      {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-success alert-dismissable" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="close">
-            <span aria-hidden="true">X</span>
-        </button>
-        {{ message }}
-      </div>      
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
-
-      <div id="bookings">
-        {% for booking in bookings %}
-        <div class="card border-dark">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <a href={{ url_for('bp_bookings.customer_read_booking', booking_id=booking.booking_id) }} >{{booking.booking_id}}</a>
-            <div class="dropdown">
-              <button
-                type="button"
-                class="btn btn-primary dropdown-toggle"
-                data-bs-toggle="dropdown"
-                id="dropdownMenuButton1" aria-haspopup="true" aria-expanded="false"
-              ></button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                <li>
-                  <a href={{ url_for('bp_bookings.customer_delete_booking', booking_id=booking.booking_id) }} class="dropdown-item">Delete</a>
-                </li>
-              </ul>
+            <div class="form-content">
+                <div class="table-form table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Booking ID</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Order Date</th>
+                            <th scope="col">Execution Date</th>
+                            <th scope="col">Days</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                          <td>
+                            <div class="table-content">
+                              <h3 class="title">{{ booking.vehicle.vehicle_model }}</h3>
+                            </div>
+                          </td>
+                          <td>{{ booking.booking_id }}</td>
+                          <td>{{ booking.vehicle.location }}</td>
+                          <td>{{ booking.start_date }}</td>
+                          <td>{{ booking.end_date }}</td>
+                          <td>{{ booking.units_purchased }}</td>
+                          <td>${{ booking.units_purchased*booking.vehicle.price_per_unit }}</td>
+                          <td>
+                            {% if booking.status == status[0] %}
+                            <span class="badge badge-danger py-1 px-2">{{ status[0].title() }}</span>
+                            {% elif booking.status == status[1] %}
+                            <span class="badge badge-primary py-1 px-2">{{ status[1].title() }}</span>
+                            {% elif booking.status == status[2] or booking.status == status[3] %}
+                            <span class="badge badge-success py-1 px-2">{{ booking.status.title() }}</span>
+                            {% elif booking.status == status[4] %}
+                            <span class="badge badge-secondary py-1 px-2">{{ status[4].title() }}</span>
+                            {% endif %}
+                          </td>
+                        <td>
+                          {% if booking.status == status[0] %}
+                          <button class="btn btn-primary">Edit</button>
+                          <button class="btn btn-danger">Cancel</button>
+                          {% elif booking.status == status[2] %}
+                          <a href="{{ url_for('bp_faults.customer_create_fault', booking_id=booking.booking_id) }}" class="btn btn-secondary">Report Fault</a>
+                          {% endif %}
+                        </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-          </div>
-          <div class="card-body">
-            <div class="card-text">{{ booking.user.email }}</div>
-            <div class="card-text">{{ booking.start_date }} to {{ booking.end_date }}</div>
-            <div class="card-text">Units: {{ booking.units_purchased }}</div>
-            <div class="card-text">Is paid: {{ booking.is_paid }}</div>
-          </div>
-          <div class="card-footer text-muted">PLACEHOLDER</div>
-        </div>
-        <br/ >
-        {% endfor %}
-      </div>
+        </div>{# end form-box #}
     </div>
   </div>
-</div>
+</section>
+
 {% endblock %}

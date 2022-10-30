@@ -66,23 +66,30 @@ def verify_reset(token: str) -> str:
         email = verify_reset_token(token)
         if email:
             return render_template("reset_password.html", email=email, token=token)
-    else:
-        find_email = request.form.get("email", EMPTY_STRING)
-        password_1 = request.form.get("password", EMPTY_STRING)
-        password_2 = request.form.get("confirm_password", EMPTY_STRING)
-
-        if password_1 == password_2 and password_1 != EMPTY_STRING:
-            password = generate_password_hash(password_1)
-
-            update_dict = {
-                "password": password
-            }
-
-            t = User.query.filter_by(email=find_email)
-            t.update(update_dict)
-            db.session.commit()
-            flash('Login with your newly resetted password!')
-            return redirect(url_for('login'))
         else:
-            flash('The passwords does not match!', category="error")
-            return redirect(url_for("bp_forgot_password.verify_reset", token=token))
+            flash("Invalid token", category="danger")
+            return redirect(url_for('bp_forgot_password.verify_reset'))
+    else:
+        # returns email if reset token verified
+        email = verify_reset_token(token)
+        if email:
+            password_1 = request.form.get("password", EMPTY_STRING)
+            password_2 = request.form.get("confirm_password", EMPTY_STRING)
+
+            if password_1 == password_2 and password_1 != EMPTY_STRING:
+                password = generate_password_hash(password_1)
+
+                update_dict = {
+                    "password": password
+                }
+
+                t = User.query.filter_by(email=email)
+                t.update(update_dict)
+                db.session.commit()
+                flash('Login with your newly resetted password!', category="danger")
+                return redirect(url_for('login'))
+            else:
+                flash('The passwords does not match!', category="danger")
+                return redirect(url_for("bp_forgot_password.verify_reset", token=token))
+        else:
+            return url_for("bp_forgot_password.verify_reset", token=token)

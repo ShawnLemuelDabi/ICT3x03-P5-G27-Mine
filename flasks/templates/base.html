@@ -90,24 +90,43 @@
                                                 <a href="{{ url_for('index') }}">Home {#<button class="navbar-toggler" type="button"></button>#}</a>
                                             </li>
                                             <li>
-                                                <a href="#">About Us {#<button class="navbar-toggler" type="button"></button>#}</a>
-                                            </li>
-                                            <li>
                                                 <a href="#">Cars <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
                                                 <ul class="dropdown-menu-item">
-                                                    {% for distinct_vehicle_type in distinct_vehicle_types %}
-                                                    <li><a href="#">{{ distinct_vehicle_type }}</a></li>
+                                                    {% for distinct_vehicle_type in g['distinct_vehicle_types'] %}
+                                                    <li><a href="{{ url_for('vehicles_by_type', vehicle_type=distinct_vehicle_type) }}">{{ distinct_vehicle_type }}</a></li>
                                                     {% endfor %}
                                                 </ul>
                                             </li>
+                                            {% if current_user and current_user.is_authenticated and current_user.is_customer() %}
                                             <li>
-                                                <a href="#">Contact Us {#<button class="navbar-toggler" type="button"></button>#}</a>
+                                                <a href="#">Manage <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
+                                                <ul class="dropdown-menu-item">
+                                                    <li><a href="{{ url_for('bp_bookings.customer_read_bookings') }}">Bookings</a></li>
+                                                    <li><a href="{{ url_for('bp_faults.customer_read_faults') }}">Faults</a></li>
+                                                </ul>
                                             </li>
+                                            {% elif current_user and current_user.is_authenticated and current_user.is_manager() %}
+                                            <li>
+                                                <a href="#">Manage <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
+                                                <ul class="dropdown-menu-item">
+                                                    <li><a href="{{ url_for('bp_ucp.manager_read_users') }}">Users</a></li>
+                                                    <li><a href="{{ url_for('bp_vcp.manager_read_vehicles') }}">Vehicles</a></li>
+                                                    <li><a href="{{ url_for('bp_fcp.manager_read_faults') }}">Faults</a></li>
+                                                </ul>
+                                            </li>
+                                            {% elif current_user and current_user.is_authenticated and current_user.is_admin() %}
+                                            <li>
+                                                <a href="#">Manage <i class="fa fa-angle-down"></i><button class="drop-menu-toggler" type="button"><i class="fa fa-angle-down"></i></button></a>
+                                                <ul class="dropdown-menu-item">
+                                                    <li><a href="{{ url_for('bp_ucp.admin_read_users') }}">Users</a></li>
+                                                </ul>
+                                            </li>
+                                            {% endif %}
                                         </ul>
                                     </nav>
                                 </div>{# end main-menu-content #}
                                 <div class="nav-btn">
-                                    {% if user and user.is_authenticated %}
+                                    {% if current_user and current_user.is_authenticated %}
                                     <a href="{{ url_for('profile') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1">Profile</a>
                                     <a href="{{ url_for('logout') }}" class="theme-btn theme-btn-small">Logout</a>
                                     {% else %}

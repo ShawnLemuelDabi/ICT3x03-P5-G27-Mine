@@ -31,6 +31,8 @@ class User(UserMixin, db.Model):
 
     bookings = db.relationship("Booking", back_populates="user")
 
+    recovery_codes = db.relationship("Recovery_Codes", back_populates="user")
+
     def __repr__(self):
         return f"User(user_id={self.user_id!r}, email={self.email!r}, first_name={self.first_name!r}, last_name={self.last_name!r}, password={self.password!r}, phone_number={self.phone_number!r}, license_blob={self.license_blob!r}, license_filename={self.license_filename!r}, license_mime={self.license_mime!r}, mfa_secret={self.mfa_secret!r}, role={self.role!r})"
 
@@ -48,6 +50,12 @@ class User(UserMixin, db.Model):
 
     def is_manager(self) -> bool:
         return ROLE[self.role] == "manager"
+
+    def is_customer(self) -> bool:
+        return self.role <= 2
+
+    def is_verified(self) -> bool:
+        return self.role > 1 and self.role <= 2
 
     # i think its a bad idea to do integer comparison as manager and admin cannot create booking
     # def allowed(self, role):
