@@ -461,6 +461,16 @@ def vehicles_by_type(vehicle_type: str) -> str:
     return render_template("vehicle_type.jinja2")
 
 
+@app.route("/about-us", methods=["GET"])
+def about_us() -> str:
+    return render_template("aboutus.html")
+
+
+@app.route("/locate-us", methods=["GET"])
+def locate_us() -> str:
+    return render_template("locateus.html")
+
+
 @app.route("/dev/init", methods=["GET"])
 def init() -> str:
     if app.debug:
