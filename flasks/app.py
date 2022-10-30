@@ -20,6 +20,7 @@ import mfa
 from flask_qrcode import QRcode
 
 from db import db
+from sqlalchemy import or_, and_
 
 from db_helper import vehicle_distinct_locations, vehicle_distinct_vehicle_types
 from jwt_helper import generate_token, verify_token
@@ -423,13 +424,19 @@ def search() -> str:
             flash("End date cannot be earlier than start date!", category="danger")
             return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=[])
         else:
-            # TODO: write a better query. this is inefficient to have 2 queries
-            booking_result = Booking.query.join(Booking.vehicle, aliased=True).filter(Vehicle.location == location, Booking.start_date <= start_date, Booking.end_date >= end_date).all()
+            vehicles_with_booking = db.session.query(Booking.vehicle_id).join(Booking.vehicle, aliased=True).filter(
+                Vehicle.location == location,
+                or_(
+                    and_(Booking.start_date > start_date, Booking.end_date < end_date),
+                    and_(Booking.start_date < start_date, Booking.end_date > end_date),
+                    and_(Booking.start_date < end_date, Booking.end_date > end_date),
+                    and_(Booking.start_date < start_date, Booking.end_date > start_date)
+                )
+            ).subquery()
 
-            reject_vehicle_id: list[int] = [i.vehicle_id for i in booking_result]
+            vehicles_without_booking = Vehicle.query.filter(Vehicle.location == location, Vehicle.vehicle_id.notin_(vehicles_with_booking))
 
-            search_result = Vehicle.query.filter(Vehicle.location == location).filter(Vehicle.vehicle_id.notin_(reject_vehicle_id))
-            search_result = search_result or []
+            search_result = vehicles_without_booking.all() or []
 
             return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
     else:
