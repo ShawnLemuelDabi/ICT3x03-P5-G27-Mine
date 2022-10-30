@@ -43,6 +43,8 @@ from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email,
 
 from flask_wtf.csrf import CSRFProtect
 
+from google_recaptcha import ReCaptcha
+
 # Initialize Flask
 app = Flask(__name__)
 
@@ -72,10 +74,19 @@ app.config['MAIL_USE_SSL'] = strtobool(os.environ.get("SMTP_USE_SSL")) == 1
 app.config['MAIL_USERNAME'] = os.environ.get("SMTP_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
 
-app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY")
-app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
+# recaptcha v2 tickbox
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY_V2")
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY_V2")
+
+# recaptcha v3
+recaptchav3 = ReCaptcha(
+    app,
+    site_key=os.environ.get("RC_SITE_KEY_V3"),
+    site_secret=os.environ.get("RC_SECRET_KEY_V3")
+)
 
 app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
+
 
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
@@ -282,13 +293,15 @@ def login() -> str:
         return redirect(url_for('profile'))
 
     if request.method == "POST":
-        email = request.form.get("email", EMPTY_STRING)
-        password = request.form.get("password", EMPTY_STRING)
-        otp = request.form.get("otp", EMPTY_STRING)
-        recovery_code = request.form.get("recovery_code", EMPTY_STRING)
+        if recaptchav3.verify():
+            app.logger.debug("recaptcha verified!")
+            email = request.form.get("email", EMPTY_STRING)
+            password = request.form.get("password", EMPTY_STRING)
+            otp = request.form.get("otp", EMPTY_STRING)
+            recovery_code = request.form.get("recovery_code", EMPTY_STRING)
 
-        if all([i != EMPTY_STRING for i in [email, password]]):
-            user = get_user(email, password)
+            if all([i != EMPTY_STRING for i in [email, password]]):
+                user = get_user(email, password)
 
             if user:
                 """
@@ -324,6 +337,7 @@ def login() -> str:
             else:
                 return login_error()
         else:
+            flash("Bot activity detected")
             return login_error()
     elif request.method == "GET":
         if not flask_login.current_user.is_anonymous:
