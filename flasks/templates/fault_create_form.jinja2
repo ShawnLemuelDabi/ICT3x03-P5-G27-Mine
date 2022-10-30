@@ -18,7 +18,7 @@
                                 <label for="category">Booking ID</label>
                                 <select class="form-control" id="booking_id" name="booking_id" required>
                                 {% for booking in bookings %}
-                                    <option value="{{ booking.booking_id }}" {% if booking_id and booking_id == booking.booking_id %}selected="true"{% endif %}>[{{ booking.booking_id }}] </option>
+                                    <option value="{{ booking.booking_id }}" {% if booking_id and booking_id == booking.booking_id %}selected="true"{% endif %}>[{{ booking.booking_id }}] {{ booking.vehicle.vehicle_model }} ({{ booking.start_date.strftime('%Y-%m-%d') }} - {{ booking.end_date.strftime('%Y-%m-%d') }})</option>
                                 {% endfor %}
                                 </select>
                             </div>
