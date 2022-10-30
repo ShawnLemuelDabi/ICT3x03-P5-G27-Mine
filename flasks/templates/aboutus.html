@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}About Page{% endblock %}
+{% block content %}
+{# Simple Heading Text #}
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.column {
+    float: left;
+    width: 33.3%;
+    margin-bottom: 16px;
+    padding: 0 8px;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    margin: 8px;
+}
+
+.about-section {
+    padding: 50px;
+    text-align: center;
+    background-color: #474e5d;
+    color: white;
+}
+
+.justify-text {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.container {
+    padding: 0 16px;
+    width: 675px;
+    text-align: center;
+}
+
+.container::after, .row::after {
+    content: "";
+    clear: both;
+    display: table;
+    }
+
+.title {
+    color: grey;
+}
+
+.button {
+    border: none;
+    outline: 0;
+    display: inline-block;
+    padding: 8px;
+    color: white;
+    background-color: #000;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+.button:hover {
+    background-color: #555;
+}
+
+@media screen and (max-width: 650px) {
+    .column {
+        width: 100%;
+        display: block;
+    }
+}
+</style>
+
+<div class="about-section">
+    {# <img src="../static/images/about_backgroundimg.jpeg"> #}
+    <h1>About Us</h1>
+    <div class="justify-text" style="text-align:center">
+        Shallot is a car renting company that operates 24 hours a day, 7 days a week and 365 days a year. 
+        At Shallot, we value the user experience above all else. We have built our service from the ground up, 
+        primarily focusing on what matters the most. You, our user. We aim to be the first ever personalised car 
+        renting app all over the world. You can ensure that we will uphold the highest level of safety and satisfaction.
+    </div>
+</div>
+
+<div class="container">
+    <br>
+    <h2 style="text-align:center">Our Team</h2>
+    <br>
+    <div class="row">
+        <div class="card">
+        <div class="container">
+            <h2>WL</h2>
+            <p class="title">CEO</p>
+        </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="card">
+        <div class="container">
+            <h2>YJ</h2>
+            <p class="title">Founder</p>
+        </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="card">
+        <div class="container">
+            <h2>FL</h2>
+            <p class="title">Master Developer</p>
+        </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="card">
+        <div class="container">
+            <h2>PH</h2>
+            <p class="title">Developer</p>
+        </div>
+        </div>
+    </div>  
+
+    <div class="row">
+        <div class="card">
+        <div class="container">
+            <h2>MMBMI</h2>
+            <p class="title">Developer</p>
+        </div>
+        </div>
+    </div>  
+
+    <div class="row">
+        <div class="card">
+        <div class="container">
+            <h2>Nicholas</h2>
+            <p class="title">Developer</p>
+        </div>
+        </div>
+    </div>  
+
+</div>
+<br>
+{% endblock %}
