@@ -31,7 +31,10 @@
                                     <label class="label-text">Email</label>
                                     <div class="form-group">
                                         <span class="fa fa-envelope-o form-icon"></span>
-                                        <input class="form-control" type="email" name="email" placeholder="Email">
+                                        <input class="form-control" type="email" name="email" placeholder="Email" 
+                                        pattern=".*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$" 
+                                        title="Only accepts gmail.com, hotmail.com, yahoo.com, outlook.com and singaporetech.edu.sg domain" 
+                                        required="true">
                                     </div>
                                 </div>
                             </div>
@@ -41,7 +44,7 @@
                                     <div class="form-group">
                                         <span class="fa fa-lock form-icon"></span>
                                         <input class="form-control" type="password" name="password"
-                                            placeholder="Password">
+                                            placeholder="Password" minlength="8" required="true">
                                     </div>
                                 </div>
                             </div>
@@ -74,6 +77,7 @@
                                 <a href="{{ url_for('bp_forgot_password.forgot_password') }}" style="display: inline-block;">Forgotten password?</a>
                             </div>
                         </div>
+                        {{ recaptcha }}
                     </form>
                 </div>
             </div>

@@ -8,4 +8,5 @@ Flask-QRcode==3.1.0
 flask-mail==0.9.1
 pyjwt==2.5.0
 Flask-WTF==1.0.1
+google-recaptcha==2.0.1
 Flask-Session==0.4.0
