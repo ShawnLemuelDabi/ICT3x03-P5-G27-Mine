@@ -86,7 +86,7 @@ def verify_reset(token: str) -> str:
                 t = User.query.filter_by(email=email)
                 t.update(update_dict)
                 db.session.commit()
-                flash('Login with your newly resetted password!', category="danger")
+                flash('Login with your newly resetted password!', category="success")
                 return redirect(url_for('login'))
             else:
                 flash('The passwords does not match!', category="danger")

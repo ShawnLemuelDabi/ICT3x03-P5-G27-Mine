@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, render_template, flash, abort
+from flask import Blueprint, request, redirect, url_for, render_template, flash, abort, current_app
 import flask_login
 
 from db import db
@@ -9,6 +9,7 @@ from booking import Booking, BOOKING_STATUS
 from create_booking import create_booking
 
 from input_validation import EMPTY_STRING
+from error_handler import ErrorHandler
 
 from datetime import datetime
 
@@ -32,8 +33,10 @@ def customer_create_booking() -> str:
     if request.method == "GET":
         return render_template("create_booking.html")
     else:
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("end_date")
+        err_handler = ErrorHandler(current_app)
+
+        start_date = request.form.get("start_date", EMPTY_STRING)
+        end_date = request.form.get("end_date", EMPTY_STRING)
         vehicle_id = request.form.get("vehicle_id", EMPTY_STRING)
         paynow_number = request.form.get("paynow_number", EMPTY_STRING)
 
@@ -46,26 +49,38 @@ def customer_create_booking() -> str:
         elif not flask_login.current_user.is_verified():
             flash("Your account has not been verified yet!", category="danger")
         else:
-            start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
-            end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
+            try:
+                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
 
-            booking_timedelta: datetime = end_date_obj - start_date_obj
+                booking_timedelta: datetime = end_date_obj - start_date_obj
 
-            if booking_timedelta.days <= 0:
-                abort(400, "Booking days is negative!")
-            else:
-                booking = create_booking(
-                    start_date=start_date,
-                    end_date=end_date,
-                    user_id=flask_login.current_user.user_id,
-                    vehicle_id=vehicle_id,
-                    units_purchased=booking_timedelta.days,
-                    paynow_number=paynow_number,
-                    status=BOOKING_STATUS[0]
+                if booking_timedelta.days <= 0:
+                    flash("Booking days is negative!", category="danger")
+                else:
+                    booking = create_booking(
+                        start_date=start_date,
+                        end_date=end_date,
+                        user_id=flask_login.current_user.user_id,
+                        vehicle_id=vehicle_id,
+                        units_purchased=booking_timedelta.days,
+                        paynow_number=paynow_number,
+                        status=BOOKING_STATUS[0]
+                    )
+                    return render_template("booking_success.jinja2", booking=booking)
+            except ValueError as e:
+                err_handler.push(
+                    user_message="Invalid date",
+                    log_message=f"Invalid date: {start_date} to {end_date}. {e}"
                 )
-                return render_template("booking_success.jinja2", booking=booking)
+
+        err_handler.commit_log()
+
+        if err_handler.has_error():
+            for i in err_handler.all():
+                flash(i.user_message, category="danger")
+
         return redirect(url_for("index"))
-        abort(400, "something went wrong")  # redirect(url_for("bp_bookings.customer_create_booking"))
 
 
 @bp_bookings.route("/bookings/read/<int:booking_id>", methods=["GET"])
@@ -121,28 +136,43 @@ def customer_delete_booking(booking_id: int) -> str:
 @bp_bookings.route("/bookings/payment/<int:vehicle_id>/<string:start_date>/<string:end_date>", methods=["GET"])
 @flask_login.login_required
 def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) -> str:
-    start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
-    end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
+    err_handler = ErrorHandler(current_app)
 
-    booking_timedelta: datetime = end_date_obj - start_date_obj
+    try:
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
 
-    if booking_timedelta.days <= 0:
-        abort(400, "Booking days is negative!")
-    else:
-        booking_details = {
-            "start_date": start_date,
-            "end_date": end_date,
-            "days": booking_timedelta.days,
-        }
+        booking_timedelta: datetime = end_date_obj - start_date_obj
 
-        vehicle = Vehicle.query.filter_by(vehicle_id=vehicle_id).first()
-
-        if vehicle:
-            return render_template(
-                "booking_payment.jinja2", booking_details=booking_details, vehicle=vehicle
-            )
+        if booking_timedelta.days <= 0:
+            flash("Booking days is negative!", category="danger")
         else:
-            abort(400, "Invalid vehicle id")
+            booking_details = {
+                "start_date": start_date,
+                "end_date": end_date,
+                "days": booking_timedelta.days,
+            }
+
+            vehicle = Vehicle.query.filter_by(vehicle_id=vehicle_id).first()
+
+            if vehicle:
+                return render_template(
+                    "booking_payment.jinja2", booking_details=booking_details, vehicle=vehicle
+                )
+            else:
+                flash("Invalid vehicle id", category="danger")
+    except ValueError as e:
+        err_handler.push(
+            user_message="Invalid date",
+            log_message=f"Invalid date: {start_date} to {end_date}. {e}"
+        )
+
+    err_handler.commit_log()
+
+    if err_handler.has_error():
+        for i in err_handler.all():
+            flash(i.user_message, category="danger")
+    return redirect(url_for("index"))
 
 
 @bp_bookings.route("/bookings/add_paynow_reference/<int:booking_id>", methods=["POST"])

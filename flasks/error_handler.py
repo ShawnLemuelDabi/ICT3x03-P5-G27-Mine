@@ -14,9 +14,8 @@ class ErrorObject:
 
 
 class ErrorHandler:
-    __error_list__: list[ErrorObject] = []
-
     def __init__(self, app) -> None:
+        self.__error_list__: list[ErrorObject] = []
         self.__app__ = app
 
     def commit_log(self) -> None:
@@ -37,6 +36,12 @@ class ErrorHandler:
         Return the last element of the error list. This does not mutate the error list.
         """
         return self.__error_list__[-1]
+
+    def all(self) -> ErrorObject:
+        """
+        Return all elements of the error list. This is a shallow copy of the error list.
+        """
+        return self.__error_list__
 
     def has_error(self) -> bool:
         """
