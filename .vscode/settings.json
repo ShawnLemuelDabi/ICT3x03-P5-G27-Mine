@@ -1,10 +1,12 @@
 {
     // if you are using cpell library...
     "cSpell.words": [
+        "aboutus",
         "backref",
         "CSRNG",
         "Hotmail",
         "Ionicon",
+        "locateus",
         "MEDIUMBLOB",
         "msgbody",
         "notin",
@@ -14,9 +16,11 @@
         "pymysql",
         "pyotp",
         "qrcode",
+        "recaptchav",
         "resetted",
         "singaporetech",
         "SQLALCHEMY",
+        "tickbox",
         "TINYINT",
         "TOTP",
         "werkzeug"

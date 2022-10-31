@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}2 Factor Authentication{% endblock %}
+{% block content %}
+
+{# I'm lazy to do this properly... #}
+<script>
+const toggle2FAmethod = () => {
+  const D_NONE_CLASS = "d-none"
+  document.querySelector("#use_recovery_code").classList.toggle(D_NONE_CLASS)
+  document.querySelector("#use_otp").classList.toggle(D_NONE_CLASS)
+
+  if (document.querySelector("#use_otp").classList.contains(D_NONE_CLASS)) {
+    document.querySelector("#mfa_desc").textContent = "Enter the OTP code that is shown on your authenticator."
+    document.querySelector("#mfa_input_label").textContent = "Your OTP code"
+    document.querySelector("#mfa_input").setAttribute("name", "otp")
+    document.querySelector("#mfa_input").setAttribute("placeholder", "Enter OTP code")
+    document.querySelector("#mfa_input").setAttribute("pattern", "^[0-9]{6}$")
+  }
+  else {
+    document.querySelector("#mfa_desc").textContent = "Enter the recovery code that you have previously saved"
+    document.querySelector("#mfa_input_label").textContent = "Your recovery code"
+    document.querySelector("#mfa_input").setAttribute("name", "recovery_code")
+    document.querySelector("#mfa_input").setAttribute("placeholder", "Enter your recovery code")
+    document.querySelector("#mfa_input").setAttribute("pattern", "^[0-9]{8}$")
+  }
+}
+</script>
+
+<section class="contact-area padding-top-50px padding-bottom-50px">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-7 mx-auto">
+        <div class="form-box">
+          <div class="form-title-wrap">
+            <h3 class="title">2 Factor Authentication</h3>
+            <p id="mfa_desc" class="font-size-15 pt-2">Enter the OTP code that is shown on your authenticator.</p>
+            <p id="use_recovery_code" class="font-size-15 pt-2"><a style="display: inline;" href="#" onclick="toggle2FAmethod(); return false;">Click here</a> if you no longer have access to your authenticator and wishes to use your recovery codes instead.</p>
+            <p id="use_otp" class="font-size-15 pt-2 d-none"><a style="display: inline;" href="#" onclick="toggle2FAmethod(); return false;">Click here</a> if you wishes to use OTP instead.</p>
+          </div>
+          <div class="form-content ">
+            <div class="contact-form-action">
+              <form method="POST" action="{{ url_for('otp_login') }}">
+                <div class="input-box">
+                  <label id="mfa_input_label" class="label-text">Your OTP code</label>
+                  <div class="form-group">
+                    <span class="fa fa-key form-icon"></span>
+                    <input id="mfa_input" class="form-control" type="number" name="otp" placeholder="Enter your OTP" 
+                    pattern="^[0-9]{6}$" 
+                    style="-webkit-appearance: none; margin: 0; -moz-appearance: textfield;"
+                    required="true">
+                  </div>
+                </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="btn-box">
+                  <button type="submit" class="theme-btn">Login</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
