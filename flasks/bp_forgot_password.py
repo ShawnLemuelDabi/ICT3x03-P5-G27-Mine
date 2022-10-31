@@ -10,8 +10,10 @@ import os
 import jwt
 import time
 from flask_mail import Mail, Message
+from email_helper_async import send_mail_async
 from werkzeug.security import generate_password_hash
-
+from datetime import datetime
+import asyncio
 
 bp_forgot_password = Blueprint('bp_forgot_password', __name__, template_folder='templates')
 
@@ -42,15 +44,12 @@ def forgot_password() -> str:
             token = get_reset_token(email)
 
             with current_app.app_context():
-                mail = Mail(current_app)
-
-                msg = Message()
-                msg.subject = "Reset Password"
-                msg.recipients = [email]
-                msg.sender = os.environ.get("SMTP_USERNAME")
-                msg.html = render_template('reset_email_msgbody.html', user=email, token=token)
-
-                mail.send(msg)
+                send_mail_async(
+                    app_context=current_app,
+                    subject="Reset password",
+                    recipients=[email],
+                    email_body=render_template('reset_email_msgbody.html', user=email, token=token
+                    ))
 
         return render_template("forget_password_sent.html")
 
@@ -86,6 +85,14 @@ def verify_reset(token: str) -> str:
                 t = User.query.filter_by(email=email)
                 t.update(update_dict)
                 db.session.commit()
+                with current_app.app_context():
+                    send_mail_async(
+                        app_context=current_app,
+                        subject="Reset Password Activity detected",
+                        recipients=[email],
+                        email_body=render_template('reset_successful.html', datetime=datetime.now())
+                    )
+
                 flash('Login with your newly resetted password!', category="success")
                 return redirect(url_for('login'))
             else:
