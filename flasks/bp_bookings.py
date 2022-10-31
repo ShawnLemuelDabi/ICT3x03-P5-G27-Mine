@@ -33,7 +33,7 @@ def customer_create_booking() -> str:
     if request.method == "GET":
         return render_template("create_booking.html")
     else:
-        err_handler = ErrorHandler(current_app)
+        err_handler = ErrorHandler(current_app, dict(request.headers))
 
         start_date = request.form.get("start_date", EMPTY_STRING)
         end_date = request.form.get("end_date", EMPTY_STRING)
@@ -97,26 +97,27 @@ def customer_read_booking(booking_id: int) -> str:
 @bp_bookings.route("/bookings/update/<int:booking_id>", methods=["POST"])
 @flask_login.login_required
 def customer_update_booking(booking_id: int) -> str:
-    start_date = request.form.get("start_date")
-    end_date = request.form.get("end_date")
+    return abort(501, "This should never be used?")
+    # start_date = request.form.get("start_date")
+    # end_date = request.form.get("end_date")
 
-    update_dict = {
-        "start_date": start_date,
-        "end_date": end_date,
-    }
+    # update_dict = {
+    #     "start_date": start_date,
+    #     "end_date": end_date,
+    # }
 
-    booking = Booking.query.filter_by(user_id=flask_login.current_user.user_id, booking_id=booking_id)
+    # booking = Booking.query.filter_by(user_id=flask_login.current_user.user_id, booking_id=booking_id)
 
-    if booking.first():
-        booking.update(update_dict)
-        db.session.commit()
-        flash("Booking updated!", category="success")
-        return redirect(url_for("bp_bookings.customer_read_bookings"))
-    else:
-        abort(404)
+    # if booking.first():
+    #     booking.update(update_dict)
+    #     db.session.commit()
+    #     flash("Booking updated!", category="success")
+    #     return redirect(url_for("bp_bookings.customer_read_bookings"))
+    # else:
+    #     abort(404)
 
 
-@bp_bookings.route("/bookings/delete/<int:booking_id>", methods=["GET"])
+@bp_bookings.route("/bookings/delete/<int:booking_id>", methods=["POST"])
 @flask_login.login_required
 def customer_delete_booking(booking_id: int) -> str:
     booking = Booking.query.filter_by(user_id=flask_login.current_user.user_id, booking_id=booking_id)
@@ -136,7 +137,7 @@ def customer_delete_booking(booking_id: int) -> str:
 @bp_bookings.route("/bookings/payment/<int:vehicle_id>/<string:start_date>/<string:end_date>", methods=["GET"])
 @flask_login.login_required
 def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) -> str:
-    err_handler = ErrorHandler(current_app)
+    err_handler = ErrorHandler(current_app, dict(request.headers))
 
     try:
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")

@@ -1,3 +1,4 @@
+from datetime import date
 from flask import Blueprint, request, redirect, url_for, render_template, flash, abort
 import flask_login
 
@@ -44,13 +45,13 @@ def customer_create_fault(booking_id: int = None):
         uploaded_file = request.files['fault_image']
 
         booking_id = request.form.get("booking_id")
-        reported_date = request.form.get("reported_date")
+        reported_date = date.today().strftime("%Y-%m-%d")
         description = request.form.get("description")
         category = request.form.get("category")
         description = request.form.get("description")
 
         fault_image = uploaded_file.stream.read()
-        fault_blob_size = uploaded_file.content_length
+        fault_blob_size = len(fault_image)
         fault_filename = uploaded_file.filename or EMPTY_STRING
         fault_mime = uploaded_file.mimetype
 
@@ -113,7 +114,7 @@ def customer_update_fault(fault_id: int) -> str:
     # return redirect(url_for("bp_faults.customer_read_faults"))
 
 
-@bp_faults.route("/fault/delete/<int:fault_id>", methods=["GET"])
+@bp_faults.route("/fault/delete/<int:fault_id>", methods=["POST"])
 def customer_delete_fault(fault_id: int) -> str:
     return abort(501, "This should never be used?")
     # Fault.query.filter_by(fault_id=fault_id).delete()
