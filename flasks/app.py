@@ -457,6 +457,16 @@ def locate_us() -> str:
     return render_template("locateus.html")
 
 
+@app.route("/terms-of-use", methods=["GET"])
+def terms_of_use() -> str:
+    return render_template("termsofuse.html")
+
+
+@app.route("/privacy-policy", methods=["GET"])
+def privacy_policy() -> str:
+    return render_template("privacypolicy.html")
+
+
 @app.route("/dev/init", methods=["GET"])
 def init() -> str:
     if app.debug:
