@@ -6,8 +6,14 @@ import os
 EMPTY_STRING = ""
 MEDIUMBLOB_BYTE_SIZE = 16777215
 
+NAME_REGEX_PATTERN = r"^[a-zA-Z ]+$"
+PHONE_NUMBER_REGEX_PATTERN = r"^(8|9){1}[0-9]{7}$"
+EMAIL_REGEX_PATTERN = r"^.*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
 
-def validate_str_input(input_str: list[str], regex: list[bytes], return_stripped: bool) -> list[str]:
+
+def validate_str_input(
+    input_str: list[str], regex: list[bytes], return_stripped: bool
+) -> list[str]:
     """
     Validates the list of strings against the regex using the index as the mapping.
 
@@ -16,7 +22,9 @@ def validate_str_input(input_str: list[str], regex: list[bytes], return_stripped
     """
 
     if len(input_str) != len(regex):
-        raise ValueError(f"Unequal elements length for input arguments. {len(input_str)} - {len(regex)}")
+        raise ValueError(
+            f"Unequal elements length for input arguments. {len(input_str)} - {len(regex)}"
+        )
 
     if type(input_str) != list or any([type(input_str) != str for i in input_str]):
         raise TypeError("input_str should be list[str]!")
@@ -39,7 +47,7 @@ def validate_str_input(input_str: list[str], regex: list[bytes], return_stripped
     return retval
 
 
-def validate_email(input_str: str):
+def validate_email(input_str: str) -> bool:
     """
     Validates if the input matches the following email domain:
     1. gmail.com
@@ -51,49 +59,46 @@ def validate_email(input_str: str):
     returns a boolean value whether the input matches the email domain or not
     """
 
-    regex_pattern = r".*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
-    validity = bool(re.match(regex_pattern, input_str))
+    validity = bool(re.match(EMAIL_REGEX_PATTERN, input_str))
     return validity
 
 
-def validate_phone_number(input_str: str):
+def validate_phone_number(input_str: str) -> bool:
     """
     Validates if the input is a singapore number or not.
     Input must start with 8 or 9, followed by 7 numbers.
     Returns a boolean value based on the validity.
     """
 
-    regex_pattern = "^(8|9){1}[0-9]{7}$"
-    validity = bool(re.match(regex_pattern, input_str))
+    validity = bool(re.match(PHONE_NUMBER_REGEX_PATTERN, input_str))
     return validity
 
 
-def validate_name(input_str: str):
+def validate_name(input_str: str) -> bool:
     """
     Validates if the input contains character other than alphabets and space
 
     Returns a boolean value based on the validity.
     """
 
-    regex_pattern = "^[a-zA-Z ]+$"
-    validity = bool(re.match(regex_pattern, input_str))
+    validity = bool(re.match(NAME_REGEX_PATTERN, input_str))
     return validity
 
 
-def validate_image(image_stream, image_filename, image_size):
+def validate_image(image_stream, image_filename, image_size) -> bool:
     """
     Validates if the image input has extension and magic header of either jpg or png,
     and size must be within the blob size.
 
     Returns a boolean value based on the validity.
     """
-    validity = True
-    allowed_filetype = ['jpg', 'png']
+    validity = False
+    allowed_filetype = ["jpg", "jpeg", "png"]
 
-    format = imghdr.what(None, image_stream)
-    image_ext = os.path.splitext(image_filename)[1].split(".")[1]
+    file_format = imghdr.what(None, image_stream)
+    image_ext = os.path.splitext(image_filename)[1].split(".")[1].lower()
 
-    if image_ext not in allowed_filetype or image_size >= MEDIUMBLOB_BYTE_SIZE or format not in allowed_filetype:
-        validity = False
+    if image_ext in allowed_filetype and image_size <= MEDIUMBLOB_BYTE_SIZE and file_format in allowed_filetype:
+        validity = True
 
     return validity

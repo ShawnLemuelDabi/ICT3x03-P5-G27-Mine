@@ -18,22 +18,23 @@ def manager_read_faults() -> str:
 
 @bp_fcp.route("/manager/fcp/fault/create", methods=["POST"])
 def manager_create_fault() -> str:
-    booking_id = request.form.get("booking_id")
-    reported_date = request.form.get("reported_date")
-    description = request.form.get("description")
+    return abort(501, "This should never be used?")
+    # booking_id = request.form.get("booking_id")
+    # reported_date = request.form.get("reported_date")
+    # description = request.form.get("description")
 
-    new_fault = Fault(
-        booking_id=booking_id,
-        reported_date=reported_date,
-        description=description
-    )
+    # new_fault = Fault(
+    #     booking_id=booking_id,
+    #     reported_date=reported_date,
+    #     description=description
+    # )
 
-    db.session.add(new_fault)
-    db.session.commit()
+    # db.session.add(new_fault)
+    # db.session.commit()
 
-    flash("Fault created", category="success")
+    # flash("Fault created", category="success")
 
-    return redirect(url_for("bp_fcp.manager_read_faults"))
+    # return redirect(url_for("bp_fcp.manager_read_faults"))
 
 
 @bp_fcp.route("/manager/fcp/fault/read/<int:fault_id>", methods=["GET"])
@@ -66,7 +67,7 @@ def manager_update_fault(fault_id: int) -> str:
     return redirect(url_for("bp_fcp.manager_read_faults"))
 
 
-@bp_fcp.route("/manager/fcp/fault/delete/<int:fault_id>", methods=["GET"])
+@bp_fcp.route("/manager/fcp/fault/delete/<int:fault_id>", methods=["POST"])
 def manager_delete_fault(fault_id: int) -> str:
     Fault.query.filter_by(fault_id=fault_id).delete()
     db.session.commit()
