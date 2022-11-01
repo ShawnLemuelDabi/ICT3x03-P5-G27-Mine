@@ -59,7 +59,8 @@ def validate_email(input_str: str) -> bool:
     returns a boolean value whether the input matches the email domain or not
     """
 
-    validity = bool(re.match(EMAIL_REGEX_PATTERN, input_str))
+    regex_pattern = r"^[a-zA-Z0-9.]{1,63}@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
+    validity = bool(re.match(regex_pattern, input_str))
     return validity
 
 

@@ -4,17 +4,18 @@ from db import db
 
 from user import User
 
-from input_validation import EMPTY_STRING
+from input_validation import EMPTY_STRING, validate_email
 
 import os
 import jwt
 import time
 from flask_mail import Mail, Message
+from email_helper_async import send_mail_async
 from werkzeug.security import generate_password_hash
-
+from datetime import datetime
+from error_handler import ErrorHandler
 
 bp_forgot_password = Blueprint('bp_forgot_password', __name__, template_folder='templates')
-
 
 def get_reset_token(email: str, expires: int = 500) -> str:
     return jwt.encode({
@@ -33,34 +34,45 @@ def verify_reset_token(token: str) -> str:
 
 @bp_forgot_password.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password() -> str:
+    from app import recaptchav3
     if request.method == "POST":
-        email = request.form.get("email", EMPTY_STRING)
+        err_handler = ErrorHandler(current_app)
+        if recaptchav3.verify():
+            email = request.form.get("email", EMPTY_STRING)
 
-        user: User = User.query.filter_by(email=email).first()
+            if not validate_email(email):
+                err_handler.push(
+                    user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                    log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
+                )
+                
+            err_handler.commit_log()
+            if err_handler.has_error():
+                flash(err_handler.first().user_message, category="danger")
+                return render_template("forget_password.html")
+            else:
+                user: User = User.query.filter_by(email=email).first()
 
-        if user:
-            token = get_reset_token(email)
+                if user:
+                    token = get_reset_token(email)
 
-            with current_app.app_context():
-                mail = Mail(current_app)
+                    with current_app.app_context():
+                        send_mail_async(
+                            app_context=current_app,
+                            subject="Reset password",
+                            recipients=[email],
+                            email_body=render_template('reset_email_msgbody.html', user=email, token=token
+                            ))
 
-                msg = Message()
-                msg.subject = "Reset Password"
-                msg.recipients = [email]
-                msg.sender = os.environ.get("SMTP_USERNAME")
-                msg.html = render_template('reset_email_msgbody.html', user=email, token=token)
-
-                mail.send(msg)
-
-        return render_template("forget_password_sent.html")
-
-        # TODO: Kill all existing sessions (to be implemented after session management code)
+                return render_template("forget_password_sent.html")
+                # TODO: Kill all existing sessions (to be implemented after session management code)
     else:
         return render_template("forget_password.html")
 
 
 @bp_forgot_password.route("/verify_reset/<string:token>", methods=["GET", "POST"])
 def verify_reset(token: str) -> str:
+    from app import recaptchav3
     if request.method == "GET":
         # returns email if reset token verified
         email = verify_reset_token(token)
@@ -70,26 +82,35 @@ def verify_reset(token: str) -> str:
             flash("Invalid token", category="danger")
             return redirect(url_for('bp_forgot_password.verify_reset'))
     else:
-        # returns email if reset token verified
-        email = verify_reset_token(token)
-        if email:
-            password_1 = request.form.get("password", EMPTY_STRING)
-            password_2 = request.form.get("confirm_password", EMPTY_STRING)
+        if recaptchav3.verify():
+            # returns email if reset token verified
+            email = verify_reset_token(token)
+            if email:
+                password_1 = request.form.get("password", EMPTY_STRING)
+                password_2 = request.form.get("confirm_password", EMPTY_STRING)
 
-            if password_1 == password_2 and password_1 != EMPTY_STRING:
-                password = generate_password_hash(password_1)
+                if password_1 == password_2 and password_1 != EMPTY_STRING:
+                    password = generate_password_hash(password_1)
 
-                update_dict = {
-                    "password": password
-                }
+                    update_dict = {
+                        "password": password
+                    }
 
-                t = User.query.filter_by(email=email)
-                t.update(update_dict)
-                db.session.commit()
-                flash('Login with your newly resetted password!', category="success")
-                return redirect(url_for('login'))
+                    t = User.query.filter_by(email=email)
+                    t.update(update_dict)
+                    db.session.commit()
+                    with current_app.app_context():
+                        send_mail_async(
+                            app_context=current_app,
+                            subject="Reset Password Activity detected",
+                            recipients=[email],
+                            email_body=render_template('reset_successful.html', datetime=datetime.now())
+                        )
+
+                    flash('Login with your newly resetted password!', category="success")
+                    return redirect(url_for('login'))
+                else:
+                    flash('The passwords does not match!', category="danger")
+                    return redirect(url_for("bp_forgot_password.verify_reset", token=token))
             else:
-                flash('The passwords does not match!', category="danger")
-                return redirect(url_for("bp_forgot_password.verify_reset", token=token))
-        else:
-            return url_for("bp_forgot_password.verify_reset", token=token)
+                return url_for("bp_forgot_password.verify_reset", token=token)
