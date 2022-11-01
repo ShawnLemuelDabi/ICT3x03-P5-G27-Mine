@@ -32,7 +32,12 @@ def customer_read_fault(fault_id: int) -> str:
 @bp_faults.route("/fault/create/<int:booking_id>", methods=["GET"])
 def customer_create_fault(booking_id: int = None):
     if request.method == "GET":
-        bookings = Booking.query.join(Booking.fault, aliased=True).filter(Booking.user_id == flask_login.current_user.user_id, Booking.status == BOOKING_STATUS[2], Fault.booking_id == booking_id).all()
+        faults = db.session.query(Fault.booking_id).join(Fault.booking, aliased=True).filter(Booking.user_id == flask_login.current_user.user_id).subquery()
+        bookings = Booking.query.filter(
+            Booking.user_id == flask_login.current_user.user_id,
+            Booking.status == BOOKING_STATUS[2],
+            Booking.booking_id.notin_(faults)
+        ).all()
 
         return render_template("fault_create_form.jinja2", booking_id=booking_id, bookings=bookings, valid_categories=FAULT_CATEGORIES)
     elif request.method == "POST":
@@ -57,7 +62,12 @@ def customer_create_fault(booking_id: int = None):
             flash("only image files are allowed", category="danger")
         else:
             # check if booking exists and is valid to create a fault
-            booking = Booking.query.join(Booking.fault, aliased=True).filter(Booking.user_id == flask_login.current_user.user_id, Booking.status == BOOKING_STATUS[2], Fault.booking_id == booking_id)
+            faults = db.session.query(Fault.booking_id).join(Fault.booking, aliased=True).filter(Booking.user_id == flask_login.current_user.user_id, Fault.booking_id == booking_id).subquery()
+            booking = Booking.query.filter(
+                Booking.user_id == flask_login.current_user.user_id,
+                Booking.status == BOOKING_STATUS[2],
+                Booking.booking_id.notin_(faults)
+            )
 
             if booking.first() is not None:
                 new_fault = Fault(

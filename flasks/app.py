@@ -11,7 +11,7 @@ import flask_login
 
 from user import User
 from vehicle import Vehicle
-from booking import Booking
+from booking import Booking, BOOKING_STATUS
 from recovery_code import Recovery_Codes
 
 from engine import engine_uri
@@ -20,6 +20,7 @@ import mfa
 from flask_qrcode import QRcode
 
 from db import db
+from sqlalchemy import or_, and_
 
 from db_helper import vehicle_distinct_locations, vehicle_distinct_vehicle_types
 from jwt_helper import generate_token, verify_token
@@ -42,6 +43,8 @@ from error_handler import ErrorHandler
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, validate_email, validate_image, validate_name, validate_phone_number
 
 from flask_wtf.csrf import CSRFProtect
+
+from google_recaptcha import ReCaptcha
 
 # Initialize Flask
 app = Flask(__name__)
@@ -72,10 +75,19 @@ app.config['MAIL_USE_SSL'] = strtobool(os.environ.get("SMTP_USE_SSL")) == 1
 app.config['MAIL_USERNAME'] = os.environ.get("SMTP_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("SMTP_PASSWORD")
 
-app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY")
-app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY")
+# recaptcha v2 tickbox
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get("RC_SITE_KEY_V2")
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get("RC_SECRET_KEY_V2")
+
+# recaptcha v3
+recaptchav3 = ReCaptcha(
+    app,
+    site_key=os.environ.get("RC_SITE_KEY_V3"),
+    site_secret=os.environ.get("RC_SECRET_KEY_V3")
+)
 
 app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
+
 
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
@@ -168,91 +180,104 @@ def register() -> str | Response:
 def register_verified(token: str) -> str:
     form = recaptchaForm()
 
-    if request.method == "POST" and form.validate_on_submit():
-        err_handler = ErrorHandler(app)
+    err_handler = ErrorHandler(app)
 
-        uploaded_file = request.files['license_blob']
+    if request.method == "POST":
+        if form.validate_on_submit():
+            uploaded_file = request.files['license_blob']
 
-        first_name = request.form.get("first_name", EMPTY_STRING)
-        last_name = request.form.get("last_name", EMPTY_STRING)
-        password = request.form.get("password", EMPTY_STRING)
-        phone_number = request.form.get("phone_number", EMPTY_STRING)
+            first_name = request.form.get("first_name", EMPTY_STRING)
+            last_name = request.form.get("last_name", EMPTY_STRING)
+            password = request.form.get("password", EMPTY_STRING)
+            phone_number = request.form.get("phone_number", EMPTY_STRING)
 
-        license_blob = uploaded_file.stream.read()
-        license_blob_size = uploaded_file.content_length
-        license_filename = uploaded_file.filename or EMPTY_STRING
-        license_mime = uploaded_file.mimetype
+            license_blob = uploaded_file.stream.read()
+            license_blob_size = len(license_blob)
+            license_filename = uploaded_file.filename or EMPTY_STRING
+            license_mime = uploaded_file.mimetype
 
-        try:
-            email = verify_token(token)
-        except Exception as e:
-            err_handler.push(
-                user_message="Invalid token",
-                log_message=f"Invalid token. {e}"
-            )
+            try:
+                email = verify_token(token)
 
-        if not validate_email(email):
-            err_handler.push(
-                user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
-                log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
-            )
+                if not validate_email(email):
+                    err_handler.push(
+                        user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                        log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
+                    )
 
-        if not validate_name(first_name) or not validate_name(last_name) or not validate_phone_number(phone_number):
-            err_handler.push(
-                user_message="Illegal character caught",
-                log_message='Something something'
-            )
+                if not validate_name(first_name) or not validate_name(last_name) or not validate_phone_number(phone_number):
+                    err_handler.push(
+                        user_message="Illegal character caught",
+                        log_message='Illegal character caught in either name or phone number'
+                    )
 
-        if not validate_image(license_blob, license_filename, license_blob_size):
-            err_handler.push(
-                user_message="Invalid image format",
-                log_message='Something something'
-            )
+                if not validate_image(license_blob, license_filename, license_blob_size):
+                    err_handler.push(
+                        user_message="Invalid image format",
+                        log_message='Invalid image format'
+                    )
 
-        if len(password) < 7:
+                if len(password) < 7:
+                    err_handler.push(
+                        user_message="Password length too short",
+                        log_message="Password length too short"
+                    )
 
-            err_handler.push(
-                user_message="Password length too short",
-                log_message="Password length too short"
-            )
+                user_exists: User = User.query.filter_by(email=email).first()
 
-        user_exists: User = User.query.filter_by(email=email).first()
+                if user_exists:
+                    err_handler.push(
+                        user_message="Username exists.",
+                        log_message="Username exists"
+                    )
 
-        if user_exists:
+                if license_blob_size >= MEDIUMBLOB_BYTE_SIZE:
+                    err_handler.push(
+                        user_message="Maximize size exceeded.",
+                        log_message="Maximize size exceeded for license blob"
+                    )
 
-            err_handler.push(
-                user_message="Username exists.",
-                log_message="Username exists"
-            )
+                err_handler.commit_log()
 
-        if license_blob_size >= MEDIUMBLOB_BYTE_SIZE:
+                if not err_handler.has_error():
+                    create_user(
+                        email=email,
+                        password=password,
+                        first_name=first_name,
+                        last_name=last_name,
+                        phone_number=phone_number,
+                        license_blob=license_blob,
+                        license_filename=license_filename,
+                        license_mime=license_mime,
+                        mfa_secret=EMPTY_STRING,
+                        role=1,
+                    )
+                    flash("Account created successfully!", category="success")
+                    return redirect(url_for('login'))
+            except Exception as e:
+                err_handler.push(
+                    user_message="Invalid token",
+                    log_message=f"Invalid token. Token given: {e}"
+                )
 
-            err_handler.push(
-                user_message="Maximize size exceeded.",
-                log_message="Maximize size exceeded for license blob"
-            )
+            err_handler.commit_log()
 
-        err_handler.commit_log()
-
-        if err_handler.has_error():
-            flash(err_handler.first().user_message, category="danger")
+            if err_handler.has_error():
+                for i in err_handler.all():
+                    flash(i.user_message, category="danger")
+            return redirect(url_for('register_verified', token=token))
         else:
-            create_user(
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                phone_number=phone_number,
-                license_blob=license_blob,
-                license_filename=license_filename,
-                license_mime=license_mime,
-                mfa_secret=EMPTY_STRING,
-                role=1,
+            err_handler.push(
+                user_message="Invalid reCAPTCHA",
+                log_message="Invalid reCAPTCHA."
             )
-            return redirect(url_for('login'))
-    elif request.method == "GET":
-        err_handler = ErrorHandler(app)
 
+            err_handler.commit_log()
+
+            if err_handler.has_error():
+                flash(err_handler.first().user_message, category="danger")
+                return redirect(url_for("register_verified", token=token))
+    elif request.method == "GET":
         try:
             email = verify_token(token)
             return render_template("register_verified.jinja2", form=form, token=token, email=email)
@@ -267,7 +292,7 @@ def register_verified(token: str) -> str:
         if err_handler.has_error():
             flash(err_handler.first().user_message, category="danger")
 
-    return render_template("register_verified.jinja2", form=form, token=token)
+        return render_template("register_verified.jinja2", form=form, token=token)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -282,40 +307,33 @@ def login() -> str:
         return redirect(url_for('profile'))
 
     if request.method == "POST":
-        email = request.form.get("email", EMPTY_STRING)
-        password = request.form.get("password", EMPTY_STRING)
-        otp = request.form.get("otp", EMPTY_STRING)
-        recovery_code = request.form.get("recovery_code", EMPTY_STRING)
+        if recaptchav3.verify():
+            app.logger.debug("recaptcha verified!")
+            email = request.form.get("email", EMPTY_STRING)
+            password = request.form.get("password", EMPTY_STRING)
+            # otp = request.form.get("otp", EMPTY_STRING)
+            # recovery_code = request.form.get("recovery_code", EMPTY_STRING)
 
-        if all([i != EMPTY_STRING for i in [email, password]]):
-            user = get_user(email, password)
+            if all([i != EMPTY_STRING for i in [email, password]]):
+                user = get_user(email, password)
 
             if user:
                 """
                 email and password matches
                 """
-                if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
-                    """
-                    If mfa is enabled and otp is correct
-                    """
-                    return login_success()
-                elif user.mfa_secret == EMPTY_STRING:
+                # if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
+                #     """
+                #     If mfa is enabled and otp is correct
+                #     """
+                #     return login_success()
+                if user.mfa_secret == EMPTY_STRING:
                     """
                     If mfa is not enabled
                     """
                     return login_success()
-                elif user.mfa_secret != EMPTY_STRING and recovery_code != EMPTY_STRING:
-                    """
-                    If mfa is enabled and recovery_code is entered
-                    """
-                    matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(Recovery_Codes.code == recovery_code, Recovery_Codes.is_used != False).first()
-
-                    if matched_code:
-                        matched_code.is_used = True
-                        db.session.commit()
-                        return login_success()
-                    else:
-                        return login_error()
+                elif user.mfa_secret != EMPTY_STRING:
+                    session["otp_user_id"] = user.user_id
+                    return redirect(url_for("otp_login"))
                 else:
                     """
                     None of the above
@@ -324,12 +342,69 @@ def login() -> str:
             else:
                 return login_error()
         else:
+            flash("Bot activity detected", category="danger")
             return login_error()
     elif request.method == "GET":
         if not flask_login.current_user.is_anonymous:
             return redirect(url_for('profile'))
         else:
             return render_template("login.html")
+
+
+@app.route("/otp", methods=["GET", "POST"])
+def otp_login() -> str | Response:
+    def login_success() -> Response:
+        # if successfully authenticated
+        flask_login.login_user(user)
+        return redirect(url_for('profile'))
+
+    if request.method == "GET":
+        try:
+            if "otp_user_id" in session:
+                return render_template("otp_prompt.jinja2")
+            else:
+                flash("Invalid session", category="danger")
+                return redirect(url_for("login"))
+        except KeyError:
+            flash("Invalid session", category="danger")
+            return redirect(url_for("login"))
+    else:
+        try:
+            user_id = session.pop("otp_user_id")
+
+            user = User.query.filter(User.user_id == user_id).first()
+
+            if user is not None:
+                otp = request.form.get("otp", EMPTY_STRING)
+                recovery_code = request.form.get("recovery_code", EMPTY_STRING)
+
+                if user.mfa_secret != EMPTY_STRING:
+                    if otp != EMPTY_STRING and mfa.verify_otp(user, otp):
+                        return login_success()
+                    elif recovery_code != EMPTY_STRING:
+                        matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(
+                            User.user_id == user_id,
+                            Recovery_Codes.code == recovery_code,
+                            Recovery_Codes.is_used == False
+                        ).first()
+
+                        if matched_code is not None:
+                            matched_code.is_used = True
+                            db.session.commit()
+                            return login_success()
+                        else:
+                            flash("Invalid code", category="danger")
+                            return redirect(url_for("login"))
+                    else:
+                        flash("Incorrect OTP", category="danger")
+                        return redirect(url_for("login"))
+                else:
+                    flash("MFA is not enabled", category="danger")
+                    return redirect(url_for("profile"))
+        except KeyError:
+            flash("Invalid session", category="danger")
+            return redirect(url_for("login"))
+        return ""
 
 
 @app.route("/logout", methods=["GET"])
@@ -414,24 +489,47 @@ def search() -> str:
             "end_date": end_date,
         }
 
-        start_date_obj = datetime.strptime(start_date, "%Y-%M-%d")
-        end_date_obj = datetime.strptime(end_date, "%Y-%M-%d")
+        err_handler = ErrorHandler(app)
 
-        booking_timedelta: datetime = end_date_obj - start_date_obj
+        try:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
 
-        if booking_timedelta.days <= 0:
-            flash("End date cannot be earlier than start date!", category="danger")
-            return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=[])
-        else:
-            # TODO: write a better query. this is inefficient to have 2 queries
-            booking_result = Booking.query.join(Booking.vehicle, aliased=True).filter(Vehicle.location == location, Booking.start_date <= start_date, Booking.end_date >= end_date).all()
+            booking_timedelta: datetime = end_date_obj - start_date_obj
 
-            reject_vehicle_id: list[int] = [i.vehicle_id for i in booking_result]
+            if booking_timedelta.days <= 0:
+                flash("End date cannot be earlier than start date!", category="danger")
+            else:
+                vehicles_with_booking = db.session.query(Booking.vehicle_id).join(Booking.vehicle, aliased=True).filter(
+                    Vehicle.location == location,
+                    Booking.status != BOOKING_STATUS[-1],
+                    or_(
+                        and_(Booking.start_date > start_date, Booking.end_date < end_date),
+                        and_(Booking.start_date < start_date, Booking.end_date > end_date),
+                        and_(Booking.start_date < end_date, Booking.end_date > end_date),
+                        and_(Booking.start_date < start_date, Booking.end_date > start_date),
+                        and_(Booking.start_date == start_date, Booking.end_date == end_date)
+                    )
+                ).subquery()
 
-            search_result = Vehicle.query.filter(Vehicle.location == location).filter(Vehicle.vehicle_id.notin_(reject_vehicle_id))
-            search_result = search_result or []
+                vehicles_without_booking = Vehicle.query.filter(Vehicle.location == location, Vehicle.vehicle_id.notin_(vehicles_with_booking))
 
-            return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
+                search_result = vehicles_without_booking.all() or []
+
+                return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
+        except ValueError as e:
+            err_handler.push(
+                user_message="Invalid date",
+                log_message=f"Invalid date: {start_date} to {end_date}. {e}"
+            )
+
+        err_handler.commit_log()
+
+        if err_handler.has_error():
+            for i in err_handler.all():
+                flash(i.user_message, category="danger")
+        return redirect(url_for("index"))
+
     else:
         abort(400)
 
