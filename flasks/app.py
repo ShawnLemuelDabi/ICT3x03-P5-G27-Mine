@@ -311,8 +311,8 @@ def login() -> str:
             app.logger.debug("recaptcha verified!")
             email = request.form.get("email", EMPTY_STRING)
             password = request.form.get("password", EMPTY_STRING)
-            otp = request.form.get("otp", EMPTY_STRING)
-            recovery_code = request.form.get("recovery_code", EMPTY_STRING)
+            # otp = request.form.get("otp", EMPTY_STRING)
+            # recovery_code = request.form.get("recovery_code", EMPTY_STRING)
 
             if all([i != EMPTY_STRING for i in [email, password]]):
                 user = get_user(email, password)
@@ -321,28 +321,19 @@ def login() -> str:
                 """
                 email and password matches
                 """
-                if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
-                    """
-                    If mfa is enabled and otp is correct
-                    """
-                    return login_success()
-                elif user.mfa_secret == EMPTY_STRING:
+                # if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
+                #     """
+                #     If mfa is enabled and otp is correct
+                #     """
+                #     return login_success()
+                if user.mfa_secret == EMPTY_STRING:
                     """
                     If mfa is not enabled
                     """
                     return login_success()
-                elif user.mfa_secret != EMPTY_STRING and recovery_code != EMPTY_STRING:
-                    """
-                    If mfa is enabled and recovery_code is entered
-                    """
-                    matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(Recovery_Codes.code == recovery_code, Recovery_Codes.is_used != False).first()
-
-                    if matched_code:
-                        matched_code.is_used = True
-                        db.session.commit()
-                        return login_success()
-                    else:
-                        return login_error()
+                elif user.mfa_secret != EMPTY_STRING:
+                    session["otp_user_id"] = user.user_id
+                    return redirect(url_for("otp_login"))
                 else:
                     """
                     None of the above
@@ -351,13 +342,69 @@ def login() -> str:
             else:
                 return login_error()
         else:
-            flash("Bot activity detected")
+            flash("Bot activity detected", category="danger")
             return login_error()
     elif request.method == "GET":
         if not flask_login.current_user.is_anonymous:
             return redirect(url_for('profile'))
         else:
             return render_template("login.html")
+
+
+@app.route("/otp", methods=["GET", "POST"])
+def otp_login() -> str | Response:
+    def login_success() -> Response:
+        # if successfully authenticated
+        flask_login.login_user(user)
+        return redirect(url_for('profile'))
+
+    if request.method == "GET":
+        try:
+            if "otp_user_id" in session:
+                return render_template("otp_prompt.jinja2")
+            else:
+                flash("Invalid session", category="danger")
+                return redirect(url_for("login"))
+        except KeyError:
+            flash("Invalid session", category="danger")
+            return redirect(url_for("login"))
+    else:
+        try:
+            user_id = session.pop("otp_user_id")
+
+            user = User.query.filter(User.user_id == user_id).first()
+
+            if user is not None:
+                otp = request.form.get("otp", EMPTY_STRING)
+                recovery_code = request.form.get("recovery_code", EMPTY_STRING)
+
+                if user.mfa_secret != EMPTY_STRING:
+                    if otp != EMPTY_STRING and mfa.verify_otp(user, otp):
+                        return login_success()
+                    elif recovery_code != EMPTY_STRING:
+                        matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(
+                            User.user_id == user_id,
+                            Recovery_Codes.code == recovery_code,
+                            Recovery_Codes.is_used == False
+                        ).first()
+
+                        if matched_code is not None:
+                            matched_code.is_used = True
+                            db.session.commit()
+                            return login_success()
+                        else:
+                            flash("Invalid code", category="danger")
+                            return redirect(url_for("login"))
+                    else:
+                        flash("Incorrect OTP", category="danger")
+                        return redirect(url_for("login"))
+                else:
+                    flash("MFA is not enabled", category="danger")
+                    return redirect(url_for("profile"))
+        except KeyError:
+            flash("Invalid session", category="danger")
+            return redirect(url_for("login"))
+        return ""
 
 
 @app.route("/logout", methods=["GET"])
@@ -447,9 +494,6 @@ def search() -> str:
         try:
             start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
             end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
-
-            app.logger.debug(start_date_obj)
-            app.logger.debug(end_date_obj)
 
             booking_timedelta: datetime = end_date_obj - start_date_obj
 

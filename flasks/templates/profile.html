@@ -3,6 +3,20 @@
 {% block content %}
 
 <section class="contact-area padding-top-50px padding-bottom-50px">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                <span aria-hidden="true">X</span>
+            </button>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <div class="container">
       <div class="row">
         <div class="col-lg-8">
