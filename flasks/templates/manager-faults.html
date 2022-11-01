@@ -13,9 +13,12 @@
         {# Fault manager Interfaces #}
         <div class="col md-12">
             {# Insert Data interface #}
+            {#
             <h2>Fault List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel">Add Fault</button></h2>
-            
+            #}
+
             {# Modal For Creating a New Fault #}
+            {#
             <div class="modal fade" id="myModel" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -60,6 +63,7 @@
                     </div>
                 </div>
             </div>
+            #}
 
             {# A flash Verification message for successful data insertion/update/delete #}
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -94,8 +98,11 @@
                     <td>{{ row.reported_date }}</td>
                     <td>{{ row.description }}</td>
                     <td>
-                        <a href={{ url_for("bp_fcp.manager_update_fault", fault_id=row.fault_id) }} class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.fault_id }}">Edit</a>
-                        <a href={{ url_for("bp_fcp.manager_delete_fault", fault_id=row.fault_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete fault {{ row.fault_id }}?')">Delete</a>                                
+                        <a href="{{ url_for('bp_fcp.manager_update_fault', fault_id=row.fault_id) }}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.fault_id }}">Edit</a>
+                        <form method="POST" action="{{ url_for('bp_fcp.manager_delete_fault', fault_id=row.fault_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete fault {{ row.fault_id }}?')">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 
@@ -148,7 +155,7 @@
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

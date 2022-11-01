@@ -4,7 +4,6 @@ from flask import Flask, request, render_template, url_for, redirect, flash, abo
 
 # User imports
 from create_user import create_user
-from recaptcha import recaptchaForm
 from get_user import get_user
 
 import flask_login
@@ -107,25 +106,9 @@ def load_user(user_id: int) -> User:
 def unauthorized() -> Response:
     return http_unauthorized(redirect_to_login=True)
 
-# is this even used?
-# def check_access(access_level):
-#     def decorator(f):
-#         @wraps(f)
-#         def decorated_function(*args, **kwargs):
-#             if not flask_login.current_user.is_authenticated:
-#                 return abort(401)
-
-#             if not flask_login.current_user.allowed(access_level):
-#                 return abort(401)
-#             return f(*args, **kwargs)
-
-#         return decorated_function
-
-#     return decorator
-
 
 @app.before_request
-def before_request_func():
+def before_request_func() -> None:
     try:
         g.distinct_vehicle_types = vehicle_distinct_vehicle_types()
     except Exception as e:
@@ -139,51 +122,52 @@ def index() -> str:
 
 @app.route("/register", methods=["GET", "POST"])
 def register() -> str | Response:
-    form = recaptchaForm()
+    if request.method == "POST":
+        if recaptchav3.verify():
+            err_handler = ErrorHandler(app, dict(request.headers))
 
-    if request.method == "POST" and form.validate_on_submit():
-        err_handler = ErrorHandler(app)
+            email = request.form.get("email", EMPTY_STRING)
 
-        email = request.form.get("email", EMPTY_STRING)
+            if not validate_email(email):
+                err_handler.push(
+                    user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
+                    log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
+                )
 
-        if not validate_email(email):
-            err_handler.push(
-                user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
-                log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
-            )
+            # check if user already exist
+            if User.query.filter(User.email == email).first() is not None:
+                err_handler.push(
+                    user_message="An account with this email exists",
+                    log_message=f"An account with this email exists. Email given: {email}"
+                )
 
-        # check if user already exist
-        if User.query.filter(User.email == email).first() is not None:
-            err_handler.push(
-                user_message="An account with this email exists",
-                log_message=f"An account with this email exists. Email given: {email}"
-            )
+            err_handler.commit_log()
 
-        err_handler.commit_log()
+            if err_handler.has_error():
+                for i in err_handler.all():
+                    flash(i.user_message, category="danger")
+            else:
+                token = generate_token(email)
 
-        if err_handler.has_error():
-            flash(err_handler.first().user_message, category="danger")
+                send_mail(
+                    app_context=app,
+                    subject="Registration",
+                    recipients=[email],
+                    email_body=render_template("register_email_body.jinja2", token=token)
+                )
+
+                return render_template("register_email_sent.jinja2")
         else:
-            token = generate_token(email)
-
-            send_mail(
-                app_context=app,
-                subject="Registration",
-                recipients=[email],
-                email_body=render_template("register_email_body.jinja2", token=token))
-
-            return render_template("register_email_sent.jinja2")
-    return render_template("register.html", form=form)
+            flash("Bot activity detected", category="danger")
+    return render_template("register.html")
 
 
 @app.route("/register/<string:token>", methods=["GET", "POST"])
 def register_verified(token: str) -> str:
-    form = recaptchaForm()
-
-    err_handler = ErrorHandler(app)
+    err_handler = ErrorHandler(app, dict(request.headers))
 
     if request.method == "POST":
-        if form.validate_on_submit():
+        if recaptchav3.verify():
             uploaded_file = request.files['license_blob']
 
             first_name = request.form.get("first_name", EMPTY_STRING)
@@ -280,7 +264,7 @@ def register_verified(token: str) -> str:
     elif request.method == "GET":
         try:
             email = verify_token(token)
-            return render_template("register_verified.jinja2", form=form, token=token, email=email)
+            return render_template("register_verified.jinja2", token=token, email=email)
         except Exception as e:
             err_handler.push(
                 user_message="Invalid token",
@@ -292,13 +276,24 @@ def register_verified(token: str) -> str:
         if err_handler.has_error():
             flash(err_handler.first().user_message, category="danger")
 
-        return render_template("register_verified.jinja2", form=form, token=token)
+        return render_template("register_verified.jinja2", token=token)
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login() -> str:
+    err_handler = ErrorHandler(app, dict(request.headers))
+
     def login_error(msg="Incorrect credentials") -> str:
-        flash(msg, category="danger")
+        err_handler.push(
+            user_message=msg,
+            log_message=msg
+        )
+
+        err_handler.commit_log()
+
+        if err_handler.has_error():
+            for i in err_handler.all():
+                flash(i.user_message, category="danger")
         return redirect(url_for("login"))
 
     def login_success() -> Response:
@@ -489,7 +484,7 @@ def search() -> str:
             "end_date": end_date,
         }
 
-        err_handler = ErrorHandler(app)
+        err_handler = ErrorHandler(app, dict(request.headers))
 
         try:
             start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")

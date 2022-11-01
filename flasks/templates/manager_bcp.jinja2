@@ -65,7 +65,10 @@
                             <td>{% if row.paynow_reference_number %}{{ row.paynow_reference_number }}{% else %}-{% endif %}</td>
                             <td>
                                 <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.booking_id}}">Edit</a>
-                                <a href={{ url_for("bp_bcp.manager_delete_booking", booking_id=row.booking_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete booking {{row.booking_id}}?')">Delete</a>
+                                <form method="POST" action="{{ url_for('bp_bcp.manager_delete_booking', booking_id=row.booking_id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete booking {{row.booking_id}}?')">Delete</button>
+                                </form>                            
                             </td>
                         </tr>
 
@@ -99,7 +102,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
                                             <div class="form-group">
                                                 <button class="btn btn-primary" type="submit">Update Data</button>
                                             </div>

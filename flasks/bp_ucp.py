@@ -15,7 +15,7 @@ from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE
 bp_ucp = Blueprint('bp_ucp', __name__, template_folder='templates')
 
 
-@bp_ucp.route("/admin/ucp", methods=["GET", "POST"])
+@bp_ucp.route("/admin/ucp", methods=["GET"])
 def admin_read_users() -> str:
     users_list = User.query.filter(User.role >= 3)
     data = users_list.all()
@@ -25,7 +25,7 @@ def admin_read_users() -> str:
     return render_template("user_manager.html", user_list=data, valid_roles=valid_roles, roles=ROLE)
 
 
-@bp_ucp.route("/admin/ucp/user/<int:user_id>", methods=["GET", "POST"])
+@bp_ucp.route("/admin/ucp/user/<int:user_id>", methods=["GET"])
 def admin_read_user(user_id: int) -> str:
     return abort(501, "This should never be used?")
 
@@ -44,7 +44,7 @@ def admin_create_user() -> str:
     role = request.form.get("role", EMPTY_STRING)
 
     license_blob = uploaded_file.stream.read()
-    license_blob_size = uploaded_file.content_length
+    license_blob_size = len(license_blob)
     license_filename = uploaded_file.filename or EMPTY_STRING
     license_mime = uploaded_file.mimetype
 
@@ -100,7 +100,7 @@ def admin_update_user(user_id: int) -> str:
         role = request.form.get("role", EMPTY_STRING)
 
         license_blob = uploaded_file.stream.read()
-        license_blob_size = uploaded_file.content_length
+        license_blob_size = len(license_blob)
         license_filename = uploaded_file.filename or EMPTY_STRING
         license_mime = uploaded_file.mimetype
 
@@ -143,7 +143,7 @@ def admin_update_user(user_id: int) -> str:
 
 
 # The route function to delete car data in DB
-@bp_ucp.route("/admin/ucp/user/delete/<int:user_id>", methods=["GET"])
+@bp_ucp.route("/admin/ucp/user/delete/<int:user_id>", methods=["POST"])
 def admin_delete_user(user_id: int) -> str:
     # Function to delete the selected vehicle from vehicle db
     target_user = User.query.filter(User.user_id == user_id, User.role >= 3)
@@ -159,7 +159,7 @@ def admin_delete_user(user_id: int) -> str:
     return redirect(url_for("bp_ucp.admin_read_users"))
 
 
-@bp_ucp.route("/manager/ucp", methods=["GET", "POST"])
+@bp_ucp.route("/manager/ucp", methods=["GET"])
 def manager_read_users() -> str:
     users_list = User.query.filter(User.role < 3)
     data = users_list.all()
@@ -169,7 +169,7 @@ def manager_read_users() -> str:
     return render_template("manager_ucp.jinja2", user_list=data, valid_roles=valid_roles, roles=ROLE)
 
 
-@bp_ucp.route("/manager/ucp/user/<int:user_id>", methods=["GET", "POST"])
+@bp_ucp.route("/manager/ucp/user/<int:user_id>", methods=["GET"])
 def manager_read_user(user_id: int) -> str:
     return abort(501, "This should never be used?")
 
@@ -188,7 +188,7 @@ def manager_create_user() -> str:
     role = request.form.get("role", EMPTY_STRING)
 
     license_blob = uploaded_file.stream.read()
-    license_blob_size = uploaded_file.content_length
+    license_blob_size = len(license_blob)
     license_filename = uploaded_file.filename or EMPTY_STRING
     license_mime = uploaded_file.mimetype
 
@@ -243,7 +243,7 @@ def manager_update_user(user_id: int) -> str:
         role = request.form.get("role", EMPTY_STRING)
 
         license_blob = uploaded_file.stream.read()
-        license_blob_size = uploaded_file.content_length
+        license_blob_size = len(license_blob)
         license_filename = uploaded_file.filename or EMPTY_STRING
         license_mime = uploaded_file.mimetype
 
@@ -272,7 +272,7 @@ def manager_update_user(user_id: int) -> str:
 
 
 # The route function to delete car data in DB
-@bp_ucp.route("/manager/ucp/user/delete/<int:user_id>", methods=["GET"])
+@bp_ucp.route("/manager/ucp/user/delete/<int:user_id>", methods=["POST"])
 def manager_delete_user(user_id: int) -> str:
     # Function to delete the selected vehicle from vehicle db
     target_user = User.query.filter(User.user_id == user_id, User.role >= 1, User.role <= 2)

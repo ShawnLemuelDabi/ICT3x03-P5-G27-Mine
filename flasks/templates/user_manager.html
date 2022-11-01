@@ -116,7 +116,10 @@
                             <td><img height="50px" src="{{ row.get_b64_license_data_uri() }}" alt="{{row.license_filename}}"/></td>
                             <td>
                                 <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}">Edit</a>
-                                <a href={{ url_for("bp_ucp.admin_delete_user", user_id=row.user_id) }} class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</a>
+                                <form method="POST" action="{{ url_for('bp_ucp.admin_delete_user', user_id=row.user_id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{row.user_id}}?')">Delete</button>
+                                </form>
                             </td>
                         </tr>
 
