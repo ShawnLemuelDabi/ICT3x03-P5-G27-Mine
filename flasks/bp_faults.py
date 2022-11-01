@@ -4,7 +4,7 @@ import flask_login
 
 from db import db
 
-from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE
+from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, DATE_FORMAT
 
 from fault import Fault, FAULT_CATEGORIES, FAULT_STATUS
 from booking import BOOKING_STATUS, Booking
@@ -45,7 +45,7 @@ def customer_create_fault(booking_id: int = None):
         uploaded_file = request.files['fault_image']
 
         booking_id = request.form.get("booking_id")
-        reported_date = date.today().strftime("%Y-%m-%d")
+        reported_date = date.today().strftime(DATE_FORMAT)
         description = request.form.get("description")
         category = request.form.get("category")
         description = request.form.get("description")
