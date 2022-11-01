@@ -8,7 +8,7 @@ MEDIUMBLOB_BYTE_SIZE = 16777215
 
 NAME_REGEX_PATTERN = r"^[a-zA-Z ]+$"
 PHONE_NUMBER_REGEX_PATTERN = r"^(8|9){1}[0-9]{7}$"
-EMAIL_REGEX_PATTERN = r"^.*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
+EMAIL_REGEX_PATTERN = r"^[a-zA-Z0-9.]{1,63}@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
 
 
 def validate_str_input(
@@ -59,8 +59,7 @@ def validate_email(input_str: str) -> bool:
     returns a boolean value whether the input matches the email domain or not
     """
 
-    regex_pattern = r"^[a-zA-Z0-9.]{1,63}@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
-    validity = bool(re.match(regex_pattern, input_str))
+    validity = bool(re.match(EMAIL_REGEX_PATTERN, input_str))
     return validity
 
 
