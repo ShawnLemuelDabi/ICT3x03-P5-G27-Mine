@@ -5,7 +5,7 @@ from db import db
 from user import User
 
 from input_validation import EMPTY_STRING, validate_email
-
+from jwt_helper import generate_token, verify_token
 import os
 import jwt
 import time
@@ -16,21 +16,6 @@ from datetime import datetime
 from error_handler import ErrorHandler
 
 bp_forgot_password = Blueprint('bp_forgot_password', __name__, template_folder='templates')
-
-def get_reset_token(email: str, expires: int = 500) -> str:
-    return jwt.encode({
-        'reset_password': email,
-        'exp': time.time() + expires
-    }, key=os.environ.get("RESET_PASSWORD_JWT_KEY"), algorithm="HS256")
-
-
-def verify_reset_token(token: str) -> str:
-    try:
-        email = jwt.decode(token, key=os.environ.get("RESET_PASSWORD_JWT_KEY"), algorithms="HS256")['reset_password']
-        return email
-    except Exception as e:
-        current_app.logger.fatal(e)
-
 
 @bp_forgot_password.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password() -> str:
@@ -54,7 +39,7 @@ def forgot_password() -> str:
                 user: User = User.query.filter_by(email=email).first()
 
                 if user:
-                    token = get_reset_token(email)
+                    token = generate_token(email)
 
                     with current_app.app_context():
                         send_mail_async(
@@ -75,7 +60,7 @@ def verify_reset(token: str) -> str:
     from app import recaptchav3
     if request.method == "GET":
         # returns email if reset token verified
-        email = verify_reset_token(token)
+        email = verify_token(token)
         if email:
             return render_template("reset_password.html", email=email, token=token)
         else:
@@ -84,7 +69,7 @@ def verify_reset(token: str) -> str:
     else:
         if recaptchav3.verify():
             # returns email if reset token verified
-            email = verify_reset_token(token)
+            email = verify_token(token)
             if email:
                 password_1 = request.form.get("password", EMPTY_STRING)
                 password_2 = request.form.get("confirm_password", EMPTY_STRING)

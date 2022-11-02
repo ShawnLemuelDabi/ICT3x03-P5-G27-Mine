@@ -6,9 +6,9 @@ import os
 EMPTY_STRING = ""
 MEDIUMBLOB_BYTE_SIZE = 16777215
 
-NAME_REGEX_PATTERN = r"^[a-zA-Z ]+$"
+NAME_REGEX_PATTERN = r"^[a-zA-Z -]+$"
 PHONE_NUMBER_REGEX_PATTERN = r"^(8|9){1}[0-9]{7}$"
-EMAIL_REGEX_PATTERN = r"^[a-zA-Z0-9.]{1,63}@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$"
+EMAIL_REGEX_PATTERN = r"^[a-zA-Z0-9.]{1,63}@((gmail|hotmail|yahoo|outlook).com|sit.singaporetech.edu.sg)$"
 
 
 def validate_str_input(
