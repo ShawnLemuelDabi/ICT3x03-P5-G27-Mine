@@ -27,7 +27,7 @@
             <p>
               Enter the email to create your account. Then you will receive a link to email to continue with the registration.
             </p>
-            <form method="POST" action="{{ url_for('register') }}">
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('register') }}">
               <div class="row">
                 <div class="col-lg-12 responsive-column">
                   <div class="input-box">
@@ -43,7 +43,6 @@
                 </div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="shallot-recaptcha-margin">
-                  {{ recaptcha }}
                 </div>
                 <div class="col-lg-12">
                   <div class="btn-box">
@@ -51,6 +50,7 @@
                   </div>
                 </div>
               </div>
+              {{ recaptcha }}
             </form>
           </div>
         </div>

@@ -8,7 +8,7 @@ from booking import Booking, BOOKING_STATUS
 
 from create_booking import create_booking
 
-from input_validation import EMPTY_STRING
+from input_validation import EMPTY_STRING, DATE_FORMAT
 from error_handler import ErrorHandler
 
 from datetime import datetime
@@ -50,8 +50,8 @@ def customer_create_booking() -> str:
             flash("Your account has not been verified yet!", category="danger")
         else:
             try:
-                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
-                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+                start_date_obj = datetime.strptime(start_date, DATE_FORMAT)
+                end_date_obj = datetime.strptime(end_date, DATE_FORMAT)
 
                 booking_timedelta: datetime = end_date_obj - start_date_obj
 
@@ -120,7 +120,11 @@ def customer_update_booking(booking_id: int) -> str:
 @bp_bookings.route("/bookings/delete/<int:booking_id>", methods=["POST"])
 @flask_login.login_required
 def customer_delete_booking(booking_id: int) -> str:
-    booking = Booking.query.filter_by(user_id=flask_login.current_user.user_id, booking_id=booking_id)
+    booking = Booking.query.filter(
+        Booking.user_id == flask_login.current_user.user_id,
+        Booking.booking_id == booking_id,
+        Booking.status.in_(BOOKING_STATUS[:2])
+    )
 
     if booking.first():
         update_dict = {
@@ -129,9 +133,9 @@ def customer_delete_booking(booking_id: int) -> str:
         booking.update(update_dict)
         db.session.commit()
         flash("Booking deleted!", category="success")
-        return redirect(url_for("bp_bookings.customer_read_bookings"))
     else:
-        abort(404)
+        flash("Booking cannot be found", category="danger")
+    return redirect(url_for("bp_bookings.customer_read_bookings"))
 
 
 @bp_bookings.route("/bookings/payment/<int:vehicle_id>/<string:start_date>/<string:end_date>", methods=["GET"])
@@ -140,8 +144,8 @@ def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) ->
     err_handler = ErrorHandler(current_app, dict(request.headers))
 
     try:
-        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+        start_date_obj = datetime.strptime(start_date, DATE_FORMAT)
+        end_date_obj = datetime.strptime(end_date, DATE_FORMAT)
 
         booking_timedelta: datetime = end_date_obj - start_date_obj
 
