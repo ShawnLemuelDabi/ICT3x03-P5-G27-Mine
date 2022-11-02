@@ -5,7 +5,7 @@ from db import db
 from user import User
 
 from input_validation import EMPTY_STRING, validate_email
-
+from jwt_helper import generate_token, verify_token
 import os
 import jwt
 import time
@@ -55,7 +55,7 @@ def forgot_password() -> str:
                 user: User = User.query.filter_by(email=email).first()
 
                 if user:
-                    token = get_reset_token(email)
+                    token = generate_token(email)
 
                     with current_app.app_context():
                         send_mail_async(
@@ -77,7 +77,7 @@ def verify_reset(token: str) -> str:
 
     if request.method == "GET":
         # returns email if reset token verified
-        email = verify_reset_token(token)
+        email = verify_token(token)
         if email:
             return render_template("reset_password.html", email=email, token=token)
         else:
@@ -86,7 +86,7 @@ def verify_reset(token: str) -> str:
     else:
         if recaptchav3.verify():
             # returns email if reset token verified
-            email = verify_reset_token(token)
+            email = verify_token(token)
             if email:
                 password_1 = request.form.get("password", EMPTY_STRING)
                 password_2 = request.form.get("confirm_password", EMPTY_STRING)
