@@ -6,12 +6,20 @@ from db import db
 import base64
 
 
+class Role:
+    ANONYMOUS_USER = 0
+    UNVERIFIED_USER = 1
+    VERIFIED_USER = 2
+    MANAGER = 3
+    ADMIN = 4
+
+
 ROLE = {
-    0: 'anonymous user',
-    1: 'unverified user',
-    2: 'verified user',
-    3: 'manager',
-    4: 'admin',
+    Role.ANONYMOUS_USER: 'anonymous user',
+    Role.UNVERIFIED_USER: 'unverified user',
+    Role.VERIFIED_USER: 'verified user',
+    Role.MANAGER: 'manager',
+    Role.ADMIN: 'admin',
 }
 
 
