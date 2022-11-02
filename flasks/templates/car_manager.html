@@ -13,7 +13,7 @@
         {# Vehicle manager Interfaces #}
         <div class="col md-12">
             {# Insert Data interface #}
-            <h2>Vehicle List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel">Add Vehicle</button></h2>
+            <h2>Vehicle List <button type="button" class="btn btn-success pull-right" data-toggle = "modal" data-target = "#myModel" style="margin-right: 5px; margin-bottom: 5px;">Add Vehicle</button></h2>
             
             {# Modal For Creating a New Vehicle #}
             <div class="modal fade" id="myModel" role="dialog">
@@ -82,20 +82,25 @@
             <table class="table table-striped">
                 {# Table Column Headings #}
                 <tr>
-                    <th>Image</th>
                     <th>Vehicle ID</th>
-                    <th>Model</th>
+                    <th>Vehicle Model</th>
                     <th>License Plate</th>
-                    <th>Availability</th>
                     <th>Vehicle Type</th>
                     <th>Location</th>
                     <th>Price Per Unit</th>
+                    <th>Image</th>
                     <th>Action</th>                           
                 </tr>
 
                 {# For loop to display Vehicle table content Read DB #}
                 {% for row in vehicle_list %}
                 <tr>
+                    <td>{{ row.vehicle_id }}</td>
+                    <td>{{ row.vehicle_model }}</td>
+                    <td>{{ row.license_plate }}</td>
+                    <td>{{ row.vehicle_type }}</td>
+                    <td>{{ row.location }}</td>
+                    <td>$ {{ row.price_per_unit }}</td>
                     {% if row.image %}
                     <td>
                         <img height="50px" src="{{ row.get_b64_image_data_uri() }}" alt="{{ row.image_name }}"/>
@@ -103,20 +108,9 @@
                     {%else%}
                     <td>No Image Found</td>
                     {%endif%}
-                    <td>{{ row.vehicle_id }}</td>
-                    <td>{{ row.vehicle_model }}</td>
-                    <td>{{ row.license_plate }}</td>
-                    {% if row.is_available == 1 %}
-                    <td>Yes</td>
-                    {% else %}
-                    <td>No</td>
-                    {%endif%}
-                    <td>{{ row.vehicle_type }}</td>
-                    <td>{{ row.location }}</td>
-                    <td>$ {{ row.price_per_unit }}</td>
                     <td>
-                        <a href="{{ url_for('bp_vcp.manager_update_vehicle', vehicle_id=row.vehicle_id) }}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.vehicle_id }}">Edit</a>
-                        <form method="POST" action="{{ url_for('bp_vcp.manager_delete_vehicle', vehicle_id=row.vehicle_id) }}">
+                        <a href="{{ url_for('bp_vcp.manager_update_vehicle', vehicle_id=row.vehicle_id) }}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.vehicle_id }}" style="margin-bottom: 2px;">Edit</a>
+                        <form method="POST" action="{{ url_for('bp_vcp.manager_delete_vehicle', vehicle_id=row.vehicle_id) }}" style="display: grid; margin-top: 2px;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete vehicle {{ row.vehicle_id }}?')">Delete</button>
                         </form>

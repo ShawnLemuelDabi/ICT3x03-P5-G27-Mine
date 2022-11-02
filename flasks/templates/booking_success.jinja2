@@ -42,24 +42,27 @@
                                     <h3 class="title">Your booking is confirmed.</h3>
                                 </div>
                             </div>
+                            
                             <ul class="list-items py-4">
                                 <li><i class="fa fa-check text-success mr-2"></i>Make changes to your booking click the
                                     buttons below.</li>
                             </ul>
+                            {#
                             <div class="btn-box pb-4">
                                 <a href="#" class="theme-btn mb-2 theme-btn-transparent">Make changes to your booking
                                     details</a>
                             </div>
+                            #}
                             <h3 class="title"><a href="#" class="text-black">Shallot Rental PTE LTD</a></h3>
                             <p>{{ booking.vehicle.location }}, Singapore</p>
                             <p><strong class="text-black mr-1">Phone:</strong>+65 8765 4321</p>
                             <ul class="list-items list-items-3 list-items-4 py-4">
                                 <li><span class="text-black font-weight-bold">Vehicle Booked</span>{{ booking.vehicle.vehicle_model }}</li>
-                                <li><span class="text-black font-weight-bold">Check-in</span>{{ booking.start_date }}</li>
-                                <li><span class="text-black font-weight-bold">Check-out</span>{{ booking.end_date }}</li>
+                                <li><span class="text-black font-weight-bold">Check-in</span>{{ booking.start_date|format_datetime }}</li>
+                                <li><span class="text-black font-weight-bold">Check-out</span>{{ booking.end_date|format_datetime }}</li>
                             </ul>
                             <div class="btn-box">
-                                <a href="#" class="theme-btn border-0 text-white bg-7">Cancel your booking</a>
+                                <a href="{{ url_for('bp_bookings.customer_read_bookings') }}" class="theme-btn border-0 text-white bg-7">Cancel your booking</a>
                             </div>
                         </div>{# end card-item #}
                     </div>{# end form-content #}

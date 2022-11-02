@@ -3,8 +3,9 @@ from flask import copy_current_request_context
 from flask_mail import Message, Mail
 import threading
 
+
 def send_mail_async(app_context: any, subject: str, recipients: list[str], email_body: str) -> None:
-    # Reference: https://stackoverflow.com/questions/11047307/run-flask-mail-asynchronously 
+    # Reference: https://stackoverflow.com/questions/11047307/run-flask-mail-asynchronously
     mail = Mail(app_context)
 
     msg = Message()

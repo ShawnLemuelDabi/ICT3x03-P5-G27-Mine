@@ -8,7 +8,7 @@ from get_user import get_user
 
 import flask_login
 
-from user import User
+from user import User, Role
 from vehicle import Vehicle
 from booking import Booking, BOOKING_STATUS
 from recovery_code import Recovery_Codes
@@ -26,7 +26,7 @@ from jwt_helper import generate_token, verify_token
 from email_helper import send_mail
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from bp_fcp import bp_fcp
 from bp_ucp import bp_ucp
@@ -38,8 +38,9 @@ from bp_forgot_password import bp_forgot_password
 
 from authorizer import http_unauthorized, universal_get_current_user_role
 from error_handler import ErrorHandler
+from brute_force_helper import BruteForceCategory, failed_attempt, login_is_disabled
 
-from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, DATE_FORMAT, validate_email, validate_image, validate_name, validate_phone_number
+from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, DATE_FORMAT, validate_email, validate_image, validate_name, validate_phone_number, validate_password, validate_otp, validate_recovery_code, validate_date
 
 from flask_wtf.csrf import CSRFProtect
 
@@ -63,6 +64,7 @@ csrf.init_app(app)
 
 # Initialize the login manager for Flask
 login_manager = flask_login.LoginManager()
+login_manager.session_protection = "strong"
 login_manager.init_app(app)
 
 QRcode(app)
@@ -87,6 +89,10 @@ recaptchav3 = ReCaptcha(
 
 app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
 
+# app.config['SESSION_COOKIE_DOMAIN'] = "localhost"
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
 app.register_blueprint(bp_fcp)
 app.register_blueprint(bp_ucp)
@@ -115,16 +121,26 @@ def before_request_func() -> None:
         app.logger.fatal(e)
 
 
+@app.before_request
+def session_keepalive() -> None:
+    session.modified = True
+
+
 @app.route("/", methods=["GET"])
 def index() -> str:
     return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations())
+
+
+@app.template_filter()
+def format_datetime(datetime_obj: datetime) -> str:
+    return datetime_obj.strftime(DATE_FORMAT)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register() -> str | Response:
     err_handler = ErrorHandler(app, dict(request.headers))
 
-    if universal_get_current_user_role(flask_login.current_user) != 0:
+    if universal_get_current_user_role(flask_login.current_user) != Role.ANONYMOUS_USER:
         err_handler.push(
             user_message="You already have an account!",
             log_message="You already have an account!"
@@ -142,8 +158,8 @@ def register() -> str | Response:
 
             if not validate_email(email):
                 err_handler.push(
-                    user_message="Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg",
-                    log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
+                    user_message="Email provider must be from Gmail, Hotmail, Yahoo, sit.singaporetech.edu.sg or singaporetech.edu.sg",
+                    log_message=f"Email provider must be from Gmail, Hotmail, Yahoo, sit.singaporetech.edu.sg or singaporetech.edu.sg. Email given: {email}"
                 )
 
             # check if user already exist
@@ -199,10 +215,10 @@ def register() -> str | Response:
 def register_verified(token: str) -> str:
     err_handler = ErrorHandler(app, dict(request.headers))
 
-    if universal_get_current_user_role(flask_login.current_user) != 0:
+    if universal_get_current_user_role(flask_login.current_user) != Role.ANONYMOUS_USER:
         err_handler.push(
             user_message="You already have an account!",
-            log_message="You already have an account!"
+            log_message=f"You already have an account! Current user: {flask_login.current_user.email}"
         )
 
         if err_handler.has_error():
@@ -218,6 +234,7 @@ def register_verified(token: str) -> str:
             first_name = request.form.get("first_name", EMPTY_STRING)
             last_name = request.form.get("last_name", EMPTY_STRING)
             password = request.form.get("password", EMPTY_STRING)
+            confirm_password = request.form.get("confirm_password", EMPTY_STRING)
             phone_number = request.form.get("phone_number", EMPTY_STRING)
 
             license_blob = uploaded_file.stream.read()
@@ -234,39 +251,49 @@ def register_verified(token: str) -> str:
                         log_message=f"Email provider must be from Gmail, Hotmail, Yahoo or singaporetech.edu.sg. Email given: {email}"
                     )
 
-                if not validate_name(first_name) or not validate_name(last_name) or not validate_phone_number(phone_number):
+                if not validate_name(first_name):
                     err_handler.push(
-                        user_message="Illegal character caught",
-                        log_message='Illegal character caught in either name or phone number'
+                        user_message="Illegal character caught in first name",
+                        log_message=f'Illegal character caught in first name: {first_name}. Potential email: {email}'
+                    )
+
+                if not validate_name(last_name):
+                    err_handler.push(
+                        user_message="Illegal character caught in last name",
+                        log_message=f'Illegal character caught in last name: {last_name}. Potential email: {email}'
+                    )
+
+                if not validate_phone_number(phone_number):
+                    err_handler.push(
+                        user_message="Illegal character caught in phone number",
+                        log_message=f'Illegal character caught in phone number: {phone_number}. Potential email: {email}'
                     )
 
                 if not validate_image(license_blob, license_filename, license_blob_size):
                     err_handler.push(
                         user_message="Invalid image format",
-                        log_message='Invalid image format'
+                        log_message=f'Invalid image format. Potential email: {email}'
                     )
 
-                if len(password) < 7:
+                if not validate_password(password, confirm_password):
                     err_handler.push(
-                        user_message="Password length too short",
-                        log_message="Password length too short"
+                        user_message="Password is not complex enough.",
+                        log_message=f"Password is not complex enough. Potential email: {email}"
                     )
 
-                user_exists: User = User.query.filter_by(email=email).first()
+                if not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
+                    err_handler.push(
+                        user_message="Invalid image provided. Only jpg, jpeg & png allowed. Max size of image should be 16M",
+                        log_message=f"Invalid image provided. Image name '{license_filename}' of mime type '{license_mime}' uploaded. Image size {license_blob_size} bytes. Potential email: {email}"
+                    )
+
+                user_exists: User = User.query.filter_by(email=email).scalar()
 
                 if user_exists:
                     err_handler.push(
-                        user_message="Username exists.",
-                        log_message="Username exists"
+                        user_message="User exists.",
+                        log_message=f"User exists. Potential email: {email}"
                     )
-
-                if license_blob_size >= MEDIUMBLOB_BYTE_SIZE:
-                    err_handler.push(
-                        user_message="Maximize size exceeded.",
-                        log_message="Maximize size exceeded for license blob"
-                    )
-
-                err_handler.commit_log()
 
                 if not err_handler.has_error():
                     create_user(
@@ -294,7 +321,7 @@ def register_verified(token: str) -> str:
             except Exception as e:
                 err_handler.push(
                     user_message="Invalid token",
-                    log_message=f"Invalid token. Token given: {e}"
+                    log_message=f"Invalid token. Token given: {e}. Email attempted: {email}"
                 )
 
             err_handler.commit_log()
@@ -306,7 +333,7 @@ def register_verified(token: str) -> str:
         else:
             err_handler.push(
                 user_message="Invalid reCAPTCHA",
-                log_message="Invalid reCAPTCHA."
+                log_message=f"Invalid reCAPTCHA. Email attempted: {email}"
             )
 
             err_handler.commit_log()
@@ -321,7 +348,7 @@ def register_verified(token: str) -> str:
         except Exception as e:
             err_handler.push(
                 user_message="Invalid token",
-                log_message=f"Invalid token. {e}"
+                log_message=f"Invalid token. {e}. Email attempted: {email}"
             )
 
         err_handler.commit_log()
@@ -336,10 +363,10 @@ def register_verified(token: str) -> str:
 def login() -> str:
     err_handler = ErrorHandler(app, dict(request.headers))
 
-    if universal_get_current_user_role(flask_login.current_user) != 0:
+    if universal_get_current_user_role(flask_login.current_user) != Role.ANONYMOUS_USER:
         err_handler.push(
             user_message="You are already logged in!",
-            log_message="You are already logged in!"
+            log_message=f"You are already logged in! Current user: {flask_login.current_user.email}"
         )
 
         if err_handler.has_error():
@@ -348,18 +375,24 @@ def login() -> str:
 
         return redirect(url_for("profile"))
 
-    def login_error(msg="Incorrect credentials") -> str:
-        err_handler.push(
-            user_message=msg,
-            log_message=msg
-        )
-
+    def print_logs():
         err_handler.commit_log()
 
         if err_handler.has_error():
             for i in err_handler.all():
                 flash(i.user_message, category="danger")
         return redirect(url_for("login"))
+
+    def login_error(msg: str = "Incorrect credentials", log: str = "Incorrect credentials", is_failed_attempt: bool = True) -> str:
+        err_handler.push(
+            user_message=msg,
+            log_message=f"{log}. Email attempted: {email}"
+        )
+
+        if is_failed_attempt:
+            failed_attempt(email=email, category=BruteForceCategory.LOGIN)
+
+        return print_logs()
 
     def login_success(user_obj: User) -> Response:
         # if successfully authenticated
@@ -375,55 +408,50 @@ def login() -> str:
         return redirect(url_for('profile'))
 
     if request.method == "POST":
+        email = request.form.get("email", EMPTY_STRING)
+        password = request.form.get("password", EMPTY_STRING)
+
         if recaptchav3.verify():
-            email = request.form.get("email", EMPTY_STRING)
-            password = request.form.get("password", EMPTY_STRING)
-            # otp = request.form.get("otp", EMPTY_STRING)
-            # recovery_code = request.form.get("recovery_code", EMPTY_STRING)
+            if login_is_disabled(email):
+                return login_error(
+                    msg="You have too many failed login attempts. Please try again later",
+                    log=f"User account '{email}' is currently locked out",
+                    is_failed_attempt=False
+                )
+            else:
+                if all([validate_email(email), validate_password(password, password)]):
+                    user = get_user(email, password)
 
-            if all([i != EMPTY_STRING for i in [email, password]]):
-                user = get_user(email, password)
-
-                if user:
-                    """
-                    email and password matches
-                    """
-                    # if user.mfa_secret != EMPTY_STRING and mfa.verify_otp(user, otp):
-                    #     """
-                    #     If mfa is enabled and otp is correct
-                    #     """
-                    #     return login_success()
-                    if user.mfa_secret == EMPTY_STRING:
+                    if user:
                         """
-                        If mfa is not enabled
+                        email and password matches
                         """
-                        return login_success(user)
-                    elif user.mfa_secret != EMPTY_STRING:
-                        session["otp_user_id"] = user.user_id
+                        if user.mfa_secret == EMPTY_STRING:
+                            """
+                            If mfa is not enabled
+                            """
+                            return login_success(user)
+                        else:
+                            session["otp_user_id"] = user.user_id
 
-                        err_handler.push(
-                            user_message="",
-                            log_message=f"{user.email} credentials verified! MFA required to complete the login!",
-                            is_error=False
-                        )
+                            err_handler.push(
+                                user_message="",
+                                log_message=f"{user.email} credentials verified! MFA required to complete the login!",
+                                is_error=False
+                            )
 
-                        err_handler.commit_log()
-                        return redirect(url_for("otp_login"))
+                            err_handler.commit_log()
+                            return redirect(url_for("otp_login"))
                     else:
-                        """
-                        None of the above
-                        """
                         return login_error()
                 else:
                     return login_error()
-            else:
-                return login_error()
         else:
             err_handler.push(
                 user_message="Bot activity detected",
-                log_message="Bot activity detected"
+                log_message=f"Bot activity detected. Email: {email}"
             )
-            return login_error()
+            return print_logs()
     elif request.method == "GET":
         return render_template("login.html")
 
@@ -458,27 +486,20 @@ def otp_login() -> str | Response:
 
         return redirect(url_for(return_method))
 
-    if universal_get_current_user_role(flask_login.current_user) != 0:
+    if universal_get_current_user_role(flask_login.current_user) != Role.ANONYMOUS_USER:
         return login_error(
             user_message="You are already logged in!",
-            log_message="You are already logged in!",
+            log_message=f"You are already logged in! Current user: {flask_login.current_user.email}",
             return_method="profile"
         )
 
     if request.method == "GET":
-        try:
-            if "otp_user_id" in session:
-                return render_template("otp_prompt.jinja2")
-            else:
-                return login_error(
-                    user_message="Invalid session",
-                    log_message="Invalid session",
-                    return_method="login"
-                )
-        except KeyError:
+        if "otp_user_id" in session:
+            return render_template("otp_prompt.jinja2")
+        else:
             return login_error(
                 user_message="Invalid session",
-                log_message="Invalid session",
+                log_message="Invalid session. Maybe the otp session has already been consumed?",
                 return_method="login"
             )
     else:
@@ -492,9 +513,18 @@ def otp_login() -> str | Response:
                 recovery_code = request.form.get("recovery_code", EMPTY_STRING)
 
                 if user.mfa_secret != EMPTY_STRING:
-                    if otp != EMPTY_STRING and mfa.verify_otp(user, otp):
-                        return login_success(user, code_type="OTP")
-                    elif recovery_code != EMPTY_STRING:
+                    if validate_otp(otp) and recovery_code == EMPTY_STRING:
+                        if mfa.verify_otp(user, otp):
+                            return login_success(user, code_type="OTP")
+                        else:
+                            failed_attempt(email=user.email, category=BruteForceCategory.LOGIN)
+
+                            return login_error(
+                                user_message="Invalid OTP",
+                                log_message=f"Invalid OTP. Requested email {user.email}",
+                                return_method="login"
+                            )
+                    elif validate_recovery_code(recovery_code) and otp == EMPTY_STRING:
                         matched_code: Recovery_Codes = Recovery_Codes.query.join(Recovery_Codes.user, aliased=True).filter(
                             User.user_id == user_id,
                             Recovery_Codes.code == recovery_code,
@@ -504,29 +534,31 @@ def otp_login() -> str | Response:
                         if matched_code is not None:
                             matched_code.is_used = True
                             db.session.commit()
-                            return login_success(user, code_type="recovery code")
+                            return login_success(user, code_type=f"recovery code ID {matched_code.recovery_code_id}")
                         else:
+                            failed_attempt(email=user.email, category=BruteForceCategory.LOGIN)
+
                             return login_error(
-                                user_message="Invalid code",
-                                log_message="Invalid code",
+                                user_message="Invalid recovery code",
+                                log_message=f"Invalid recovery code. Requested email {user.email}",
                                 return_method="login"
                             )
                     else:
                         return login_error(
-                            user_message="Incorrect OTP",
-                            log_message="Incorrect OTP",
+                            user_message="Please use either OTP or recovery code",
+                            log_message=f"Both OTP or recovery code was used. Email: '{user.email}'",
                             return_method="login"
                         )
                 else:
                     return login_error(
                         user_message="MFA is not enabled",
-                        log_message="MFA is not enabled",
+                        log_message=f"MFA is not enabled for '{user.email}'",
                         return_method="profile"
                     )
         except KeyError:
             return login_error(
                 user_message="Invalid session",
-                log_message="Invalid session",
+                log_message="Invalid session. Maybe the session has been consumed already?",
                 return_method="login"
             )
 
@@ -623,7 +655,7 @@ def route_confirm_mfa_enabled() -> str:
         try:
             mfa_secret = session.pop("mfa_secret")
 
-            if otp:
+            if validate_otp(otp):
                 try:
                     recovery_codes = mfa.confirm_mfa_enabled(flask_login.current_user, mfa_secret, otp)
 
@@ -651,8 +683,8 @@ def route_confirm_mfa_enabled() -> str:
                     return redirect(url_for("profile"))
             else:
                 err_handler.push(
-                    user_message="No OTP entered",
-                    log_message=f"No OTP entered when trying confirm MFA enablement for user {flask_login.current_user.email}",
+                    user_message="Invalid OTP format entered",
+                    log_message=f"Invalid OTP format entered when trying confirm MFA enablement for user {flask_login.current_user.email}",
                 )
 
                 err_handler.commit_log()
@@ -679,18 +711,36 @@ def route_confirm_mfa_enabled() -> str:
 
 @app.route("/search", methods=["GET"])
 def search() -> str | Response:
+    err_handler = ErrorHandler(app, dict(request.headers))
+
     location = request.args.get("location", EMPTY_STRING, str)
     start_date = request.args.get("start_date", EMPTY_STRING, str)
     end_date = request.args.get("end_date", EMPTY_STRING, str)
 
-    if all([i != EMPTY_STRING for i in [location, start_date, end_date]]):
+    if not validate_name(location):
+        err_handler.push(
+            user_message="Invalid location",
+            log_message=f"Invalid location: {location}. Request made by {flask_login.current_user.email}"
+        )
+
+    if not validate_date(start_date):
+        err_handler.push(
+            user_message="Invalid start date",
+            log_message=f"Invalid start date: {start_date}. Request made by {flask_login.current_user.email}"
+        )
+
+    if not validate_date(end_date):
+        err_handler.push(
+            user_message="Invalid end date",
+            log_message=f"Invalid end date: {end_date}. Request made by {flask_login.current_user.email}"
+        )
+
+    if not err_handler.has_error():
         search_term = {
             "location": location,
             "start_date": start_date,
             "end_date": end_date,
         }
-
-        err_handler = ErrorHandler(app, dict(request.headers))
 
         try:
             start_date_obj = datetime.strptime(start_date, DATE_FORMAT)
@@ -699,7 +749,7 @@ def search() -> str | Response:
             booking_timedelta: datetime = end_date_obj - start_date_obj
 
             if booking_timedelta.days <= 0:
-                user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+                user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
                 err_handler.push(
                     user_message="End date cannot be earlier than start date!",
@@ -724,24 +774,12 @@ def search() -> str | Response:
 
                 return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations(), search_term=search_term, search_result=search_result)
         except ValueError as e:
-            user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+            user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
             err_handler.push(
                 user_message="Invalid date",
                 log_message=f"Invalid date: {start_date} to {end_date}. {e}. Searched by {user_email}"
             )
-
-        err_handler.commit_log()
-
-        if err_handler.has_error():
-            for i in err_handler.all():
-                flash(i.user_message, category="danger")
-        return redirect(url_for("index"))
-    else:
-        err_handler.push(
-            user_message="Some mandatory params is empty",
-            log_message=f"Some mandatory params is empty: at '{location}' between '{start_date}' to '{end_date}'. Searched by {user_email}"
-        )
 
         err_handler.commit_log()
 
@@ -756,21 +794,23 @@ def vehicles_by_type(vehicle_type: str) -> str:
     err_handler = ErrorHandler(app, dict(request.headers))
 
     if vehicle_type not in vehicle_distinct_vehicle_types():
-        user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+        user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
         err_handler.push(
             user_message="Invalid vehicle type",
             log_message=f"Invalid vehicle type: '{vehicle_type}'. Searched by {user_email}"
         )
 
+        err_handler.commit_log()
+
         if err_handler.has_error():
             for i in err_handler.all():
                 flash(i.user_message, category="danger")
+            return redirect(url_for("index"))
     else:
         vehicles = Vehicle.query.filter(Vehicle.vehicle_type == vehicle_type).all()
 
         return render_template("vehicle_type.jinja2", vehicles=vehicles, vehicle_type=vehicle_type)
-    return render_template("vehicle_type.jinja2")
 
 
 @app.route("/about-us", methods=["GET"])

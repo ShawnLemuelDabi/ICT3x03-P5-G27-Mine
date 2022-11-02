@@ -45,6 +45,7 @@
                                         <th scope="col">Category</th>
                                         <th scope="col">Description</th>
                                         <th scope="col">Photo</th>
+                                        <th scope="col">Reported Date</th>
                                         <th scope="col">Status</th>
                                     </tr>
                                 </thead>
@@ -68,6 +69,7 @@
                                             No image
                                             {% endif %}
                                         </td>
+                                        <td>{{ fault.reported_date|format_datetime }}</td>
                                         <td>
                                             <span class="badge badge-success py-1 px-2">{{ fault.status.title() }}</span>
                                         </td>

@@ -1,12 +1,21 @@
 from db import db
 from sqlalchemy.dialects import mysql as sa_mysql
 
+
+class BookingStatus:
+    BOOKING_UNPAID = 'unpaid'
+    BOOKING_PAID = 'paid'
+    BOOKING_CONFIRMED = 'confirmed'
+    BOOKING_COMPLETED = 'completed'
+    BOOKING_CANCELLED = 'cancelled'
+
+
 BOOKING_STATUS = [
-    'unpaid',
-    'paid',
-    'confirmed',
-    'completed',
-    'cancelled',
+    BookingStatus.BOOKING_UNPAID,
+    BookingStatus.BOOKING_PAID,
+    BookingStatus.BOOKING_CONFIRMED,
+    BookingStatus.BOOKING_COMPLETED,
+    BookingStatus.BOOKING_CANCELLED,
 ]
 
 

@@ -2,6 +2,16 @@
 {% block title %}Login{% endblock %}
 {% block content %}
 {# Simple Heading Text #}
+
+<style>
+input[type="text"]
+{
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    margin: 0;
+}
+</style>
+
 <div class="container">
     <div class="col-lg-8 mt-3">
         <div class="form-box">
@@ -54,7 +64,7 @@
                                     <label class="label-text">OTP</label>
                                     <div class="form-group">
                                         <span class="fa fa-key form-icon"></span>
-                                        <input class="form-control" type="number" name="otp" placeholder="OTP" style="-webkit-appearance: none; margin: 0; -moz-appearance: textfield;">
+                                        <input class="form-control" type="number" name="otp" placeholder="OTP">
                                     </div>
                                 </div>
                             </div>
@@ -63,7 +73,7 @@
                                     <label class="label-text">Recovery code</label>
                                     <div class="form-group">
                                         <span class="fa fa-key form-icon"></span>
-                                        <input class="form-control" type="number" name="recovery_code" placeholder="Recovery code" style="-webkit-appearance: none; margin: 0; -moz-appearance: textfield;">
+                                        <input class="form-control" type="number" name="recovery_code" placeholder="Recovery code">
                                     </div>
                                 </div>
                             </div>
