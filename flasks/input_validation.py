@@ -21,7 +21,7 @@ OTP_REGEX_PATTERN = r"^[0-9]{6}$"
 RECOVERY_CODE_REGEX_PATTERN = r"^[0-9]{8}$"
 
 # adapted from: https://stackoverflow.com/questions/48345922/reference-password-validation
-PASSWORD_REGEX_PATTERN = r"^.+$"
+PASSWORD_REGEX_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
 
 DATE_FORMAT = "%Y-%m-%d"
 
