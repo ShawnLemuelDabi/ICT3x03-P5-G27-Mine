@@ -3,17 +3,43 @@ import flask_login
 
 from db import db
 from brute_force_helper import failed_attempt, password_reset_is_disabled, BruteForceCategory
+from password_history import Password_History, HISTORY_LIMIT
 
 from user import User, Role
 
 from input_validation import EMPTY_STRING, validate_email, validate_password
 from jwt_helper import can_reset_password, verify_token, generate_reset_password_token, password_resetted
 from email_helper_async import send_mail_async
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 from error_handler import ErrorHandler
 from authorizer import universal_get_current_user_role
+
+
+def can_change_password(email: str, password: str) -> bool:
+    user = User.query.filter(User.email == email).first()
+
+    if user:
+        """
+        current password
+        """
+        if check_password_hash(user.password, password):
+            return False
+
+        """
+        old passwords
+        """
+        password_histories = Password_History.query.join(Password_History.user, aliased=True).filter(
+            Password_History.user_id == user.user_id,
+        ).order_by(Password_History.password_history_id.desc()).limit(HISTORY_LIMIT)
+
+        for i in password_histories.all():
+            if check_password_hash(i.password, password):
+                return False
+        return True
+    return False
+
 
 bp_forgot_password = Blueprint('bp_forgot_password', __name__, template_folder='templates')
 
@@ -121,26 +147,35 @@ def verify_reset(token: str) -> str:
 
         if request.method == "GET":
             # returns email if reset token verified
-            email = verify_token(token)
+            try:
+                email = verify_token(token)
 
-            if email:
-                if not can_reset_password(token):
-                    err_handler.push(
-                        user_message="You have already resetted your password! Please make another password reset request instead!",
-                        log_message=f"Repeated use of reset token for password reset. Requested by: {email}"
-                    )
-                    flash(err_handler.first().user_message, category="danger")
-                    return redirect(url_for("bp_forgot_password.forgot_password"))
+                if email:
+                    if not can_reset_password(token):
+                        err_handler.push(
+                            user_message="You have already resetted your password! Please make another password reset request instead!",
+                            log_message=f"Repeated use of reset token for password reset. Requested by: {email}"
+                        )
+                        flash(err_handler.first().user_message, category="danger")
+                        return redirect(url_for("bp_forgot_password.forgot_password"))
+                    else:
+                        return render_template("reset_password.html", email=email, token=token)
                 else:
-                    return render_template("reset_password.html", email=email, token=token)
-            else:
+                    err_handler.push(
+                        user_message="Invalid token",
+                        log_message="Invalid token submitted. The token either has no email attribute or has expired."
+                    )
+                    err_handler.commit_log()
+                    flash(err_handler.first().user_message, category="danger")
+                    return redirect(url_for('bp_forgot_password.forgot_password'))
+            except Exception:
                 err_handler.push(
                     user_message="Invalid token",
                     log_message="Invalid token submitted. The token either has no email attribute or has expired."
                 )
                 err_handler.commit_log()
                 flash(err_handler.first().user_message, category="danger")
-                return redirect(url_for('bp_forgot_password.verify_reset'))
+                return redirect(url_for('bp_forgot_password.forgot_password'))
         else:
             if recaptchav3.verify():
                 # returns email if reset token verified
@@ -160,48 +195,65 @@ def verify_reset(token: str) -> str:
                         password_2 = request.form.get("confirm_password", EMPTY_STRING)
 
                         if validate_password(password_1, password_2):
-                            password = generate_password_hash(password_1)
+                            if not can_change_password(email, password_1):
+                                err_handler.push(
+                                    user_message="Please do not reuse an old password!",
+                                    log_message=f"Attempted to reset password to an old password. Requested by {email}"
+                                )
+                            else:
+                                password = generate_password_hash(password_1)
 
-                            update_dict = {
-                                "password": password
-                            }
+                                update_dict = {
+                                    "password": password
+                                }
 
-                            t = User.query.filter_by(email=email)
-                            t.update(update_dict)
-                            db.session.commit()
-                            with current_app.app_context():
-                                send_mail_async(
-                                    app_context=current_app,
-                                    subject="Reset Password Activity detected",
-                                    recipients=[email],
-                                    email_body=render_template('reset_successful.html', datetime=datetime.now())
+                                t = User.query.filter_by(email=email)
+                                user = t.first()
+                                old_password = user.password
+                                t.update(update_dict)
+
+                                new_password_history = Password_History(
+                                    user_id=user.user_id,
+                                    password=old_password,
+                                    valid_till=datetime.now()
                                 )
 
-                            flash('Login with your newly resetted password!', category="success")
-                            err_handler.push(
-                                user_message="",
-                                log_message=f"Password resetted successful for {email}",
-                                is_error=False
-                            )
-                            try:
-                                password_resetted(token)
-                            except Exception as e:
+                                db.session.add(new_password_history)
+
+                                db.session.commit()
+                                with current_app.app_context():
+                                    send_mail_async(
+                                        app_context=current_app,
+                                        subject="Reset Password Activity detected",
+                                        recipients=[email],
+                                        email_body=render_template('reset_successful.html', datetime=datetime.now())
+                                    )
+
+                                flash('Login with your newly resetted password!', category="success")
                                 err_handler.push(
                                     user_message="",
-                                    log_message=f"Failed to consume reset token due to {e}. Request made by {email}",
+                                    log_message=f"Password resetted successful for {email}",
+                                    is_error=False
                                 )
-                            err_handler.commit_log()
+                                try:
+                                    password_resetted(token)
+                                except Exception as e:
+                                    err_handler.push(
+                                        user_message="",
+                                        log_message=f"Failed to consume reset token due to {e}. Request made by {email}",
+                                    )
+                                err_handler.commit_log()
 
-                            return redirect(url_for('login'))
+                                return redirect(url_for('login'))
                         else:
                             err_handler.push(
                                 user_message="The passwords does not match!",
                                 log_message=f"The passwords does not match for '{email}'"
                             )
-                            err_handler.commit_log()
-                            flash(err_handler.first().user_message, category="danger")
+                        err_handler.commit_log()
+                        flash(err_handler.first().user_message, category="danger")
 
-                            return redirect(url_for("bp_forgot_password.verify_reset", token=token))
+                        return redirect(url_for("bp_forgot_password.verify_reset", token=token))
                 else:
                     err_handler.push(
                         user_message="Invalid token",
@@ -211,3 +263,12 @@ def verify_reset(token: str) -> str:
                     flash(err_handler.first().user_message, category="danger")
 
                     return url_for("bp_forgot_password.verify_reset", token=token)
+            else:
+                err_handler.push(
+                    user_message="CSRF token expired",
+                    log_message="CSRF token expired."
+                )
+
+                err_handler.commit_log()
+                flash(err_handler.first().user_message, category="danger")
+                return redirect(url_for('bp_forgot_password.verify_reset', token=token))

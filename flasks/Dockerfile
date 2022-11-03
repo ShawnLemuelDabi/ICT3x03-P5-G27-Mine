@@ -14,4 +14,5 @@ RUN pip install --no-cache-dir --upgrade pip
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-CMD flask run --host=0.0.0.0
+CMD python3 app.py
+# CMD flask run --host=0.0.0.0

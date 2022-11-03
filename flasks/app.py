@@ -1,6 +1,7 @@
 from distutils.util import strtobool
-# from functools import wraps
 from flask import Flask, request, render_template, url_for, redirect, flash, abort, Response, session, g
+from waitress import serve
+
 
 # User imports
 from create_user import create_user
@@ -844,4 +845,12 @@ def init() -> str:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    # app.run(host="0.0.0.0")
+    serve(
+        app,
+        host='0.0.0.0',
+        port=os.environ.get("FLASK_RUN_PORT"),
+        url_scheme='https',
+        trusted_proxy="localhost",
+        trusted_proxy_headers="x-forwarded-for x-forwarded-host x-forwarded-proto x-forwarded-port"
+    )
