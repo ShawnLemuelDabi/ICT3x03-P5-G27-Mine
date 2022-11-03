@@ -86,10 +86,10 @@ def write_setting(key: any, val: str) -> str:
 
 
 class FlaskEnv:
-    output_relative_path = "flasks/flask.env"
+    output_relative_path = os.path.join("flasks", "flask.env")
 
     flask_debug = 0
-    flask_app = "./app.py"
+    flask_app = "app.py"
     flask_run_port = "5000"
     flask_login_secret = FLASK_LOGIN_SECRET or generate_secrets(ALPHANUMERIC_SET, SECRET_LENGTH)
 
@@ -118,7 +118,7 @@ class FlaskEnv:
 
 
 class MySQLEnv:
-    output_relative_path = "flasks/mysql.env"
+    output_relative_path = os.path.join("flasks", "mysql.env")
 
     mysql_database = "ssd"
     mysql_user = MYSQL_USER or generate_secrets(string.ascii_lowercase, 16)
@@ -126,7 +126,7 @@ class MySQLEnv:
 
 
 class MySQLRootEnv:
-    output_relative_path = "mariadb/mysql_root.env"
+    output_relative_path = os.path.join("mariadb", "mysql_root.env")
 
     mysql_root_password = MYSQL_ROOT_PASSWORD or generate_secrets(ALPHANUMERIC_SET, 32)
 
