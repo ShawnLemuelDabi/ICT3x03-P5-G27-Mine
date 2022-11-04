@@ -845,12 +845,17 @@ def init() -> str:
 
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0")
-    serve(
-        app,
-        host='0.0.0.0',
-        port=os.environ.get("FLASK_RUN_PORT"),
-        url_scheme='https',
-        trusted_proxy="localhost",
-        trusted_proxy_headers="x-forwarded-for x-forwarded-host x-forwarded-proto x-forwarded-port"
-    )
+    BIND_ALL_ADDRESS = "0.0.0.0"
+
+    if app.debug:
+        app.run(host=BIND_ALL_ADDRESS)
+    else:
+        serve(
+            app,
+            host=BIND_ALL_ADDRESS,
+            port=os.environ.get("FLASK_RUN_PORT"),
+        )
+        # part of serve. disabled for now. testing in progress.
+        # url_scheme='https',
+        # trusted_proxy="localhost",
+        # trusted_proxy_headers="x-forwarded-for x-forwarded-host x-forwarded-proto x-forwarded-port"
