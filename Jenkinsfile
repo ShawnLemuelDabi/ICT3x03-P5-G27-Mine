@@ -72,6 +72,11 @@ pipeline {
                 }
             }
         }
+		stage('cleanup build stage') {
+			sh 'docker-compose -p ${TEST_STAGE} down'
+            sh 'docker container prune -f'
+            sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
+		}
         stage('deployment') {
             environment {
                 FLASK_PORT = '5000'
@@ -80,17 +85,12 @@ pipeline {
             }
             steps {
 				sh 'echo $FLASK_ENV'
-                sh 'docker-compose -p ${PROD_STAGE} down'
+                sh 'docker ps | grep ${PROD_STAGE}_flasks && docker-compose -p ${PROD_STAGE} down || exit 0'
                 sh 'docker-compose -p ${PROD_STAGE} up --build -d'
             }
         }
     }
     post {
-        always {
-            sh 'docker-compose -p ${TEST_STAGE} down'
-            sh 'docker container prune -f'
-            sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
-        }
 		success {
 			dependencyCheckPublisher pattern: 'dependency-check-report.xml'
 			junit 'selenium/tests/result.xml'
