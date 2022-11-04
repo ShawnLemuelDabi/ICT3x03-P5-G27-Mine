@@ -43,6 +43,16 @@
     </head>
 
     <body>
+        {% if debug %}
+        <div class="row" style="height: 7.5%; background-color: red;">
+            <div class="col-12">
+                <div class="text-center" style="color:white;">
+                    <b>YOU ARE CURRENTLY IN DEBUG MODE. DO NOT USE THIS IN PRODUCTION</b>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {# ================================ START HEADER AREA ====================================== #}
         <header class="header-area">
             <div class="header-top-bar padding-right-100px padding-left-100px">
