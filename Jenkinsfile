@@ -73,9 +73,11 @@ pipeline {
             }
         }
 		stage('cleanup build stage') {
-			sh 'docker-compose -p ${TEST_STAGE} down'
-            sh 'docker container prune -f'
-            sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
+			steps {
+				sh 'docker-compose -p ${TEST_STAGE} down'
+				sh 'docker container prune -f'
+				sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
+			}
 		}
         stage('deployment') {
             environment {
