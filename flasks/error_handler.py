@@ -34,7 +34,7 @@ class ErrorHandler:
         for i in self.__error_list__:
             self.__app__.logger.log(i.log_severity, i.log_message)
 
-    def push(self, user_message: str, log_message: str, log_severity: int = INFO, is_error: bool = True) -> None:
+    def push(self, user_message: str, log_message: str, log_severity: int = WARNING, is_error: bool = True) -> None:
         self.__error_list__.append(
             ErrorObject(
                 user_message=user_message,
