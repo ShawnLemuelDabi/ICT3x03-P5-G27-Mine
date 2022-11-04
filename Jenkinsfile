@@ -66,6 +66,11 @@ pipeline {
             }
         }
 		stage('cleanup build stage') {
+			environment {
+                FLASK_PORT = '5001'
+                MARIA_DB_VOLUME = 'mariadb-test-data'
+				FLASK_ENV = 'flask_test.env'
+            }
 			steps {
 				sh 'docker-compose -p ${TEST_STAGE} down'
 				sh 'docker container prune -f'
