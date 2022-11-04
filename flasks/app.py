@@ -854,8 +854,14 @@ if __name__ == "__main__":
     if app.debug:
         app.run(host=BIND_ALL_ADDRESS)
     else:
+        DOMAIN = "shallot-rental.shop"
+
         app.config['SESSION_COOKIE_SECURE'] = True
-        app.config['SESSION_COOKIE_DOMAIN'] = "shallot-rental.shop"
+        app.config['SESSION_COOKIE_DOMAIN'] = DOMAIN
+        app.config['REMEMBER_COOKIE_DOMAIN'] = DOMAIN
+        app.config['REMEMBER_COOKIE_SECURE'] = True
+        app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
+        app.config['REMEMBER_COOKIE_SAMESITE'] = "SameSite=Strict"
 
         serve(
             app,
