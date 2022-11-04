@@ -55,7 +55,9 @@ pipeline {
         stage('unit testing') {
             steps {
                 sh 'echo optimistic wait for db to be ready && sleep 30'
-                sh 'curl http://flasks:5000/dev/init'
+                sh 'curl -i http://flasks:5000/dev/init'
+				sh 'sleep 5'
+				sh 'curl -i http://flasks:5000/login'
                 sh 'cd selenium/tests && pytest -v --junitxml=result.xml || exit 0'
             }
             post {
