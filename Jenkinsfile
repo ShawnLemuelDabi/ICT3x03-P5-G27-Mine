@@ -25,12 +25,12 @@ pipeline {
 		}
 		stage('unpack secrets') {
 			steps {
-				script {
-					withCredentials([
-						file(credentialsId: 'flask.env', variable: 'flask_secret'),
-						file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
-						file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
-					]) {
+				withCredentials([
+					file(credentialsId: 'flask.env', variable: 'flask_secret'),
+					file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
+					file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
+				]) {
+					script {
 						def secret_src1 = new File(flask_secret)
 						def secret_dst1 = new File('./flasks/flask.env')
 						Files.copy(secret_src1.toPath(), secret_dst1.toPath())
