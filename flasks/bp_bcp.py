@@ -7,12 +7,14 @@ from error_handler import ErrorHandler
 from authorizer import universal_get_current_user_role
 
 from booking import Booking, BOOKING_STATUS
+from input_validation import validate_sql_pk_int
 from user import Role
 
 bp_bcp = Blueprint('bp_bcp', __name__, template_folder='templates')
 
 
 @bp_bcp.route("/manager/bcp", methods=["GET"])
+@flask_login.login_required
 def manager_read_bookings() -> str:
     if universal_get_current_user_role(flask_login.current_user) == Role.MANAGER:
         bookings = Booking.query.all()
@@ -20,7 +22,7 @@ def manager_read_bookings() -> str:
         return render_template("manager_bcp.jinja2", bookings=bookings, valid_status=BOOKING_STATUS)
     else:
         err_handler = ErrorHandler(current_app, dict(request.headers))
-        user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+        user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
         err_handler.push(
             user_message="",
@@ -33,9 +35,10 @@ def manager_read_bookings() -> str:
 
 
 @bp_bcp.route("/manager/bcp/booking/create", methods=["POST"])
+@flask_login.login_required
 def manager_create_booking() -> str:
     err_handler = ErrorHandler(current_app, dict(request.headers))
-    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
     if universal_get_current_user_role(flask_login.current_user) == Role.MANAGER:
         err_handler.push(
@@ -58,9 +61,10 @@ def manager_create_booking() -> str:
 
 
 @bp_bcp.route("/manager/bcp/booking/read/<int:booking_id>", methods=["GET"])
+@flask_login.login_required
 def manager_read_booking(booking_id: int) -> str:
     err_handler = ErrorHandler(current_app, dict(request.headers))
-    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
     if universal_get_current_user_role(flask_login.current_user) == Role.MANAGER:
         err_handler.push(
@@ -83,12 +87,19 @@ def manager_read_booking(booking_id: int) -> str:
 
 
 @bp_bcp.route("/manager/bcp/booking/update/<int:booking_id>", methods=["POST"])
+@flask_login.login_required
 def manager_update_booking(booking_id: int) -> str:
     err_handler = ErrorHandler(current_app, dict(request.headers))
-    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
     if universal_get_current_user_role(flask_login.current_user) == Role.MANAGER:
         status = request.form.get("status")
+
+        if not validate_sql_pk_int(booking_id):
+            err_handler.push(
+                user_message="Invalid booking ID!",
+                log_message=f"Invalid booking ID '{booking_id}'! Request made by {user_email}"
+            )
 
         if status in BOOKING_STATUS:
             update_dict = {
@@ -128,20 +139,29 @@ def manager_update_booking(booking_id: int) -> str:
 
 
 @bp_bcp.route("/manager/bcp/booking/delete/<int:booking_id>", methods=["POST"])
+@flask_login.login_required
 def manager_delete_booking(booking_id: int) -> str:
     err_handler = ErrorHandler(current_app, dict(request.headers))
-    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == 0 else flask_login.current_user.email
+    user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
     if universal_get_current_user_role(flask_login.current_user) == Role.MANAGER:
-        Booking.query.filter_by(booking_id=booking_id).delete()
-        db.session.commit()
+        if not validate_sql_pk_int(booking_id):
+            err_handler.push(
+                user_message="Invalid booking ID!",
+                log_message=f"Invalid booking ID '{booking_id}'! Request made by {user_email}"
+            )
 
-        flash("Booking deleted!", category="success")
-        err_handler.push(
-            user_message="",
-            log_message=f"Booking ID '{booking_id}' deleted. Request made by user {user_email}",
-            is_error=False
-        )
+        if not err_handler.has_error():
+            Booking.query.filter_by(booking_id=booking_id).delete()
+            db.session.commit()
+
+            flash("Booking deleted!", category="success")
+            err_handler.push(
+                user_message="",
+                log_message=f"Booking ID '{booking_id}' deleted. Request made by user {user_email}",
+                is_error=False
+            )
+
         err_handler.commit_log()
         return redirect(url_for("bp_bcp.manager_read_bookings"))
     else:

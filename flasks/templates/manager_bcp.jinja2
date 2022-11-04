@@ -37,10 +37,9 @@
                     <table class="table table-striped">
                         {# Table Column Headings #}
                         <tr>
-                            <th>ID</th>
+                            <th>Booking ID</th>
                             <th>Vehicle ID</th>
                             <th>User ID</th>
-                            <th>Fault ID</th>
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Days</th>
@@ -56,16 +55,15 @@
                             <td>{{ row.booking_id }}</td>
                             <td>{{ row.vehicle.vehicle_id }}</td>
                             <td>{{ row.user_id }}</td>
-                            <td>{{ row.fault.fault_id }}</td>
-                            <td>{{ row.start_date }}</td>
-                            <td>{{ row.end_date }}</td>
+                            <td>{{ row.start_date|format_datetime }}</td>
+                            <td>{{ row.end_date|format_datetime }}</td>
                             <td>{{ row.units_purchased }}</td>
                             <td>{{ row.status.title() }}</td>
                             <td>{{ row.paynow_number }}</td>
                             <td>{% if row.paynow_reference_number %}{{ row.paynow_reference_number }}{% else %}-{% endif %}</td>
                             <td>
-                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.booking_id}}">Edit</a>
-                                <form method="POST" action="{{ url_for('bp_bcp.manager_delete_booking', booking_id=row.booking_id) }}">
+                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.booking_id}}" style="margin-bottom: 2px;">Edit</a>
+                                <form method="POST" action="{{ url_for('bp_bcp.manager_delete_booking', booking_id=row.booking_id) }}" style="display: grid; margin-top: 2px;">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete booking {{row.booking_id}}?')">Delete</button>
                                 </form>                            
@@ -77,8 +75,8 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                                         <h4 class="modal-title">Please Edit Your Booking Details</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                                     </div>
                                     
                                     <div class="modal-body">
@@ -92,7 +90,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label>PayNow Reference No.</label>
-                                                <input type="text" class="form-control" name="paynow_reference_numbe" readonly="true" value="{% if row.paynow_reference_number %}{{row.paynow_reference_number}}{% endif %}">
+                                                <input type="text" class="form-control" name="paynow_reference_number" readonly="true" value="{% if row.paynow_reference_number %}{{row.paynow_reference_number}}{% endif %}">
                                             </div>
                                             <div class="form-group">
                                                 <label>Status</label>

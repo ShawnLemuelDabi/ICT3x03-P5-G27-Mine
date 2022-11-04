@@ -37,7 +37,8 @@
                         <thead>
                         <tr>
                             <th scope="col">Booking ID</th>
-                            <th scope="col">Title</th>
+                            <th scope="col">Vehicle Model</th>
+                            <th scope="col">License Plate</th>
                             <th scope="col">Location</th>
                             <th scope="col">Order Date</th>
                             <th scope="col">Execution Date</th>
@@ -50,15 +51,12 @@
                         <tbody>
                         {% for booking in bookings %}
                         <tr>
-                          <td>
-                            <div class="table-content">
-                              <h3 class="title">{{ booking.vehicle.vehicle_model }}</h3>
-                            </div>
-                          </td>
                           <td>{{ booking.booking_id }}</td>
+                          <td>{{ booking.vehicle.vehicle_model }}</td>
+                          <td>{{ booking.vehicle.license_plate }}</td>
                           <td>{{ booking.vehicle.location }}</td>
-                          <td>{{ booking.start_date }}</td>
-                          <td>{{ booking.end_date }}</td>
+                          <td>{{ booking.start_date|format_datetime }}</td>
+                          <td>{{ booking.end_date|format_datetime }}</td>
                           <td>{{ booking.units_purchased }}</td>
                           <td>${{ booking.units_purchased*booking.vehicle.price_per_unit }}</td>
                           <td>

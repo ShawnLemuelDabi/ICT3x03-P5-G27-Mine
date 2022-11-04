@@ -5,6 +5,20 @@
 <section class="booking-area padding-top-100px padding-bottom-70px">
     <div class="container">
         <div class="row">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
             <div class="col-lg-12">
                 <div class="form-box payment-received-wrap mb-0">
                     <div class="form-title-wrap">
