@@ -45,6 +45,7 @@ pipeline {
 				FLASK_ENV = 'flask_test.env'
             }
             steps {
+				sh 'echo $FLASK_ENV'
                 sh 'docker-compose -p ${TEST_STAGE} up --build -d'
             }
         }
@@ -78,6 +79,7 @@ pipeline {
 				FLASK_ENV = 'flask_prod.env'
             }
             steps {
+				sh 'echo $FLASK_ENV'
                 sh 'docker-compose -p ${PROD_STAGE} down'
                 sh 'docker-compose -p ${PROD_STAGE} up --build -d'
             }
@@ -90,7 +92,7 @@ pipeline {
             sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
         }
 		success {
-			dependencyCheckPublisher pattern: 'DependencyCheck-report.xml'
+			dependencyCheckPublisher pattern: 'dependency-check-report.xml'
 			junit 'selenium/tests/result.xml'
 		}
     }
