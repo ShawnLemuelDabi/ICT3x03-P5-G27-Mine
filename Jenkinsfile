@@ -42,6 +42,8 @@ pipeline {
 						def secret_src3 = new File(mysql_root_secret)
 						def secret_dst3 = new File('./mariadb/mysql_root.env')
 						Files.copy(secret_src3.toPath(), secret_dst3.toPath())
+
+						currentBuild.result = 'SUCCESS'
 					}
 				}
 			}
