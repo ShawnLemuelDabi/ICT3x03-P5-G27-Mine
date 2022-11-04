@@ -43,7 +43,7 @@ pipeline {
 				FLASK_DEBUG = '1'
             }
             steps {
-                sh 'docker-compose -p ${TEST_STAGE} up --build -d'
+                sh 'docker-compose -p ${TEST_STAGE} up --build -d -e FLASK_DEBUG=$FLASK_DEBUG'
             }
         }
         stage('starting selenium') {
@@ -77,7 +77,7 @@ pipeline {
             }
             steps {
                 sh 'docker-compose -p ${PROD_STAGE} down '
-                sh 'docker-compose -p ${PROD_STAGE} up --build -d'
+                sh 'docker-compose -p ${PROD_STAGE} up --build -d -e FLASK_DEBUG=$FLASK_DEBUG'
             }
         }
     }
