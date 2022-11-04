@@ -91,7 +91,6 @@ recaptchav3 = ReCaptcha(
 app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
 
 # app.config['SESSION_COOKIE_DOMAIN'] = "localhost"
-app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
@@ -850,6 +849,9 @@ if __name__ == "__main__":
     if app.debug:
         app.run(host=BIND_ALL_ADDRESS)
     else:
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['SESSION_COOKIE_DOMAIN'] = "shallot-rental.shop"
+
         serve(
             app,
             host=BIND_ALL_ADDRESS,
