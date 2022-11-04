@@ -24,22 +24,24 @@ pipeline {
 			}
 		}
 		stage('unpack secrets') {
-			withCredentials([
-				file(credentialsId: 'flask.env', variable: 'flask_secret'),
-				file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
-				file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
-			]) {
-				def secret_src1 = new File(flask_secret)
-				def secret_dst1 = new File('./flasks/flask.env')
-				Files.copy(secret_src1.toPath(), secret_dst1.toPath())
+			steps {
+				withCredentials([
+					file(credentialsId: 'flask.env', variable: 'flask_secret'),
+					file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
+					file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
+				]) {
+					def secret_src1 = new File(flask_secret)
+					def secret_dst1 = new File('./flasks/flask.env')
+					Files.copy(secret_src1.toPath(), secret_dst1.toPath())
 
-				def secret_src2 = new File(mysql_secret)
-				def secret_dst2 = new File('./flasks/mysql.env')
-				Files.copy(secret_src2.toPath(), secret_dst2.toPath())
+					def secret_src2 = new File(mysql_secret)
+					def secret_dst2 = new File('./flasks/mysql.env')
+					Files.copy(secret_src2.toPath(), secret_dst2.toPath())
 
-				def secret_src3 = new File(mysql_root_secret)
-				def secret_dst3 = new File('./mariadb/mysql_root.env')
-				Files.copy(secret_src3.toPath(), secret_dst3.toPath())
+					def secret_src3 = new File(mysql_root_secret)
+					def secret_dst3 = new File('./mariadb/mysql_root.env')
+					Files.copy(secret_src3.toPath(), secret_dst3.toPath())
+				}
 			}
 		}
         stage('build webapp') {
