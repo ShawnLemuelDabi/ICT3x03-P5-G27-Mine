@@ -11,7 +11,7 @@ services:
       - db
     env_file:
       - ./flasks/mysql.env
-      - ./flasks/flask.env
+      - ./flasks/${FLASK_ENV}.env
     restart: always
   db:
     image: docker.io/library/mariadb:10.9.2-jammy
