@@ -30,9 +30,9 @@ pipeline {
 					file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
 					file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
 				]) {
-					sh 'cp flask_secret ./flasks/flask.env'
-					sh 'cp mysql_secret ./flasks/mysql.env'
-					sh 'cp mysql_root_secret ./mariadb/mysql_root.env'
+					sh 'cp $flask_secret ./flasks/flask.env'
+					sh 'cp $mysql_secret ./flasks/mysql.env'
+					sh 'cp $mysql_root_secret ./mariadb/mysql_root.env'
 				}
 			}
 		}
