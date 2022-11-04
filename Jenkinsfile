@@ -67,7 +67,7 @@ pipeline {
             post {
                 always {
                     sh 'docker network disconnect ${TEST_STAGE}_default jenkins || echo already disconnected'
-	            sh 'docker container kill selenium-worker'
+	            	sh 'docker container kill selenium-worker'
                 }
             }
         }
@@ -78,7 +78,7 @@ pipeline {
 				FLASK_ENV = 'flask_prod.env'
             }
             steps {
-                sh 'docker-compose -p ${PROD_STAGE} down '
+                sh 'docker-compose -p ${PROD_STAGE} down'
                 sh 'docker-compose -p ${PROD_STAGE} up --build -d'
             }
         }
