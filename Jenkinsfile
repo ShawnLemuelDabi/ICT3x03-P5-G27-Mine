@@ -11,13 +11,6 @@ pipeline {
                 sh 'docker ps | grep ${TEST_STAGE}_flasks || exit 0'
             }
         }
-        stage('git clone') {
-            steps {
-                git branch: 'fl',
-					credentialsId: 'e7eca3bf-9a67-4cc0-87d6-822db0f6677a',
-					url: 'https://github.com/angpeihao98/jenkinstest.git'
-            }
-        }
 		stage('OWASP DependencyCheck') {
 			steps {
 				dependencyCheck additionalArguments: '--format HTML --format XML', odcInstallation: 'Default'
