@@ -35,8 +35,8 @@
                     <div class="form-group">
                       <span class="fa fa-envelope-o form-icon"></span>
                       <input class="form-control" type="email" id="email" name="email" placeholder="Email" 
-                      pattern=".*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$" 
-                      title="Only accepts gmail.com, hotmail.com, yahoo.com, outlook.com and singaporetech.edu.sg domain" 
+                      pattern="{{ input_validation.EMAIL_REGEX_PATTERN }}" 
+                      title="Only accepts gmail.com, hotmail.com, yahoo.com, outlook.com, sit.singaporetech.edu.sg and singaporetech.edu.sg domain" 
                       required="true">
                     </div>
                   </div>

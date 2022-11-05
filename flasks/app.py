@@ -42,6 +42,7 @@ from error_handler import ErrorHandler
 from brute_force_helper import BruteForceCategory, failed_attempt, login_is_disabled
 
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, DATE_FORMAT, validate_email, validate_image, validate_name, validate_phone_number, validate_password, validate_otp, validate_recovery_code, validate_date
+import input_validation
 
 from flask_wtf.csrf import CSRFProtect
 
@@ -134,6 +135,11 @@ def index() -> str:
 @app.context_processor
 def inject_debug():
     return dict(debug=app.debug)
+
+
+@app.context_processor
+def inject_input_validation_regex():
+    return dict(input_validation=input_validation)
 
 
 @app.template_filter()
@@ -860,6 +866,7 @@ if __name__ == "__main__":
         app.config['SESSION_COOKIE_DOMAIN'] = DOMAIN
         app.config['REMEMBER_COOKIE_DOMAIN'] = DOMAIN
         app.config['REMEMBER_COOKIE_SECURE'] = True
+        app.config['REMEMBER_COOKIE_HTTPONLY'] = True
         app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
         app.config['REMEMBER_COOKIE_SAMESITE'] = "Lax"
 
