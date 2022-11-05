@@ -38,7 +38,6 @@ pipeline {
 				FLASK_ENV = 'flask_test.env'
             }
             steps {
-				sh 'echo $FLASK_ENV'
                 sh 'docker-compose -p ${TEST_STAGE} up --build -d'
             }
         }
@@ -56,8 +55,6 @@ pipeline {
             steps {
                 sh 'echo optimistic wait for db to be ready && sleep 30'
                 sh 'curl -i --max-time 60 http://flasks:5000/dev/init'
-				sh 'sleep 5'
-				sh 'curl -i --max-time 60 http://flasks:5000/login'
                 sh 'cd selenium/tests && pytest -v --junitxml=result.xml || exit 0'
             }
             post {
@@ -86,7 +83,6 @@ pipeline {
 				FLASK_ENV = 'flask_prod.env'
             }
             steps {
-				sh 'echo $FLASK_ENV'
                 sh 'docker ps | grep ${PROD_STAGE}_flasks && docker-compose -p ${PROD_STAGE} down || exit 0'
                 sh 'docker-compose -p ${PROD_STAGE} up --build -d'
             }
