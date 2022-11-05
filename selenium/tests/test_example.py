@@ -36,4 +36,4 @@ def test_example_login(browser):
 
     browser.implicitly_wait(3)
     error_prompt = browser.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div")
-    assert False, error_prompt.text
+    assert "Incorrect credentials" in error_prompt.text
