@@ -32,23 +32,23 @@
                                     <form action="{{ url_for('bp_ucp.manager_create_user') }}" method="POST" enctype="multipart/form-data">
                                         <div class="form-group">
                                             <label>Email</label>
-                                            <input type="email" class="form-control" name="email">
+                                            <input type="email" class="form-control" name="email" pattern="{{ input_validation.EMAIL_REGEX_PATTERN|format_regex_for_html }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Password</label>
-                                            <input type="password" class="form-control" name="password">
+                                            <input type="password" class="form-control" name="password" pattern="{{ input_validation.PASSWORD_REGEX_PATTERN|format_regex_for_html }}">
                                         </div>
                                         <div class="form-group">
                                             <label>First Name</label>
-                                            <input type="text" class="form-control" name="first_name">
+                                            <input type="text" class="form-control" name="first_name" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Last Name</label>
-                                            <input type="text" class="form-control" name="last_name">
+                                            <input type="text" class="form-control" name="last_name" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Phone Number</label>
-                                            <input type="text" class="form-control" name="phone_number">
+                                            <input type="text" class="form-control" name="phone_number" pattern="{{ input_validation.PHONE_NUMBER_REGEX_PATTERN|format_regex_for_html }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Role</label>
@@ -60,11 +60,11 @@
                                         </div>
                                         <div class="form-group">
                                             <label>License</label>
-                                            <input type="file" class="form-control" name="license_blob">
+                                            <input type="file" class="form-control" name="license_blob" accept="{{ input_validation.get_valid_file_types() }}">
                                         </div>
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <div class="form-group">
-                                            <button class="btn btn-primary" type="submit">Insert Data</button>
+                                            <input class="btn btn-primary" type="submit" value="Insert Data">
                                         </div>
                                     </form>
                                 </div>
@@ -112,9 +112,9 @@
                             <td>{{row.last_name}}</td>
                             <td>{{row.phone_number}}</td>
                             <td>{{ roles[row.role].title() }}</td>
-                            <td><img height="50px" src="{{ row.get_b64_license_data_uri() }}" alt="{{row.license_filename}}"/></td>
+                            <td><img height="50px" src="{{ row.get_b64_license_data_uri() }}" alt="{{ row.license_filename }}"/></td>
                             <td>
-                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{row.user_id}}" style="margin-bottom: 2px;">Edit</a>
+                                <a href="#" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modelEdit{{ row.user_id }}" style="margin-bottom: 2px;">Edit</a>
                                 <form method="POST" action="{{ url_for('bp_ucp.manager_delete_user', user_id=row.user_id) }}" style="display: grid; margin-top: 2px;">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <button class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure, you want to delete user {{ row.user_id }}?')">Delete</button>
@@ -133,25 +133,25 @@
                                     
                                     <div class="modal-body">
                                         <div class="well">
-                                            <h4 class="text-center" name="" type="number" value={{row.user_id}}>Updating User : {{row.user_id}}</h4>
+                                            <h4 class="text-center" name="" type="number" value="{{ row.user_id }}">Updating User : {{row.user_id}}</h4>
                                         </div>
                                         {# TODO: may need to change form action depending on the user (manager/manager) #}
                                         <form action="{{ url_for('bp_ucp.manager_update_user', user_id=row.user_id) }}" method="POST" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <label>Email</label>
-                                                <input type="email" class="form-control" name="email" value={{row.email}}>
+                                                <input type="email" class="form-control" name="email" value="{{ row.email }}" pattern="{{ input_validation.EMAIL_REGEX_PATTERN|format_regex_for_html }}">
                                             </div>
                                             <div class="form-group">
                                                 <label>First Name</label>
-                                                <input type="text" class="form-control" name="first_name" value={{row.first_name}}>
+                                                <input type="text" class="form-control" name="first_name" value="{{ row.first_name }}" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                             </div>
                                             <div class="form-group">
                                                 <label>Last Name</label>
-                                                <input type="text" class="form-control" name="last_name" value={{row.last_name}}>
+                                                <input type="text" class="form-control" name="last_name" value="{{ row.last_name }}" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                             </div>
                                             <div class="form-group">
                                                 <label>Phone Number</label>
-                                                <input type="text" class="form-control" name="phone_number" value={{row.phone_number}}>
+                                                <input type="text" class="form-control" name="phone_number" value="{{ row.phone_number }}" pattern="{{ input_validation.PHONE_NUMBER_REGEX_PATTERN|format_regex_for_html }}">
                                             </div>
                                             <div class="form-group">
                                                 <label>Role</label>
@@ -163,11 +163,11 @@
                                             </div>
                                             <div class="form-group">
                                             <label>License</label>
-                                                <input type="file" class="form-control" name="license_blob">
+                                                <input type="file" class="form-control" name="license_blob" accept="{{ input_validation.get_valid_file_types() }}">
                                             </div>
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <div class="form-group">
-                                                <button class="btn btn-primary" type="submit">Update Data</button>
+                                                <input class="btn btn-primary" type="submit" value="Update Data">
                                             </div>
                                         </form>
                                     </div>

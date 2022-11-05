@@ -28,31 +28,31 @@
                             <form action="{{ url_for('bp_vcp.manager_create_vehicle') }}" method="POST" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label>Vehicle Model</label>
-                                    <input type="text" class="form-control" name="vehicle_model" placeholder="Toyota" required="1">
+                                    <input type="text" class="form-control" name="vehicle_model" placeholder="Toyota" required="1" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                 </div>
                                 <div class="form-group">
                                     <label>License Plate</label>
-                                    <input type="text" class="form-control" name="license_plate" placeholder="S423E" required="1">
+                                    <input type="text" class="form-control" name="license_plate" placeholder="S423E" required="1" pattern="{{ input_validation.LICENSE_PLATE_REGEX_PATTERN|format_regex_for_html }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Vehicle Type</label>
-                                    <input type="text" class="form-control" name="vehicle_type" placeholder="Truck" required="1">
+                                    <input type="text" class="form-control" name="vehicle_type" placeholder="Truck" required="1" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Location</label>
-                                    <input type="text" class="form-control" name="location" placeholder="Car Park A" required="1">
+                                    <input type="text" class="form-control" name="location" placeholder="Car Park A" required="1" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Price Per Unit</label>
-                                    <input type="text" class="form-control" name="price_per_limit" placeholder="2000.00" required="1">
+                                    <input type="text" class="form-control" name="price_per_limit" placeholder="2000.00" required="1" pattern="{{ input_validation.PRICE_REGEX_PATTERN|format_regex_for_html }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Image</label>
-                                    <input type="file" class="form-control" name="image">
+                                    <input type="file" class="form-control" name="image" accept="{{ input_validation.get_valid_file_types() }}">
                                 </div>           
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>             
                                 <div class="form-group">
-                                    <button class="btn btn-primary" type="submit">Insert Data</button>    
+                                    <input class="btn btn-primary" type="submit" value="Insert Data">
                                 </div>
                             </form>
                         </div>
@@ -128,46 +128,46 @@
                             
                             <div class="modal-body">
                                 <div class="well">
-                                    <h4 class="text-center" name="" type="number" value={{ row.vehicle_id }}>Updating Vehicle : {{ row.vehicle_id }}</h4>
+                                    <h4 class="text-center" name="" type="number" value="{{ row.vehicle_id }}">Updating Vehicle : {{ row.vehicle_id }}</h4>
                                 </div>
                                 <form action="{{ url_for('bp_vcp.manager_update_vehicle', vehicle_id=row.vehicle_id) }}" method="POST" enctype="multipart/form-data">
                                     <div class="form-group">                                                
-                                        <input type="hidden" name="vehicle_id" value={{ row.vehicle_id }}>
+                                        <input type="hidden" name="vehicle_id" value="{{ row.vehicle_id }}">
                                     </div>
                                     <div class="form-group">
                                         <label>Vehicle Model</label>
-                                        <input type="text" class="form-control" name="vehicle_model" value={{ row.vehicle_model }}>
+                                        <input type="text" class="form-control" name="vehicle_model" value="{{ row.vehicle_model }}" pattern="input_validation.NAME_REGEX_PATTERN|format_regex_for_html">
                                     </div>
                                     <div class="form-group">
                                         <label>License Plate</label>
-                                        <input type="text" class="form-control" name="license_plate" value={{ row.license_plate }}>
+                                        <input type="text" class="form-control" name="license_plate" value="{{ row.license_plate }}" pattern="input_validation.LICENSE_PLATE_REGEX_PATTERN|format_regex_for_html">
                                     </div>
                                     <div class="form-group">
                                         <label>Vehicle Type</label>
-                                        <input type="text" class="form-control" name="vehicle_type" value={{ row.vehicle_type }}>
+                                        <input type="text" class="form-control" name="vehicle_type" value="{{ row.vehicle_type }}" pattern="input_validation.NAME_REGEX_PATTERN|format_regex_for_html">
                                     </div>
                                     <div class="form-group">
                                         <label>Location</label>
-                                        <input type="text" class="form-control" name="location" value={{ row.location }}>
+                                        <input type="text" class="form-control" name="location" value="{{ row.location }}" pattern="input_validation.NAME_REGEX_PATTERN|format_regex_for_html">
                                     </div>
                                     <div class="form-group">
                                         <label>Price Per Unit</label>
-                                        <input type="text" class="form-control" name="price_per_limit" value={{ row.price_per_unit }}>
+                                        <input type="text" class="form-control" name="price_per_limit" value="{{ row.price_per_unit }}" pattern="input_validation.PRICE_REGEX_PATTERN|format_regex_for_html">
                                     </div>
                                     <div class="form-group">
                                     <label>Image</label>
-                                        <input type="file" class="form-control" name="image">
+                                        <input type="file" class="form-control" name="image" accept="{{ input_validation.get_valid_file_types() }}">
                                     </div> 
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>                       
                                     <div class="form-group">
-                                        <button class="btn btn-primary" type="submit">Update Data</button>    
+                                        <input class="btn btn-primary" type="submit" value="Update Data">
                                     </div>
                                 </form>
                             </div>
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

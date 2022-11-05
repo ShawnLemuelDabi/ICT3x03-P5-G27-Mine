@@ -30,7 +30,7 @@
                   <div class="form-group">
                     <span class="fa fa-user-o form-icon"></span>
                     <input class="form-control" type="text" id="first_name" name="first_name" placeholder="First name" 
-                    pattern="^[a-zA-Z ]+$"
+                    pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}"
                     title="Alphabets and space only"
                     required="true">
                   </div>
@@ -42,7 +42,7 @@
                   <div class="form-group">
                     <span class="fa fa-user-o form-icon"></span>
                     <input class="form-control" type="text" id="last_name" name="last_name" placeholder="Last name" 
-                    pattern="^[a-zA-Z ]+$"
+                    pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}"
                     title="Alphabets and space only"
                     required="true">
                   </div>
@@ -53,7 +53,7 @@
                   <label class="label-text">Password</label>
                   <div class="form-group">
                     <span class="fa fa-lock form-icon"></span>
-                    <input class="form-control" type="password" id="password" name="password" placeholder="Password" minlength="8" required="true">
+                    <input class="form-control" type="password" id="password" name="password" placeholder="Password" pattern="{{ input_validation.PASSWORD_REGEX_PATTERN|format_regex_for_html }}" required="true">
                   </div>
                 </div>
               </div>
@@ -63,7 +63,7 @@
                   <div class="form-group">
                     <span class="fa fa-lock form-icon"></span>
                     <input class="form-control" type="password" id="confirm_password" name="confirm_password"
-                      placeholder="Re-enter password" minlength="8" required="true">
+                      placeholder="Re-enter password" pattern="{{ input_validation.PASSWORD_REGEX_PATTERN|format_regex_for_html }}" required="true">
                   </div>
                 </div>
               </div>
@@ -83,7 +83,7 @@
                     <span class="fa fa-phone form-icon"></span>
                     <input class="form-control" type="text" id="phone_number" name="phone_number"
                       placeholder="Phone number" 
-                      pattern="^(8|9){1}[0-9]{7}$"
+                      pattern="{{ input_validation.PHONE_NUMBER_REGEX_PATTERN|format_regex_for_html }}" 
                       title="Numerical input only"
                       required="true">
                   </div>
@@ -94,7 +94,7 @@
                   <label class="label-text">License</label>
                   <div class="form-group">
                     <span class="fa fa-file-o form-icon"></span>
-                    <input class="form-control" type="file" name="license_blob" required="true">
+                    <input class="form-control" type="file" name="license_blob" required="true" accept="{{ input_validation.get_valid_file_types() }}">
                   </div>
                 </div>
               </div>
@@ -103,7 +103,7 @@
               </div>
               <div class="col-lg-12">
                 <div class="btn-box">
-                  <button class="theme-btn" type="submit">Submit</button>
+                  <input class="theme-btn" type="submit" value="Submit">
                 </div>
               </div>
             </div>

@@ -65,7 +65,7 @@ def forgot_password() -> str:
         from app import recaptchav3
 
         if request.method == "POST":
-            if recaptchav3.verify() or current_app.debug():
+            if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or current_app.debug:
                 email = request.form.get("email", EMPTY_STRING)
 
                 if not validate_email(email):
@@ -177,7 +177,7 @@ def verify_reset(token: str) -> str:
                 flash(err_handler.first().user_message, category="danger")
                 return redirect(url_for('bp_forgot_password.forgot_password'))
         else:
-            if recaptchav3.verify() or current_app.debug():
+            if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or current_app.debug:
                 # returns email if reset token verified
                 email = verify_token(token)
 

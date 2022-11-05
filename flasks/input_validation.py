@@ -30,6 +30,8 @@ MAX_PRICE = 100_000
 MIN_PK_VAL = 0
 MAX_PK_VAL = 100_000_000_000 - 1
 
+ALLOWED_FILETYPE = ["jpg", "jpeg", "png"]
+
 
 def validate_email(input_str: str) -> bool:
     """
@@ -77,7 +79,6 @@ def validate_image(image_stream, image_filename, image_size) -> bool:
     Returns a boolean value based on the validity.
     """
     validity = False
-    allowed_filetype = ["jpg", "jpeg", "png"]
 
     file_format = imghdr.what(None, image_stream)
 
@@ -86,7 +87,7 @@ def validate_image(image_stream, image_filename, image_size) -> bool:
     else:
         image_ext = ""
 
-    if image_ext in allowed_filetype and image_size <= MEDIUMBLOB_BYTE_SIZE and file_format in allowed_filetype:
+    if image_ext in ALLOWED_FILETYPE and image_size <= MEDIUMBLOB_BYTE_SIZE and file_format in ALLOWED_FILETYPE:
         validity = True
 
     return validity
@@ -151,3 +152,7 @@ def validate_otp(otp: str) -> bool:
 
 def validate_recovery_code(recovery_code: str) -> bool:
     return bool(re.match(RECOVERY_CODE_REGEX_PATTERN, recovery_code.replace(" ", EMPTY_STRING)))
+
+
+def get_valid_file_types() -> str:
+    return ",".join([f".{i}" for i in ALLOWED_FILETYPE])

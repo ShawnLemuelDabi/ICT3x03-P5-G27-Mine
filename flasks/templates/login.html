@@ -42,7 +42,7 @@ input[type="text"]
                                     <div class="form-group">
                                         <span class="fa fa-envelope-o form-icon"></span>
                                         <input class="form-control" type="email" name="email" placeholder="Email" 
-                                        pattern=".*@((gmail|hotmail|yahoo|outlook).com|singaporetech.edu.sg)$" 
+                                        pattern="{{ input_validation.EMAIL_REGEX_PATTERN|format_regex_for_html }}" 
                                         title="Only accepts gmail.com, hotmail.com, yahoo.com, outlook.com and singaporetech.edu.sg domain" 
                                         required="true">
                                     </div>
@@ -54,7 +54,7 @@ input[type="text"]
                                     <div class="form-group">
                                         <span class="fa fa-lock form-icon"></span>
                                         <input class="form-control" type="password" name="password"
-                                            placeholder="Password" minlength="8" required="true">
+                                            placeholder="Password" pattern="{{ input_validation.PASSWORD_REGEX_PATTERN|format_regex_for_html }}" required="true">
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +84,7 @@ input[type="text"]
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="btn-box">
-                                    <button class="theme-btn" type="submit">Login</button>
+                                    <input class="theme-btn" type="submit" value="Login">
                                 </div>
                                 <a href="{{ url_for('bp_forgot_password.forgot_password') }}" style="display: inline-block;">Forgotten password?</a>
                             </div>

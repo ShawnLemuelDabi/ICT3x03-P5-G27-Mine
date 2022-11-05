@@ -14,14 +14,14 @@ const toggle2FAmethod = () => {
     document.querySelector("#mfa_input_label").textContent = "Your OTP code"
     document.querySelector("#mfa_input").setAttribute("name", "otp")
     document.querySelector("#mfa_input").setAttribute("placeholder", "Enter OTP code")
-    document.querySelector("#mfa_input").setAttribute("pattern", "^[0-9]{6}$")
+    document.querySelector("#mfa_input").setAttribute("pattern", "{{ input_validation.OTP_REGEX_PATTERN|format_regex_for_html }}")
   }
   else {
     document.querySelector("#mfa_desc").textContent = "Enter the recovery code that you have previously saved"
     document.querySelector("#mfa_input_label").textContent = "Your recovery code"
     document.querySelector("#mfa_input").setAttribute("name", "recovery_code")
     document.querySelector("#mfa_input").setAttribute("placeholder", "Enter your recovery code")
-    document.querySelector("#mfa_input").setAttribute("pattern", "^[0-9]{8}$")
+    document.querySelector("#mfa_input").setAttribute("pattern", "{{ input_validation.RECOVERY_CODE_REGEX_PATTERN|format_regex_for_html }}")
   }
 }
 </script>
@@ -45,7 +45,7 @@ const toggle2FAmethod = () => {
                   <div class="form-group">
                     <span class="fa fa-key form-icon"></span>
                     <input id="mfa_input" class="form-control" type="number" name="otp" placeholder="Enter your OTP" 
-                    pattern="^[0-9]{6}$" 
+                    pattern="{{ input_validation.OTP_REGEX_PATTERN|format_regex_for_html }}" 
                     style="-webkit-appearance: none; margin: 0; -moz-appearance: textfield;"
                     required="true">
                   </div>

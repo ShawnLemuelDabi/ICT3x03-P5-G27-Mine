@@ -169,7 +169,7 @@ def register() -> str | Response:
         return redirect(url_for("profile"))
 
     if request.method == "POST":
-        if recaptchav3.verify() or app.debug():
+        if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or app.debug:
             email = request.form.get("email", EMPTY_STRING)
 
             if not validate_email(email):
@@ -244,7 +244,7 @@ def register_verified(token: str) -> str:
         return redirect(url_for("profile"))
 
     if request.method == "POST":
-        if recaptchav3.verify() or app.debug():
+        if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or app.debug:
             uploaded_file = request.files['license_blob']
 
             first_name = request.form.get("first_name", EMPTY_STRING)
@@ -427,7 +427,7 @@ def login() -> str:
         email = request.form.get("email", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
 
-        if recaptchav3.verify() or app.debug():
+        if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or app.debug:
             if login_is_disabled(email):
                 return login_error(
                     msg="You have too many failed login attempts. Please try again later",

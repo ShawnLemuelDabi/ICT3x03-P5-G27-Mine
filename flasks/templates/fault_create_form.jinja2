@@ -36,10 +36,10 @@
                             </div>
                             <div class="form-group">
                                 <label for="fault_image">Photo to support investigation</label>
-                                <input type="file" class="form-control form-control-file" id="fault_image" name="fault_image" required>
+                                <input type="file" class="form-control form-control-file" id="fault_image" name="fault_image" required accept="{{ input_validation.get_valid_file_types() }}">
                             </div>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="btn">Submit</button>
+                            <input type="submit" class="btn" value="Submit">
                         </form>
                     </div>
                 </div>
