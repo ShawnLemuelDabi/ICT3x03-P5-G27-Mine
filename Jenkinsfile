@@ -55,7 +55,7 @@ pipeline {
             steps {
                 sh 'echo optimistic wait for db to be ready && sleep 30'
                 sh 'curl -i --max-time 60 http://flasks:5000/dev/init'
-                sh 'cd selenium/tests && pytest -v --junitxml=result.xml || exit 0'
+                sh 'cd selenium/tests && pytest -v --junitxml=result.xml'
             }
             post {
                 always {
