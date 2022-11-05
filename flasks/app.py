@@ -326,7 +326,7 @@ def register_verified(token: str) -> str:
             except Exception as e:
                 err_handler.push(
                     user_message="Invalid token",
-                    log_message=f"Invalid token. Token given: {e}. Email attempted: {email}"
+                    log_message=f"Invalid token. Token given: {e}."
                 )
 
             err_handler.commit_log()
