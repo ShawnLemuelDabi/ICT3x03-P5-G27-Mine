@@ -147,6 +147,11 @@ def format_datetime(datetime_obj: datetime) -> str:
     return datetime_obj.strftime(DATE_FORMAT)
 
 
+@app.template_filter()
+def format_regex_for_html(regex: str) -> str:
+    return regex[1:-1]
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register() -> str | Response:
     err_handler = ErrorHandler(app, dict(request.headers))
