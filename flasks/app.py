@@ -861,7 +861,7 @@ if __name__ == "__main__":
         app.config['REMEMBER_COOKIE_DOMAIN'] = DOMAIN
         app.config['REMEMBER_COOKIE_SECURE'] = True
         app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
-        app.config['REMEMBER_COOKIE_SAMESITE'] = "SameSite=Strict"
+        app.config['REMEMBER_COOKIE_SAMESITE'] = "Strict"
 
         serve(
             app,
