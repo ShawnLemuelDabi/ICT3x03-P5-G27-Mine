@@ -178,36 +178,35 @@ def register() -> str | Response:
                     log_message=f"Email provider must be from Gmail, Hotmail, Yahoo, sit.singaporetech.edu.sg or singaporetech.edu.sg. Email given: {email}"
                 )
 
-            # check if user already exist
-            if User.query.filter(User.email == email).first() is not None:
-                err_handler.push(
-                    user_message="An account with this email exists",
-                    log_message=f"An account with this email exists. Email given: {email}"
-                )
-
-            err_handler.commit_log()
-
             if err_handler.has_error():
                 for i in err_handler.all():
                     flash(i.user_message, category="danger")
                 return redirect(url_for('register'))
             else:
-                token = generate_token(email)
+                # check if user already exist
+                if User.query.filter(User.email == email).first() is not None:
+                    err_handler.push(
+                        user_message="",
+                        log_message=f"An account with this email exists. Email given: {email}",
+                        is_error=False
+                    )
+                else:
+                    token = generate_token(email)
 
-                err_handler.push(
-                    user_message="",
-                    log_message=f"Email registration link requested for email '{email}'",
-                    is_error=False
-                )
+                    err_handler.push(
+                        user_message="",
+                        log_message=f"Email registration link requested for email '{email}'",
+                        is_error=False
+                    )
+
+                    send_mail_async(
+                        app_context=app,
+                        subject="Registration",
+                        recipients=[email],
+                        email_body=render_template("register_email_body.jinja2", token=token)
+                    )
 
                 err_handler.commit_log()
-
-                send_mail_async(
-                    app_context=app,
-                    subject="Registration",
-                    recipients=[email],
-                    email_body=render_template("register_email_body.jinja2", token=token)
-                )
 
                 return render_template("register_email_sent.jinja2")
         else:
@@ -349,7 +348,7 @@ def register_verified(token: str) -> str:
         else:
             err_handler.push(
                 user_message="Invalid reCAPTCHA",
-                log_message=f"Invalid reCAPTCHA. Email attempted: {email}"
+                log_message="Invalid reCAPTCHA."
             )
 
             err_handler.commit_log()
@@ -399,10 +398,10 @@ def login() -> str:
                 flash(i.user_message, category="danger")
         return redirect(url_for("login"))
 
-    def login_error(msg: str = "Incorrect credentials", log: str = "Incorrect credentials", is_failed_attempt: bool = True) -> str:
+    def login_error(msg: str = "Incorrect credentials", log: str = "Incorrect credentials", email: str = "None", is_failed_attempt: bool = True) -> str:
         err_handler.push(
             user_message=msg,
-            log_message=f"{log}. Email attempted: {email}"
+            log_message=f"{log}. Email attempted: '{email}'"
         )
 
         if is_failed_attempt:
@@ -432,6 +431,7 @@ def login() -> str:
                 return login_error(
                     msg="You have too many failed login attempts. Please try again later",
                     log=f"User account '{email}' is currently locked out",
+                    email=email,
                     is_failed_attempt=False
                 )
             else:
