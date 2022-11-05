@@ -24,7 +24,7 @@ from sqlalchemy import or_, and_
 
 from db_helper import vehicle_distinct_locations, vehicle_distinct_vehicle_types
 from jwt_helper import generate_token, verify_token
-from email_helper import send_mail
+from email_helper_async import send_mail_async
 
 import os
 from datetime import datetime, timedelta
@@ -202,7 +202,7 @@ def register() -> str | Response:
 
                 err_handler.commit_log()
 
-                send_mail(
+                send_mail_async(
                     app_context=app,
                     subject="Registration",
                     recipients=[email],
