@@ -46,6 +46,14 @@ When you first load our webpage, you might encounter an error saying some tables
 
 You can use the route [http://localhost:5001/dev/init](http://localhost:5001/dev/init) to initialize all the tables.
 
+## Credentials
+
+|Username|Password|
+|-|-|
+|admin@shallot-rental.shop|mK6E01S@db3c!8|
+|manager@shallot-rental.shop|9$07bXRn8I93Qd|
+
+
 ## Delete all SQL data
 ```bash
 # probably something followed by mariadb-data
