@@ -37,7 +37,7 @@ def test_reset_password_respond_correctly(browser, emailtotest, result):
 			global token
 			token = response.get_attribute("innerHTML")
 	
-			assert 1==1
+			assert True
 		
 		except NoSuchElementException:
 			pytest.fail()
