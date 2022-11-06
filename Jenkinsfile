@@ -4,6 +4,7 @@ pipeline {
     environment {
         TEST_STAGE = 'test'
         PROD_STAGE = 'prod'
+        SELENIUM_IMAGE = 'selenium/standalone-firefox:4.5.3-20221024'
     }
     stages {
 		stage('check if test is already running') {
@@ -43,7 +44,7 @@ pipeline {
         }
         stage('starting selenium') {
             steps {
-                sh 'docker run --rm -d -p 4444:4444 --net ${TEST_STAGE}_default --name selenium-worker selenium/standalone-firefox:4.5.3-20221024 || (docker ps | grep selenium-worker && exit 0)'
+                sh 'docker run --rm -d -p 4444:4444 --net ${TEST_STAGE}_default --name selenium-worker ${SELENIUM_IMAGE} || (docker ps | grep selenium-worker && exit 0)'
             }
         }
         stage('connect jenkins with flask app') {
