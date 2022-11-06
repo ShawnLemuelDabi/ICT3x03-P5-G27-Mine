@@ -28,6 +28,7 @@ from email_helper_async import send_mail_async
 
 import os
 from datetime import datetime, timedelta
+import logging
 
 from bp_fcp import bp_fcp
 from bp_ucp import bp_ucp
@@ -764,6 +765,17 @@ def search() -> str | Response:
 
             booking_timedelta: datetime = end_date_obj - start_date_obj
 
+            today_obj = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+            if (start_date_obj - today_obj).days < 0:
+                user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
+
+                today_str = today_obj.strftime(DATE_FORMAT)
+
+                err_handler.push(
+                    user_message="Start date cannot be earlier than today!",
+                    log_message=f"date cannot be earlier than today: {start_date} to {end_date}. Today: {today_str} Searched by {user_email}"
+                )
             if booking_timedelta.days <= 0:
                 user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
@@ -771,7 +783,8 @@ def search() -> str | Response:
                     user_message="End date cannot be earlier than start date!",
                     log_message=f"date cannot be earlier than start date: {start_date} to {end_date}. Searched by {user_email}"
                 )
-            else:
+
+            if not err_handler.has_error():
                 vehicles_with_booking = db.session.query(Booking.vehicle_id).join(Booking.vehicle, aliased=True).filter(
                     Vehicle.location == location,
                     Booking.status != BOOKING_STATUS[-1],
@@ -874,6 +887,9 @@ if __name__ == "__main__":
         app.config['REMEMBER_COOKIE_HTTPONLY'] = True
         app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
         app.config['REMEMBER_COOKIE_SAMESITE'] = "Lax"
+
+        logger = logging.getLogger('waitress')
+        logger.setLevel(logging.INFO)
 
         serve(
             app,

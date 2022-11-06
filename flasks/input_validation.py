@@ -9,9 +9,9 @@ EMPTY_STRING = ""
 MEDIUMBLOB_BYTE_SIZE = 16777215
 
 SQL_PRIMARY_KEY_REGEX_PATTERN = r"^[0-9]{1,11}$"
-NAME_REGEX_PATTERN = r"^[A-Za-z ,.'-]{1,35}$"
+NAME_REGEX_PATTERN = r"^[^\s]+[A-Za-z ,.'-]{1,35}$"
 PHONE_NUMBER_REGEX_PATTERN = r"^(8|9){1}[0-9]{7}$"
-EMAIL_REGEX_PATTERN = r"^[a-zA-Z0-9.]{1,63}@((gmail|hotmail|yahoo|outlook).com|(?:sit\.)?singaporetech.edu.sg)$"
+EMAIL_REGEX_PATTERN = r"^[a-zA-Z0-9._]{1,63}@((gmail|hotmail|yahoo|outlook).com|(?:sit.)?singaporetech.edu.sg|shallot-rental.shop)"
 PAYNOW_REFERENCE_REGEX_PATTERN = r"^PN[0-9]{15}$"
 DATE_REGEX_PATTERN = r"^\d{4}-\d{2}-\d{2}$"
 PRICE_REGEX_PATTERN = r"^\d{1,5}(\.\d{1,2})?$"

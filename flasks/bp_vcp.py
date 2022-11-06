@@ -201,7 +201,7 @@ def manager_update_vehicle(vehicle_id: int) -> str:
                 log_message=f"Invalid location provided. Location '{location}'. Request made by user {user_email}"
             )
 
-        if image_size > 0 and not validate_image(image_stream=image, image_filename=image_name, image_size=image_size):
+        if image_size >= 0 and image_name != EMPTY_STRING and not validate_image(image_stream=image, image_filename=image_name, image_size=image_size):
             err_handler.push(
                 user_message="Invalid image provided. Only jpg, jpeg & png allowed. Max size of image should be 16M",
                 log_message=f"Invalid image provided. Image name '{image_name}' of mime type '{image_mime}' uploaded. Image size {image_size} bytes. Request made by user {user_email}"

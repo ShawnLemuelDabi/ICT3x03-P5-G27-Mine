@@ -3,6 +3,8 @@ from db import db
 
 from input_validation import EMPTY_STRING
 
+from werkzeug.security import generate_password_hash
+
 
 def update_user(find_user_id: int, email: str, password: str, first_name: str, last_name: str, phone_number: str, license_blob: bytes, license_filename: str, license_mime: str, role: int, mfa_secret: str = EMPTY_STRING):
     # Action mariaDB will have the execute using SQLAlchemy
@@ -27,6 +29,9 @@ def update_user(find_user_id: int, email: str, password: str, first_name: str, l
         del update_dict['license_blob']
         del update_dict['license_filename']
         del update_dict['license_mime']
+
+    if password != EMPTY_STRING:
+        update_dict['password'] = generate_password_hash(password)
 
     # remove any key-value pair when value is empty str or none
     update_dict = {k: v for k, v in update_dict.items() if v is not None and v != EMPTY_STRING}

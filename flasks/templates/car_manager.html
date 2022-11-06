@@ -136,23 +136,23 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Vehicle Model</label>
-                                        <input type="text" class="form-control" name="vehicle_model" value="{{ row.vehicle_model }}" pattern="input_validation.NAME_REGEX_PATTERN|format_regex_for_html">
+                                        <input type="text" class="form-control" name="vehicle_model" value="{{ row.vehicle_model }}" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                     </div>
                                     <div class="form-group">
                                         <label>License Plate</label>
-                                        <input type="text" class="form-control" name="license_plate" value="{{ row.license_plate }}" pattern="input_validation.LICENSE_PLATE_REGEX_PATTERN|format_regex_for_html">
+                                        <input type="text" class="form-control" name="license_plate" value="{{ row.license_plate }}" pattern="{{ input_validation.LICENSE_PLATE_REGEX_PATTERN|format_regex_for_html }}">
                                     </div>
                                     <div class="form-group">
                                         <label>Vehicle Type</label>
-                                        <input type="text" class="form-control" name="vehicle_type" value="{{ row.vehicle_type }}" pattern="input_validation.NAME_REGEX_PATTERN|format_regex_for_html">
+                                        <input type="text" class="form-control" name="vehicle_type" value="{{ row.vehicle_type }}" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                     </div>
                                     <div class="form-group">
                                         <label>Location</label>
-                                        <input type="text" class="form-control" name="location" value="{{ row.location }}" pattern="input_validation.NAME_REGEX_PATTERN|format_regex_for_html">
+                                        <input type="text" class="form-control" name="location" value="{{ row.location }}" pattern="{{ input_validation.NAME_REGEX_PATTERN|format_regex_for_html }}">
                                     </div>
                                     <div class="form-group">
                                         <label>Price Per Unit</label>
-                                        <input type="text" class="form-control" name="price_per_limit" value="{{ row.price_per_unit }}" pattern="input_validation.PRICE_REGEX_PATTERN|format_regex_for_html">
+                                        <input type="text" class="form-control" name="price_per_limit" value="{{ row.price_per_unit }}" pattern="{{ input_validation.PRICE_REGEX_PATTERN|format_regex_for_html }}">
                                     </div>
                                     <div class="form-group">
                                     <label>Image</label>

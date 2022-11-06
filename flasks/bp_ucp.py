@@ -15,6 +15,8 @@ from input_validation import EMPTY_STRING, validate_email, validate_image, valid
 from error_handler import ErrorHandler
 from authorizer import universal_get_current_user_role
 
+from werkzeug.security import generate_password_hash
+
 
 bp_ucp = Blueprint('bp_ucp', __name__, template_folder='templates')
 
@@ -23,10 +25,10 @@ bp_ucp = Blueprint('bp_ucp', __name__, template_folder='templates')
 @flask_login.login_required
 def admin_read_users() -> str | Response:
     if universal_get_current_user_role(flask_login.current_user) == Role.ADMIN:
-        users_list = User.query.filter(User.role >= 3)
+        users_list = User.query.filter(User.role == Role.MANAGER)
         data = users_list.all()
 
-        valid_roles = {k: v for k, v in ROLE.items() if k in range(3, len(ROLE))}
+        valid_roles = {Role.MANAGER: ROLE[Role.MANAGER]}
 
         return render_template("user_manager.html", user_list=data, valid_roles=valid_roles, roles=ROLE)
     else:
@@ -131,7 +133,7 @@ def admin_create_user() -> str:
         try:
             role_int = int(role)
 
-            if role_int not in [Role.MANAGER, Role.ADMIN]:
+            if role_int != Role.MANAGER:
                 err_handler.push(
                     user_message="Invalid role",
                     log_message=f"Role ID out of valid range. Invalid role ID: {role} request made by user {user_email}"
@@ -142,36 +144,36 @@ def admin_create_user() -> str:
                 log_message=f"Role ID is not a number. Invalid role ID: {role} request made by user {user_email}"
             )
 
-            if not err_handler.has_error():
-                user_exists = User.query.filter(User.email == email).first()
+        if not err_handler.has_error():
+            user_exists = User.query.filter(User.email == email).first()
 
-                if user_exists is not None:
-                    err_handler.push(
-                        user_message="User already exists",
-                        log_message=f"User with email '{email}' already exists. Request made by user {user_email}"
-                    )
-                else:
-                    # Calling the function to insert into the db
-                    create_user(
-                        email=email,
-                        password=password,
-                        first_name=first_name,
-                        last_name=last_name,
-                        phone_number=phone_number,
-                        license_blob=license_blob,
-                        license_filename=license_filename,
-                        license_mime=license_mime,
-                        mfa_secret=EMPTY_STRING,
-                        role=role,
-                    )
-                    # Flash message
-                    flash("A User has been created", category="success")
+            if user_exists is not None:
+                err_handler.push(
+                    user_message="User already exists",
+                    log_message=f"User with email '{email}' already exists. Request made by user {user_email}"
+                )
+            else:
+                # Calling the function to insert into the db
+                create_user(
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    phone_number=phone_number,
+                    license_blob=license_blob,
+                    license_filename=license_filename,
+                    license_mime=license_mime,
+                    mfa_secret=EMPTY_STRING,
+                    role=role,
+                )
+                # Flash message
+                flash("A User has been created", category="success")
 
-                    err_handler.push(
-                        user_message="",
-                        log_message=f"User '{email}' with role '{ROLE[role_int]}' created. Request made by user {user_email}",
-                        is_error=False
-                    )
+                err_handler.push(
+                    user_message="",
+                    log_message=f"User '{email}' with role '{ROLE[role_int]}' created. Request made by user {user_email}",
+                    is_error=False
+                )
         err_handler.commit_log()
 
         if err_handler.has_error():
@@ -238,7 +240,7 @@ def admin_update_user(user_id: int) -> str:
                 log_message=f"Invalid last name provided. Request made by user {user_email}"
             )
 
-        if not validate_password(password, password):
+        if password != EMPTY_STRING and not validate_password(password, password):
             err_handler.push(
                 user_message="Invalid password provided.",
                 log_message=f"Invalid password provided. Request made by user {user_email}"
@@ -250,7 +252,7 @@ def admin_update_user(user_id: int) -> str:
                 log_message=f"Invalid phone number provided. Request made by user {user_email}"
             )
 
-        if not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
+        if license_blob_size >= 0 and license_filename != EMPTY_STRING and not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
             err_handler.push(
                 user_message="Invalid image provided.",
                 log_message=f"Invalid image provided. Request made by user {user_email}"
@@ -259,7 +261,7 @@ def admin_update_user(user_id: int) -> str:
         try:
             role_int = int(role)
 
-            if role_int not in [Role.MANAGER, Role.ADMIN]:
+            if role_int != Role.MANAGER:
                 err_handler.push(
                     user_message="Invalid role",
                     log_message=f"Role ID out of valid range. Invalid role ID: {role} request made by user {user_email}"
@@ -286,6 +288,9 @@ def admin_update_user(user_id: int) -> str:
             del update_dict['license_blob']
             del update_dict['license_filename']
             del update_dict['license_mime']
+
+        if password != EMPTY_STRING:
+            update_dict['password'] = generate_password_hash(password)
 
         # remove any key-value pair when value is empty str or none
         update_dict = {k: v for k, v in update_dict.items() if v is not None and v != EMPTY_STRING}
@@ -345,7 +350,7 @@ def admin_delete_user(user_id: int) -> str:
 
         if not err_handler.has_error():
             # Function to delete the selected vehicle from vehicle db
-            target_user = User.query.filter(User.user_id == user_id, User.role >= 3)
+            target_user = User.query.filter(User.user_id == user_id, User.role == Role.MANAGER)
 
             if target_user.first() is not None:
                 target_user.delete()
@@ -472,7 +477,7 @@ def manager_create_user() -> str:
                 log_message=f"Invalid last name provided. Request made by user {user_email}"
             )
 
-        if not validate_password(password, password):
+        if password != EMPTY_STRING and not validate_password(password, password):
             err_handler.push(
                 user_message="Invalid password provided.",
                 log_message=f"Invalid password provided. Request made by user {user_email}"
@@ -484,7 +489,7 @@ def manager_create_user() -> str:
                 log_message=f"Invalid phone number provided. Request made by user {user_email}"
             )
 
-        if not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
+        if license_blob_size >= 0 and license_filename != EMPTY_STRING and not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
             err_handler.push(
                 user_message="Invalid image provided.",
                 log_message=f"Invalid image provided. Request made by user {user_email}"
@@ -524,23 +529,23 @@ def manager_create_user() -> str:
                     license_filename=license_filename,
                     license_mime=license_mime,
                     mfa_secret=EMPTY_STRING,
-                    role=role,
+                    role=int(role),
                 )
                 # Flash message
                 flash("A User has been created", category="success")
 
                 err_handler.push(
                     user_message="",
-                    log_message=f"User '{email}' with role '{ROLE[role]}' created. Request made by user {user_email}",
+                    log_message=f"User '{email}' with role '{ROLE[int(role)]}' created. Request made by user {user_email}",
                     is_error=False
                 )
-            err_handler.commit_log()
+        err_handler.commit_log()
 
-            if err_handler.has_error():
-                for i in err_handler.all():
-                    flash(i.user_message, category="danger")
-            # return and render the page template
-            return redirect(url_for("bp_ucp.manager_read_users"))
+        if err_handler.has_error():
+            for i in err_handler.all():
+                flash(i.user_message, category="danger")
+        # return and render the page template
+        return redirect(url_for("bp_ucp.manager_read_users"))
     else:
         err_handler.push(
             user_message="",
@@ -599,7 +604,7 @@ def manager_update_user(user_id: int) -> str:
                 log_message=f"Invalid last name provided. Request made by user {user_email}"
             )
 
-        if not validate_password(password, password):
+        if password != EMPTY_STRING and not validate_password(password, password):
             err_handler.push(
                 user_message="Invalid password provided.",
                 log_message=f"Invalid password provided. Request made by user {user_email}"
@@ -611,7 +616,7 @@ def manager_update_user(user_id: int) -> str:
                 log_message=f"Invalid phone number provided. Request made by user {user_email}"
             )
 
-        if not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
+        if license_blob_size >= 0 and license_filename != EMPTY_STRING and not validate_image(image_stream=license_blob, image_filename=license_filename, image_size=license_blob_size):
             err_handler.push(
                 user_message="Invalid image provided.",
                 log_message=f"Invalid image provided. Request made by user {user_email}"
@@ -620,7 +625,7 @@ def manager_update_user(user_id: int) -> str:
         try:
             role_int = int(role)
 
-            if role_int not in [Role.MANAGER, Role.ADMIN]:
+            if role_int not in [Role.UNVERIFIED_USER, Role.VERIFIED_USER]:
                 err_handler.push(
                     user_message="Invalid role",
                     log_message=f"Role ID out of valid range. Invalid role ID: {role} request made by user {user_email}"
