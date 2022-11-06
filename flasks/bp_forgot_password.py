@@ -90,8 +90,8 @@ def forgot_password() -> str:
                     if user:
                         token = generate_reset_password_token(email)
 
-                        if current_app.debug():
-                            render_template("register_email_test.jinja2", token=token)
+                        if current_app.debug:
+                            return render_template("register_email_test.jinja2", token=token)
 
                         with current_app.app_context():
                             send_mail_async(
