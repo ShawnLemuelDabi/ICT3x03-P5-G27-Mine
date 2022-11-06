@@ -196,6 +196,9 @@ def register() -> str | Response:
                 else:
                     token = generate_token(email)
 
+                    if app.debug:
+                        return render_template("register_email_test.jinja2", token=token)
+
                     err_handler.push(
                         user_message="",
                         log_message=f"Email registration link requested for email '{email}'",
@@ -335,6 +338,10 @@ def register_verified(token: str) -> str:
                     )
 
                     err_handler.commit_log()
+
+                    if app.debug:
+                        return render_template("success_registration.jinja2")
+
                     return redirect(url_for('login'))
             except Exception as e:
                 err_handler.push(
