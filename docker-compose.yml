@@ -10,8 +10,8 @@ services:
     depends_on:
       - db
     env_file:
-      - ./flasks/mysql.env
-      - ./flasks/${FLASK_ENV}
+      - "./flasks/mysql.env"
+      - "./flasks/${FLASK_ENV:-flask_test.env}"
     restart: always
   db:
     image: docker.io/library/mariadb:10.9.3-jammy

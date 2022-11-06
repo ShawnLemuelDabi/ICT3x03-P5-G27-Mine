@@ -3,31 +3,45 @@ import string
 import os
 
 """
-Your SMTP settings
+Whether to put Flask into debug mode
+FLASK_DEBUG: Either "0" or "1" as a str
 """
-SMTP_SERVER_HOST = "a"
-SMTP_SERVER_PORT = "b"
+FLASK_DEBUG = "0"
+
+"""
+Your SMTP settings
+
+SMTP_USE_TLS and SMTP_USE_SSL are bool whereas the rest are str
+"""
+SMTP_SERVER_HOST = ""
+SMTP_SERVER_PORT = ""
 SMTP_USE_TLS = False
 SMTP_USE_SSL = True
-SMTP_USERNAME = "c"
-SMTP_PASSWORD = "d"
+SMTP_USERNAME = ""
+SMTP_PASSWORD = ""
 
 """
 Your Google reCAPTCHAv3 settings
+
+Both are str
 """
-RC_SITE_KEY_V3 = "e"
-RC_SECRET_KEY_V3 = "f"
+RC_SITE_KEY_V3 = ""
+RC_SECRET_KEY_V3 = ""
 
 """
 Your RSA key-pair location to sign the JWT tokens
+
+Path of the files as str
 """
-PRIVATE_KEY_FULL_PATH = "priv.key"
-PUBLIC_KEY_FULL_PATH = "pub.key"
+PRIVATE_KEY_FULL_PATH = ""
+PUBLIC_KEY_FULL_PATH = ""
 
 """
 Fill these up ONLY if you want to use your own keys.
 Or if you don't want to rebuild your images again
 (as running this script will overwrite our .env files)
+
+All the variable below are str
 """
 FLASK_LOGIN_SECRET = ""
 RESET_PASSWORD_JWT_KEY = ""
@@ -86,9 +100,9 @@ def write_setting(key: any, val: str) -> str:
 
 
 class FlaskEnv:
-    output_relative_path = os.path.join("flasks", "flask.env")
+    output_relative_path = os.path.join("flasks", "flask_test.env")
 
-    flask_debug = 0
+    flask_debug = FLASK_DEBUG
     flask_app = "app.py"
     flask_run_port = "5000"
     flask_login_secret = FLASK_LOGIN_SECRET or generate_secrets(ALPHANUMERIC_SET, SECRET_LENGTH)
