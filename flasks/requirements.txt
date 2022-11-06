@@ -12,3 +12,4 @@ google-recaptcha==2.0.1
 Flask-Session==0.4.0
 pyjwt[crypto]
 waitress==2.1.2
+Paste==3.5.2

@@ -28,7 +28,9 @@ from email_helper_async import send_mail_async
 
 import os
 from datetime import datetime, timedelta
+
 import logging
+from paste.translogger import TransLogger
 
 from bp_fcp import bp_fcp
 from bp_ucp import bp_ucp
@@ -892,9 +894,10 @@ if __name__ == "__main__":
         logger.setLevel(logging.INFO)
 
         serve(
-            app,
+            TransLogger(app, setup_console_handler=False),
             host=BIND_ALL_ADDRESS,
             port=os.environ.get("FLASK_RUN_PORT"),
+            threads=8
         )
         # part of serve. disabled for now. testing in progress.
         # url_scheme='https',
