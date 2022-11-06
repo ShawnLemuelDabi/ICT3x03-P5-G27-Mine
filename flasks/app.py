@@ -891,7 +891,7 @@ if __name__ == "__main__":
 
         app.config['SERVER_NAME'] = DOMAIN
         app.config['SESSION_COOKIE_SECURE'] = True
-        app.config['SESSION_COOKIE_DOMAIN'] = None
+        app.config['SESSION_COOKIE_DOMAIN'] = DOMAIN
         app.config['REMEMBER_COOKIE_DOMAIN'] = None
         app.config['REMEMBER_COOKIE_SECURE'] = True
         app.config['REMEMBER_COOKIE_HTTPONLY'] = True
