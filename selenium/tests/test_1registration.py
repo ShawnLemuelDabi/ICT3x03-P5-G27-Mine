@@ -3,6 +3,7 @@ import pytest
 from initialization import browser, URL, CORRECT_EMAIL
 
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 import os
@@ -129,7 +130,7 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 		license_input = browser.find_element("id", "license")
 		license_input.send_keys(license_filepath)
 
-		firstname_input.send_keys(Keys.RETURN)
+		browser.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div/form/div/div[9]/div/input").submit()
 
 		if scenario == "success":
 			try:
@@ -153,7 +154,7 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 	email_input = browser.find_element("id", "email")
 	email_input.send_keys(emailtotest)
 
-	email_input.send_keys(Keys.RETURN)
+	browser.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div[2]/div/form/div/div[3]/div/input").submit()
 
 	if result:
 		try:
