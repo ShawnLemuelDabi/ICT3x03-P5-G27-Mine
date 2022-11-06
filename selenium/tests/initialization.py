@@ -15,8 +15,8 @@ CORRECT_EMAIL = ("test" + str(random.randint(100000, 999999)) + "@gmail.com")
 def browser():
 	# Set Firefox to run headless
 	options = Options()
-	options.add_argument("--disable-blink-features=AutomationControlled")
-	options.headless = True
+	# options.add_argument("--disable-blink-features=AutomationControlled")
+	# options.headless = True
 
 	# Initialize FirefoxDriver
 	# driver = Firefox(options = options) # FOR TESTING
