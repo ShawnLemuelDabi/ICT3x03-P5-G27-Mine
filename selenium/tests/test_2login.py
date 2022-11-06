@@ -10,11 +10,11 @@ PAGENAME = "/login"
 @pytest.mark.parametrize(
     "emailtotest, passwordtotest, result", [
 		("failemail", "failpassword", False),
-		(CORRECT_EMAIL, "P@ssw0rd12345", True),
+		(CORRECT_EMAIL, "complexP@ssw0rd12345", True),
     ]
 )
 @pytest.mark.dependency(name='login_page_respond_correctly')
-@pytest.mark.depends(on=['test_1registration.py::registration_respond_correctly'])
+# @pytest.mark.depends(on=['test_1registration.py::registration_respond_correctly'])
 def test_login_page_respond_correctly(browser, emailtotest, passwordtotest, result):
 	"""
 	Need to ensure that the registration is successful first
@@ -33,7 +33,7 @@ def test_login_page_respond_correctly(browser, emailtotest, passwordtotest, resu
 	if result:
 		try:
 			browser.find_element("id", "logout")
-			assert 1==1
+			assert True
 		
 		except NoSuchElementException:
 			pytest.fail()
