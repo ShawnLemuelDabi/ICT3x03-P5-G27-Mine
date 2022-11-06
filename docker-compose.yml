@@ -14,7 +14,7 @@ services:
       - ./flasks/${FLASK_ENV}
     restart: always
   db:
-    image: docker.io/library/mariadb:10.9.2-jammy
+    image: docker.io/library/mariadb:10.9.3-jammy
     expose:
       - "3306"
     volumes:
