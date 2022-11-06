@@ -16,8 +16,8 @@ PAGENAME = "/forgot_password"
 		(CORRECT_EMAIL, True),
 	]
 )
-@pytest.mark.dependency(name='reset_password_respond_correctly', depends=['test_registration.py::registration_fields_are_validated'])
-@pytest.mark.run(after="test_registration.py::registration_fields_are_validated")
+@pytest.mark.dependency(name='reset_password_respond_correctly')
+@pytest.mark.depends(on=['test_1registration.py::registration_respond_correctly'])
 def test_reset_password_respond_correctly(browser, emailtotest, result):
 	"""
 	Checks if the reset password page returns the correct page
@@ -48,7 +48,7 @@ def test_reset_password_respond_correctly(browser, emailtotest, result):
 			pytest.fail()
 		
 		except NoSuchElementException:
-			assert 1==1
+			assert True
 
 
 # def test_verify_reset_page_respond_correcty(browser):

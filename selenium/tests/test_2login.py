@@ -13,8 +13,8 @@ PAGENAME = "/login"
 		(CORRECT_EMAIL, "P@ssw0rd", True),
     ]
 )
-@pytest.mark.dependency(name='login_page_respond_correctly', depends=['test_registration.py::registration_fields_are_validated'])
-@pytest.mark.run(after="test_registration.py::registration_fields_are_validated")
+@pytest.mark.dependency(name='login_page_respond_correctly')
+@pytest.mark.depends(on=['test_1registration.py::registration_respond_correctly'])
 def test_login_page_respond_correctly(browser, emailtotest, passwordtotest, result):
 	"""
 	Need to ensure that the registration is successful first
@@ -44,7 +44,7 @@ def test_login_page_respond_correctly(browser, emailtotest, passwordtotest, resu
 			pytest.fail()
 		
 		except NoSuchElementException:
-			assert 1==1
+			assert True
 
 
 
