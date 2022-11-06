@@ -6,7 +6,8 @@ from selenium.webdriver.firefox.options import Options
 
 import random
 
-URL = "http://flasks:5000"
+URL = "http://flasks:5000" # FOR PRODUCTION
+# URL = "http://localhost:5001" # FOR TESTING
 CORRECT_EMAIL = ("test" + str(random.randint(100000, 999999)) + "@gmail.com")
 
 
@@ -18,7 +19,9 @@ def browser():
 	options.headless = True
 
 	# Initialize FirefoxDriver
-	# driver = Firefox(options = options)
+	# driver = Firefox(options = options) # FOR TESTING
+
+	# FOR PRODUCTION
 	driver = webdriver.Remote(
         command_executor="http://selenium-worker:4444",
         options=options
