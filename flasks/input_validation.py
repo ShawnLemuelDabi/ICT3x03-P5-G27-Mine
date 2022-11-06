@@ -20,7 +20,7 @@ FAULT_DESCRIPTION_REGEX_PATTERN = r"^[A-Za-z ,.'-]{5,500}$"
 OTP_REGEX_PATTERN = r"^[0-9]{6}$"
 RECOVERY_CODE_REGEX_PATTERN = r"^[0-9]{8}$"
 
-PASSWORD_REGEX_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+PASSWORD_REGEX_PATTERN = r"^(?=^.{12,50}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -143,7 +143,7 @@ def validate_password(password1: str, password2: str) -> bool:
     if password1 != password2:
         return False
     else:
-        return bool(re.match(PASSWORD_REGEX_PATTERN, password1))
+        return len(password1) <= 64 and bool(re.match(PASSWORD_REGEX_PATTERN, password1))
 
 
 def validate_otp(otp: str) -> bool:
