@@ -29,10 +29,11 @@ def test_example_login(browser):
     browser.get(url)
 
     search_input = browser.find_element(By.XPATH, "/html/body/div[1]/div/div/div[3]/div/form/div[1]/div[1]/div/div/input")
-    search_input = search_input.send_keys("test@gmail.com" + Keys.RETURN)
+    search_input = search_input.send_keys("test@gmail.com" + Keys.TAB)
 
     search_input = browser.find_element(By.XPATH, "/html/body/div[1]/div/div/div[3]/div/form/div[1]/div[2]/div/div/input")
     search_input = search_input.send_keys("testpassword" + Keys.RETURN)
 
+    browser.implicitly_wait(3)
     error_prompt = browser.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div")
-    assert False, error_prompt.text
+    assert "Incorrect credentials" in error_prompt.text

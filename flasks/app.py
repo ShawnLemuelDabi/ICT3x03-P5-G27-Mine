@@ -24,10 +24,13 @@ from sqlalchemy import or_, and_
 
 from db_helper import vehicle_distinct_locations, vehicle_distinct_vehicle_types
 from jwt_helper import generate_token, verify_token
-from email_helper import send_mail
+from email_helper_async import send_mail_async
 
 import os
 from datetime import datetime, timedelta
+
+import logging
+from paste.translogger import TransLogger
 
 from bp_fcp import bp_fcp
 from bp_ucp import bp_ucp
@@ -42,6 +45,7 @@ from error_handler import ErrorHandler
 from brute_force_helper import BruteForceCategory, failed_attempt, login_is_disabled
 
 from input_validation import EMPTY_STRING, MEDIUMBLOB_BYTE_SIZE, DATE_FORMAT, validate_email, validate_image, validate_name, validate_phone_number, validate_password, validate_otp, validate_recovery_code, validate_date
+import input_validation
 
 from flask_wtf.csrf import CSRFProtect
 
@@ -91,7 +95,6 @@ recaptchav3 = ReCaptcha(
 app.config['MAX_CONTENT_LENGTH'] = MEDIUMBLOB_BYTE_SIZE
 
 # app.config['SESSION_COOKIE_DOMAIN'] = "localhost"
-app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
@@ -132,9 +135,24 @@ def index() -> str:
     return render_template("landing_page.html", distinct_locations=vehicle_distinct_locations())
 
 
+@app.context_processor
+def inject_debug():
+    return dict(debug=app.debug)
+
+
+@app.context_processor
+def inject_input_validation_regex():
+    return dict(input_validation=input_validation)
+
+
 @app.template_filter()
 def format_datetime(datetime_obj: datetime) -> str:
     return datetime_obj.strftime(DATE_FORMAT)
+
+
+@app.template_filter()
+def format_regex_for_html(regex: str) -> str:
+    return regex[1:-1]
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -154,7 +172,7 @@ def register() -> str | Response:
         return redirect(url_for("profile"))
 
     if request.method == "POST":
-        if recaptchav3.verify():
+        if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or app.debug:
             email = request.form.get("email", EMPTY_STRING)
 
             if not validate_email(email):
@@ -163,36 +181,35 @@ def register() -> str | Response:
                     log_message=f"Email provider must be from Gmail, Hotmail, Yahoo, sit.singaporetech.edu.sg or singaporetech.edu.sg. Email given: {email}"
                 )
 
-            # check if user already exist
-            if User.query.filter(User.email == email).first() is not None:
-                err_handler.push(
-                    user_message="An account with this email exists",
-                    log_message=f"An account with this email exists. Email given: {email}"
-                )
-
-            err_handler.commit_log()
-
             if err_handler.has_error():
                 for i in err_handler.all():
                     flash(i.user_message, category="danger")
                 return redirect(url_for('register'))
             else:
-                token = generate_token(email)
+                # check if user already exist
+                if User.query.filter(User.email == email).first() is not None:
+                    err_handler.push(
+                        user_message="",
+                        log_message=f"An account with this email exists. Email given: {email}",
+                        is_error=False
+                    )
+                else:
+                    token = generate_token(email)
 
-                err_handler.push(
-                    user_message="",
-                    log_message=f"Email registration link requested for email '{email}'",
-                    is_error=False
-                )
+                    err_handler.push(
+                        user_message="",
+                        log_message=f"Email registration link requested for email '{email}'",
+                        is_error=False
+                    )
+
+                    send_mail_async(
+                        app_context=app,
+                        subject="Registration",
+                        recipients=[email],
+                        email_body=render_template("register_email_body.jinja2", token=token)
+                    )
 
                 err_handler.commit_log()
-
-                send_mail(
-                    app_context=app,
-                    subject="Registration",
-                    recipients=[email],
-                    email_body=render_template("register_email_body.jinja2", token=token)
-                )
 
                 return render_template("register_email_sent.jinja2")
         else:
@@ -229,7 +246,7 @@ def register_verified(token: str) -> str:
         return redirect(url_for("profile"))
 
     if request.method == "POST":
-        if recaptchav3.verify():
+        if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or app.debug:
             uploaded_file = request.files['license_blob']
 
             first_name = request.form.get("first_name", EMPTY_STRING)
@@ -322,7 +339,7 @@ def register_verified(token: str) -> str:
             except Exception as e:
                 err_handler.push(
                     user_message="Invalid token",
-                    log_message=f"Invalid token. Token given: {e}. Email attempted: {email}"
+                    log_message=f"Invalid token. Token given: {e}."
                 )
 
             err_handler.commit_log()
@@ -334,7 +351,7 @@ def register_verified(token: str) -> str:
         else:
             err_handler.push(
                 user_message="Invalid reCAPTCHA",
-                log_message=f"Invalid reCAPTCHA. Email attempted: {email}"
+                log_message="Invalid reCAPTCHA."
             )
 
             err_handler.commit_log()
@@ -349,7 +366,7 @@ def register_verified(token: str) -> str:
         except Exception as e:
             err_handler.push(
                 user_message="Invalid token",
-                log_message=f"Invalid token. {e}. Email attempted: {email}"
+                log_message=f"Invalid token. {e}"
             )
 
         err_handler.commit_log()
@@ -384,10 +401,10 @@ def login() -> str:
                 flash(i.user_message, category="danger")
         return redirect(url_for("login"))
 
-    def login_error(msg: str = "Incorrect credentials", log: str = "Incorrect credentials", is_failed_attempt: bool = True) -> str:
+    def login_error(msg: str = "Incorrect credentials", log: str = "Incorrect credentials", email: str = "None", is_failed_attempt: bool = True) -> str:
         err_handler.push(
             user_message=msg,
-            log_message=f"{log}. Email attempted: {email}"
+            log_message=f"{log}. Email attempted: '{email}'"
         )
 
         if is_failed_attempt:
@@ -412,11 +429,12 @@ def login() -> str:
         email = request.form.get("email", EMPTY_STRING)
         password = request.form.get("password", EMPTY_STRING)
 
-        if recaptchav3.verify():
+        if request.form.get("g-recaptcha-response", False) and recaptchav3.verify() or app.debug:
             if login_is_disabled(email):
                 return login_error(
                     msg="You have too many failed login attempts. Please try again later",
                     log=f"User account '{email}' is currently locked out",
+                    email=email,
                     is_failed_attempt=False
                 )
             else:
@@ -749,6 +767,17 @@ def search() -> str | Response:
 
             booking_timedelta: datetime = end_date_obj - start_date_obj
 
+            today_obj = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+            if (start_date_obj - today_obj).days < 0:
+                user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
+
+                today_str = today_obj.strftime(DATE_FORMAT)
+
+                err_handler.push(
+                    user_message="Start date cannot be earlier than today!",
+                    log_message=f"date cannot be earlier than today: {start_date} to {end_date}. Today: {today_str} Searched by {user_email}"
+                )
             if booking_timedelta.days <= 0:
                 user_email = "Anonymous" if universal_get_current_user_role(flask_login.current_user) == Role.ANONYMOUS_USER else flask_login.current_user.email
 
@@ -756,7 +785,8 @@ def search() -> str | Response:
                     user_message="End date cannot be earlier than start date!",
                     log_message=f"date cannot be earlier than start date: {start_date} to {end_date}. Searched by {user_email}"
                 )
-            else:
+
+            if not err_handler.has_error():
                 vehicles_with_booking = db.session.query(Booking.vehicle_id).join(Booking.vehicle, aliased=True).filter(
                     Vehicle.location == location,
                     Booking.status != BOOKING_STATUS[-1],
@@ -850,10 +880,24 @@ if __name__ == "__main__":
     if app.debug:
         app.run(host=BIND_ALL_ADDRESS)
     else:
+        DOMAIN = "shallot-rental.shop"
+
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['SESSION_COOKIE_DOMAIN'] = DOMAIN
+        app.config['REMEMBER_COOKIE_DOMAIN'] = DOMAIN
+        app.config['REMEMBER_COOKIE_SECURE'] = True
+        app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+        app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
+        app.config['REMEMBER_COOKIE_SAMESITE'] = "Lax"
+
+        logger = logging.getLogger('waitress')
+        logger.setLevel(logging.INFO)
+
         serve(
-            app,
+            TransLogger(app, setup_console_handler=False),
             host=BIND_ALL_ADDRESS,
             port=os.environ.get("FLASK_RUN_PORT"),
+            threads=8
         )
         # part of serve. disabled for now. testing in progress.
         # url_scheme='https',

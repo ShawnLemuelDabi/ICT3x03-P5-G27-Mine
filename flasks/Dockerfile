@@ -1,4 +1,4 @@
-FROM docker.io/library/python:latest
+FROM docker.io/library/python:3.10.8-bullseye
 EXPOSE 5000
 WORKDIR /app
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update \

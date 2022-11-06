@@ -43,6 +43,12 @@
     </head>
 
     <body>
+        {% if debug %}
+        <p class="text-center" style="color:white; height: 7.5%; background-color: red;">
+            <b>YOU ARE CURRENTLY IN DEBUG MODE. DO NOT USE THIS IN PRODUCTION</b>
+        </p>
+        {% endif %}
+
         {# ================================ START HEADER AREA ====================================== #}
         <header class="header-area">
             <div class="header-top-bar padding-right-100px padding-left-100px">
@@ -62,7 +68,7 @@
                                 <div class="header-right d-flex align-items-center justify-content-end">
                                     <div class="header-right-action">
                                         <ul class="list-items">
-                                        <li><a href="#"><i class="fa fa-envelope mr-1"></i>hello@shallot.com</a></li>
+                                        <li><a href="#"><i class="fa fa-envelope mr-1"></i>hello(at)shallot-rental.shop</a></li>
                                     </ul>                                
                                 </div>
                             </div>

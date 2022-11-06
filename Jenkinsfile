@@ -4,18 +4,12 @@ pipeline {
     environment {
         TEST_STAGE = 'test'
         PROD_STAGE = 'prod'
+        SELENIUM_IMAGE = 'selenium/standalone-firefox:4.5.3-20221024'
     }
     stages {
 		stage('check if test is already running') {
             steps {
                 sh 'docker ps | grep ${TEST_STAGE}_flasks || exit 0'
-            }
-        }
-        stage('git clone') {
-            steps {
-                git branch: 'fl',
-					credentialsId: 'e7eca3bf-9a67-4cc0-87d6-822db0f6677a',
-					url: 'https://github.com/angpeihao98/jenkinstest.git'
             }
         }
 		stage('OWASP DependencyCheck') {
@@ -24,27 +18,25 @@ pipeline {
 			}
 		}
 		stage('unpack secrets') {
-			withCredentials([file(credentialsId: 'flask.env', variable: 'flask_secret')]) {
-				def secret_src = new File(flask_secret)
-				def secret_dst = new File('./flasks/flask.env')
-				Files.copy(secret_src.toPath(), secret_dst.toPath())
-			}
-			withCredentials([file(credentialsId: 'mysql.env', variable: 'mysql_secret')]) {
-				def secret_src = new File(mysql_secret)
-				def secret_dst = new File('./flasks/mysql.env')
-				Files.copy(secret_src.toPath(), secret_dst.toPath())
-			}
-			withCredentials([file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')]) {
-				def secret_src = new File(mysql_root_secret)
-				def secret_dst = new File('./mariadb/mysql_root.env')
-				Files.copy(secret_src.toPath(), secret_dst.toPath())
+			steps {
+				withCredentials([
+					file(credentialsId: 'flask_prod.env', variable: 'flask_prod_secret'),
+					file(credentialsId: 'flask_test.env', variable: 'flask_test_secret'),
+					file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
+					file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
+				]) {
+					sh 'cp $flask_prod_secret ./flasks/flask_prod.env'
+					sh 'cp $flask_test_secret ./flasks/flask_test.env'
+					sh 'cp $mysql_secret ./flasks/mysql.env'
+					sh 'cp $mysql_root_secret ./mariadb/mysql_root.env'
+				}
 			}
 		}
         stage('build webapp') {
             environment {
                 FLASK_PORT = '5001'
                 MARIA_DB_VOLUME = 'mariadb-test-data'
-				FLASK_DEBUG = '1'
+				FLASK_ENV = 'flask_test.env'
             }
             steps {
                 sh 'docker-compose -p ${TEST_STAGE} up --build -d'
@@ -52,7 +44,7 @@ pipeline {
         }
         stage('starting selenium') {
             steps {
-                sh 'docker run --rm -d -p 4444:4444 --net ${TEST_STAGE}_default --name selenium-worker selenium/standalone-firefox:4.5.3-20221024 || (docker ps | grep selenium-worker && exit 0)'
+                sh 'docker run --rm -d -p 4444:4444 --net ${TEST_STAGE}_default --name selenium-worker ${SELENIUM_IMAGE} || (docker ps | grep selenium-worker && exit 0)'
             }
         }
         stage('connect jenkins with flask app') {
@@ -63,36 +55,43 @@ pipeline {
         stage('unit testing') {
             steps {
                 sh 'echo optimistic wait for db to be ready && sleep 30'
-                sh 'curl http://flasks:5000/dev/init'
-                sh 'cd selenium/tests && pytest -v --junitxml=result.xml || exit 0'
+                sh 'curl -i --max-time 60 http://flasks:5000/dev/init'
+                sh 'cd selenium/tests && pytest -v --junitxml=result.xml'
             }
             post {
                 always {
                     sh 'docker network disconnect ${TEST_STAGE}_default jenkins || echo already disconnected'
-	            sh 'docker container kill selenium-worker'
+	            	sh 'docker container kill selenium-worker'
                 }
             }
         }
+		stage('cleanup build stage') {
+			environment {
+                FLASK_PORT = '5001'
+                MARIA_DB_VOLUME = 'mariadb-test-data'
+				FLASK_ENV = 'flask_test.env'
+            }
+			steps {
+				sh 'docker-compose -p ${TEST_STAGE} down'
+				sh 'docker container prune -f'
+				sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
+			}
+		}
         stage('deployment') {
             environment {
                 FLASK_PORT = '5000'
                 MARIA_DB_VOLUME = 'mariadb-data'
-				FLASK_DEBUG = '0'
+				FLASK_ENV = 'flask_prod.env'
             }
             steps {
-                sh 'docker-compose -p ${PROD_STAGE} down '
+                sh 'docker ps | grep ${PROD_STAGE}_flasks && docker-compose -p ${PROD_STAGE} down || exit 0'
                 sh 'docker-compose -p ${PROD_STAGE} up --build -d'
             }
         }
     }
     post {
-        always {
-            sh 'docker-compose -p ${TEST_STAGE} down'
-            sh 'docker container prune -f'
-            sh 'docker volume rm -f ${TEST_STAGE}_mariadb-test-data'
-        }
 		success {
-			dependencyCheckPublisher pattern: 'DependencyCheck-report.xml'
+			dependencyCheckPublisher pattern: 'dependency-check-report.xml'
 			junit 'selenium/tests/result.xml'
 		}
     }

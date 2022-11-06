@@ -93,19 +93,18 @@
                                         <div class="row">
                                             <div class="col-lg-6 responsive-column">
                                                 <div class="input-box">
-                                                    <label class="label-text">PayNow Reference Number</label>
+                                                    <label class="label-text">PayNow Reference Number (e.g PN123456789012345)</label>
                                                     <div class="form-group">
                                                         <span class="fa fa-paperclip form-icon"></span>
                                                         <input class="form-control" type="text" name="paynow_reference_number"
-                                                            placeholder="Reference Number" required="true">
+                                                            placeholder="Reference Number" required="true" pattern="{{ input_validation.PAYNOW_REFERENCE_REGEX_PATTERN|format_regex_for_html }}">
                                                     </div>
                                                 </div>
                                             </div>{# end col-lg-6 #}
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                             <div class="col-lg-12">
                                                 <div class="btn-box">
-                                                    <button class="theme-btn" type="submit">Submit Payment
-                                                        Information</button>
+                                                    <input class="theme-btn" type="submit" value="Submit Payment Information">
                                                 </div>
                                             </div>{# end col-lg-12 #}
                                         </div>

@@ -101,12 +101,23 @@ def customer_create_booking() -> str:
 
                     booking_timedelta: datetime = end_date_obj - start_date_obj
 
+                    today_obj = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+                    if (start_date_obj - today_obj).days < 0:
+
+                        today_str = today_obj.strftime(DATE_FORMAT)
+
+                        err_handler.push(
+                            user_message="Start date cannot be earlier than today!",
+                            log_message=f"date cannot be earlier than today: {start_date} to {end_date}. Today: {today_str} Request made by {user.email}"
+                        )
                     if booking_timedelta.days <= 0:
                         err_handler.push(
                             user_message="Booking days is negative!",
                             log_message=f"Booking days is negative: {start_date} to {end_date}. Days: '{booking_timedelta.days}'. Request made by {user.email}"
                         )
-                    else:
+
+                    if not err_handler.has_error():
                         vehicle_is_booked = db.session.query(Booking.booking_id).filter(
                             Booking.vehicle_id == vehicle_id,
                             Booking.status != BookingStatus.BOOKING_CANCELLED,
@@ -300,7 +311,6 @@ def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) ->
                 user_message="Vehicle is invalid",
                 log_message=f"Vehicle ID '{vehicle_id}' is invalid. Request made by {user.email}"
             )
-
         if not validate_date(start_date):
             err_handler.push(
                 user_message="Start Date is invalid",
@@ -318,6 +328,15 @@ def customer_confirm_booking(vehicle_id: int, start_date: str, end_date: str) ->
 
         booking_timedelta: datetime = end_date_obj - start_date_obj
 
+        today_obj = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+        if (start_date_obj - today_obj).days < 0:
+            today_str = today_obj.strftime(DATE_FORMAT)
+
+            err_handler.push(
+                user_message="Start date cannot be earlier than today!",
+                log_message=f"date cannot be earlier than today: {start_date} to {end_date}. Today: {today_str} Request made by {user.email}"
+            )
         if booking_timedelta.days <= 0:
             err_handler.push(
                 user_message="Booking days is negative!",
