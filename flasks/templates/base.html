@@ -135,7 +135,7 @@
                                 <div class="nav-btn">
                                     {% if current_user and current_user.is_authenticated %}
                                     <a href="{{ url_for('profile') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1">Profile</a>
-                                    <a href="{{ url_for('logout') }}" class="theme-btn theme-btn-small">Logout</a>
+                                    <a href="{{ url_for('logout') }}" class="theme-btn theme-btn-small" id="logout">Logout</a>
                                     {% else %}
                                     <a href="{{ url_for('register') }}" class="theme-btn theme-btn-small theme-btn-transparent mr-1">Sign Up</a>
                                     <a href="{{ url_for('login') }}" class="theme-btn theme-btn-small">Login</a>

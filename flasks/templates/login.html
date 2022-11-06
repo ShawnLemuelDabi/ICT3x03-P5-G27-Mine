@@ -41,7 +41,7 @@ input[type="text"]
                                     <label class="label-text">Email</label>
                                     <div class="form-group">
                                         <span class="fa fa-envelope-o form-icon"></span>
-                                        <input class="form-control" type="email" name="email" placeholder="Email" 
+                                        <input class="form-control" type="email" id="email" name="email" placeholder="Email" 
                                         pattern="{{ input_validation.EMAIL_REGEX_PATTERN|format_regex_for_html }}" 
                                         title="Only accepts gmail.com, hotmail.com, yahoo.com, outlook.com and singaporetech.edu.sg domain" 
                                         required="true">
@@ -53,7 +53,7 @@ input[type="text"]
                                     <label class="label-text">Password</label>
                                     <div class="form-group">
                                         <span class="fa fa-lock form-icon"></span>
-                                        <input class="form-control" type="password" name="password"
+                                        <input class="form-control" type="password" id="password" name="password"
                                             placeholder="Password" pattern="{{ input_validation.PASSWORD_REGEX_PATTERN|format_regex_for_html }}" required="true">
                                     </div>
                                 </div>

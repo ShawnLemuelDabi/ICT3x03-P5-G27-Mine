@@ -68,10 +68,10 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 			lastname_input.send_keys("lastname")
 
 			pw_input = browser.find_element("id", "password")
-			pw_input.send_keys("P@ssw0rd")
+			pw_input.send_keys("P@ssw0rd12345")
 
 			cwd_input = browser.find_element("id", "confirm_password")
-			cwd_input.send_keys("P@ssw0rd")
+			cwd_input.send_keys("P@ssw0rd12345")
 
 			phone_input = browser.find_element("id", "phone_number")
 			phone_input.send_keys("87654321")

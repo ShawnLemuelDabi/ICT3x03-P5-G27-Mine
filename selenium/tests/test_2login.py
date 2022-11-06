@@ -10,7 +10,7 @@ PAGENAME = "/login"
 @pytest.mark.parametrize(
     "emailtotest, passwordtotest, result", [
 		("failemail", "failpassword", False),
-		(CORRECT_EMAIL, "P@ssw0rd", True),
+		(CORRECT_EMAIL, "P@ssw0rd12345", True),
     ]
 )
 @pytest.mark.dependency(name='login_page_respond_correctly')
