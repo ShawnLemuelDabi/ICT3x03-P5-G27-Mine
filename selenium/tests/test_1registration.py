@@ -75,9 +75,3 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 
 		except NoSuchElementException:
 			assert True
-
-
-@pytest.mark.dependency(name='test_test')
-@pytest.mark.depends(on=['registration_respond_correctly'])
-def test_test_test():
-	assert False, "another test"
