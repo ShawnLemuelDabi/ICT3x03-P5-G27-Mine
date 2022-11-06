@@ -1,0 +1,1 @@
+For the license validation to fail.

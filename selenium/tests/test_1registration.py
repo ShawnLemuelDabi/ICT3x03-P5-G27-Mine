@@ -5,25 +5,87 @@ from initialization import browser, URL, CORRECT_EMAIL
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 
-import os, re
-
-# Can remove the hardcoded regex if this works
-# from flasks.input_validation import NAME_REGEX_PATTERN, \
-# 									PHONE_NUMBER_REGEX_PATTERN, \
-# 									PASSWORD_REGEX_PATTERN, \
-# 									ALLOWED_FILETYPE
-
-NAME_REGEX_PATTERN = r"^[^\s]+[A-Za-z ,.'-]{1,35}$"
-PHONE_NUMBER_REGEX_PATTERN = r"^(8|9){1}[0-9]{7}$"
-PASSWORD_REGEX_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-ALLOWED_FILETYPE = ["jpg", "jpeg", "png"]
+import os
 
 PAGENAME = "/register"
 
+TESTING_DATA = {
+
+	"firstname_fail" : {
+		"firstname": "firstnamefail12345",
+		"lastname": "lastnamepass",
+		"password": "P@ssw0rd-pass",
+		"confirm_password": "P@ssw0rd-pass",
+		"phoneno": "87654321",
+		"license": "license_test.jpeg",
+		"error_message": "Never input validate first name"
+	},
+
+	"lastname_fail" : {
+		"firstname": "firstnamepass",
+		"lastname": "lastnamefail12345",
+		"password": "P@ssw0rd-pass",
+		"confirm_password": "P@ssw0rd-pass",
+		"phoneno": "87654321",
+		"license": "license_test.jpeg",
+		"error_message": "Never input validate last name"
+	},
+
+	"password_fail" : {
+		"firstname": "firstnamepass",
+		"lastname": "lastnamepass",
+		"password": "passwordfail",
+		"confirm_password": "passwordfail",
+		"phoneno": "87654321",
+		"license": "license_test.jpeg",
+		"error_message": "Never input validate password"
+	},
+
+	"confirm_password_fail" : {
+		"firstname": "firstnamepass",
+		"lastname": "lastnamepass",
+		"password": "P@ssw0rd-pass",
+		"confirm_password": "P@ssw0rd-passs",
+		"phoneno": "87654321",
+		"license": "license_test.jpeg",
+		"error_message": "Never check password matches"
+	},
+
+	"phonenumber_fail" : {
+		"firstname": "firstnamepass",
+		"lastname": "lastnamepass",
+		"password": "P@ssw0rd-pass",
+		"confirm_password": "P@ssw0rd-pass",
+		"phoneno": "phonenumberfail",
+		"license": "license_test.jpeg",
+		"error_message": "Never input validate phone number"
+	},
+
+	"license_fail" : {
+		"firstname": "firstnamepass",
+		"lastname": "lastnamepass",
+		"password": "P@ssw0rd-pass",
+		"confirm_password": "P@ssw0rd-pass",
+		"phoneno": "87654321",
+		"license": "license_test.txt",
+		"error_message": "Never check for file type of uploaded file"
+	},
+
+	"success" : {
+		"firstname": "firstnamepass",
+		"lastname": "lastnamepass",
+		"password": "P@ssw0rd-pass",
+		"confirm_password": "P@ssw0rd-pass",
+		"phoneno": "87654321",
+		"license": "license_test.jpeg",
+		"error_message": "ERROR ERROR ERROR ERROR",
+	},
+}
+
 @pytest.mark.parametrize(
     "emailtotest, result", [
-		("notanemail", False),
-		("notanemail@notemaildomain.sg", False),
+		# ("notanemail", False),
+		# ("notanemail@notemaildomain.sg", False),
 		(CORRECT_EMAIL, True),
     ]
 )
@@ -46,6 +108,45 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 	- License Picture
 	"""
 
+	def send_input(browser, scenario):
+
+		firstname_input = browser.find_element("id", "first_name")
+		firstname_input.send_keys(TESTING_DATA[scenario]["firstname"])
+
+		lastname_input = browser.find_element("id", "last_name")
+		lastname_input.send_keys(TESTING_DATA[scenario]["lastname"])
+
+		pw_input = browser.find_element("id", "password")
+		pw_input.send_keys(TESTING_DATA[scenario]["password"])
+
+		cwd_input = browser.find_element("id", "confirm_password")
+		cwd_input.send_keys(TESTING_DATA[scenario]["confirm_password"])
+
+		phone_input = browser.find_element("id", "phone_number")
+		phone_input.send_keys(TESTING_DATA[scenario]["phoneno"])
+
+		license_filepath = os.path.join(os.getcwd(), TESTING_DATA[scenario]["license"])
+		license_input = browser.find_element("id", "license")
+		license_input.send_keys(license_filepath)
+
+		firstname_input.send_keys(Keys.RETURN)
+
+		if scenario == "success":
+			try:
+				browser.find_element("id", "success")
+
+			except NoSuchElementException:
+				return TESTING_DATA[scenario]["error_message"]
+		
+		else:
+			try:
+				browser.find_element("id", "success")
+				return TESTING_DATA[scenario]["error_message"]
+
+			except NoSuchElementException:
+				return
+
+
 	browser.get(URL + PAGENAME)
 
 	email_input = browser.find_element("id", "email")
@@ -56,33 +157,20 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 	if result:
 		try:
 			response = browser.find_element("id", "token")
-			global TOKEN
 			TOKEN = response.get_attribute("innerHTML")
 
 			browser.get(URL + PAGENAME + "/" + TOKEN)
 
-			firstname_input = browser.find_element("id", "first_name")
-			firstname_input.send_keys("firstname")
+			error_messages = []
 
-			lastname_input = browser.find_element("id", "last_name")
-			lastname_input.send_keys("lastname")
+			for scenario in TESTING_DATA.keys():
+				error_messages.append(send_input(browser, scenario))
 
-			pw_input = browser.find_element("id", "password")
-			pw_input.send_keys("P@ssw0rd12345")
+			if error_messages.count(None) == len(error_messages):
+				assert True
 
-			cwd_input = browser.find_element("id", "confirm_password")
-			cwd_input.send_keys("P@ssw0rd12345")
-
-			phone_input = browser.find_element("id", "phone_number")
-			phone_input.send_keys("87654321")
-
-			license_filepath = os.path.join(os.getcwd(), "license_test.jpeg")
-			license_input = browser.find_element("id", "license")
-			license_input.send_keys(license_filepath)
-
-			firstname_input.send_keys(Keys.RETURN)
-
-			assert browser.find_element("id", "success")
+			else:
+				assert False, ", ".join(error_messages)
 
 		except NoSuchElementException:
 			pytest.fail("Invalid email provided")
