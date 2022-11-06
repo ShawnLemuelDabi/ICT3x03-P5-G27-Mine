@@ -5,7 +5,18 @@ from initialization import browser, URL, CORRECT_EMAIL
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 
-import os
+import os, re
+
+# Can remove the hardcoded regex if this works
+# from flasks.input_validation import NAME_REGEX_PATTERN, \
+# 									PHONE_NUMBER_REGEX_PATTERN, \
+# 									PASSWORD_REGEX_PATTERN, \
+# 									ALLOWED_FILETYPE
+
+NAME_REGEX_PATTERN = r"^[^\s]+[A-Za-z ,.'-]{1,35}$"
+PHONE_NUMBER_REGEX_PATTERN = r"^(8|9){1}[0-9]{7}$"
+PASSWORD_REGEX_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+ALLOWED_FILETYPE = ["jpg", "jpeg", "png"]
 
 PAGENAME = "/register"
 
@@ -13,18 +24,26 @@ PAGENAME = "/register"
     "emailtotest, result", [
 		("notanemail", False),
 		("notanemail@notemaildomain.sg", False),
-		(CORRECT_EMAIL, False),
+		(CORRECT_EMAIL, True),
     ]
 )
 @pytest.mark.dependency(name='registration_respond_correctly')
 def test_registration_respond_correctly(browser, emailtotest, result):
 	"""
-	Reset the db before running this test
+	Input validation in progress
 
 	Checks if the registration page returns the correct response page
 
 	Allowed email --> Return register success
 	Not Allowed email / Not an email --> Does not return register success
+
+	* Requires the previous test to be successful
+	- First Name
+	- Last Name
+	- Password
+	- Confirm Password (Must be the same as the password field)
+	- Phone Number
+	- License Picture
 	"""
 
 	browser.get(URL + PAGENAME)

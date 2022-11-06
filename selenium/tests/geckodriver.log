@@ -1924,3 +1924,56 @@ DevTools listening on ws://127.0.0.1:50269/devtools/browser/4cc9d97a-12a6-402b-b
 1667725349784	Marionette	INFO	Stopped listening on port 50276
 console.error: Region.jsm: "Error fetching region" (new TypeError("NetworkError when attempting to fetch resource.", ""))
 console.error: Region.jsm: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.jsm", 420))
+1667727656492	geckodriver	INFO	Listening on 127.0.0.1:51152
+1667727656944	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "-headless" "--remote-debugging-port" "51153" "--remote-allow-hosts" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/2h/8fvkffh95mv92rz_fp49_src0000gn/T/rust_mozprofileWd5yHv"
+*** You are running in headless mode.
+1667727657469	Marionette	INFO	Marionette enabled
+1667727657543	Marionette	INFO	Listening on port 51161
+Read port: 51161
+WebDriver BiDi listening on ws://127.0.0.1:51153
+1667727657806	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/2h/8fvkffh95mv92rz_fp49_src0000gn/T/rust_mozprofileWd5yHv/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:51153/devtools/browser/27f6615c-a4d5-4683-83f6-e1dc1d80d784
+JavaScript error: http://localhost:5001/static/js/script.js, line 18: TypeError: navToggleBtn is null
+JavaScript warning: , line 0: WebGL warning: checkFramebufferStatus: Using format enabled by implicitly enabled extension: WEBGL_color_buffer_float. For maximal portability enable it explicitly.
+console.warn: LoginRecipes: "Falling back to a synchronous message for: http://localhost:5001."
+JavaScript error: http://localhost:5001/static/js/script.js, line 18: TypeError: navToggleBtn is null
+JavaScript warning: , line 0: WebGL warning: checkFramebufferStatus: Using format enabled by implicitly enabled extension: WEBGL_color_buffer_float. For maximal portability enable it explicitly.
+1667727676650	Marionette	INFO	Stopped listening on port 51161
+1667727677157	geckodriver	INFO	Listening on 127.0.0.1:52428
+1667727677667	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "-headless" "--remote-debugging-port" "52429" "--remote-allow-hosts" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/2h/8fvkffh95mv92rz_fp49_src0000gn/T/rust_mozprofileoS1QOe"
+*** You are running in headless mode.
+1667727678062	Marionette	INFO	Marionette enabled
+1667727678143	Marionette	INFO	Listening on port 52437
+Read port: 52437
+WebDriver BiDi listening on ws://127.0.0.1:52429
+1667727678404	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/2h/8fvkffh95mv92rz_fp49_src0000gn/T/rust_mozprofileoS1QOe/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:52429/devtools/browser/65af3e8f-a77e-44e6-abae-488d303c9c69
+JavaScript error: http://localhost:5001/static/js/script.js, line 18: TypeError: navToggleBtn is null
+JavaScript warning: , line 0: WebGL warning: checkFramebufferStatus: Using format enabled by implicitly enabled extension: WEBGL_color_buffer_float. For maximal portability enable it explicitly.
+console.warn: LoginRecipes: "Falling back to a synchronous message for: http://localhost:5001."
+JavaScript error: http://localhost:5001/static/js/script.js, line 18: TypeError: navToggleBtn is null
+JavaScript warning: , line 0: WebGL warning: checkFramebufferStatus: Using format enabled by implicitly enabled extension: WEBGL_color_buffer_float. For maximal portability enable it explicitly.
+1667727696992	Marionette	INFO	Stopped listening on port 52437
+1667727697482	geckodriver	INFO	Listening on 127.0.0.1:53606
+1667727697995	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "-headless" "--remote-debugging-port" "53607" "--remote-allow-hosts" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/2h/8fvkffh95mv92rz_fp49_src0000gn/T/rust_mozprofile7eqhtr"
+*** You are running in headless mode.
+1667727698396	Marionette	INFO	Marionette enabled
+1667727698421	Marionette	INFO	Listening on port 53614
+Read port: 53614
+WebDriver BiDi listening on ws://127.0.0.1:53607
+1667727698876	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/2h/8fvkffh95mv92rz_fp49_src0000gn/T/rust_mozprofile7eqhtr/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:53607/devtools/browser/b3fce5fd-7162-4c20-9c9a-b6829641c473
+JavaScript error: http://localhost:5001/static/js/script.js, line 18: TypeError: navToggleBtn is null
+JavaScript warning: , line 0: WebGL warning: checkFramebufferStatus: Using format enabled by implicitly enabled extension: WEBGL_color_buffer_float. For maximal portability enable it explicitly.
+console.warn: LoginRecipes: "Falling back to a synchronous message for: http://localhost:5001."
+JavaScript error: http://localhost:5001/static/js/script.js, line 18: TypeError: navToggleBtn is null
+JavaScript warning: , line 0: WebGL warning: checkFramebufferStatus: Using format enabled by implicitly enabled extension: WEBGL_color_buffer_float. For maximal portability enable it explicitly.
+console.warn: LoginRecipes: "Falling back to a synchronous message for: http://localhost:5001."
+1667727702560	Marionette	INFO	Stopped listening on port 53614
+console.warn: LoginRecipes: "Falling back to a synchronous message for: http://localhost:5001."
