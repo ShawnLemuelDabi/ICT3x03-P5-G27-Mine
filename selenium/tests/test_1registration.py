@@ -14,8 +14,8 @@ TESTING_DATA = {
 	"firstname_fail" : {
 		"firstname": "firstnamefail12345",
 		"lastname": "lastnamepass",
-		"password": "P@ssw0rd-pass",
-		"confirm_password": "P@ssw0rd-pass",
+		"password": "complexP@ssw0rd12345",
+		"confirm_password": "complexP@ssw0rd12345",
 		"phoneno": "87654321",
 		"license": "license_test.jpeg",
 		"error_message": "Never input validate first name"
@@ -24,8 +24,8 @@ TESTING_DATA = {
 	"lastname_fail" : {
 		"firstname": "firstnamepass",
 		"lastname": "lastnamefail12345",
-		"password": "P@ssw0rd-pass",
-		"confirm_password": "P@ssw0rd-pass",
+		"password": "complexP@ssw0rd12345",
+		"confirm_password": "complexP@ssw0rd12345",
 		"phoneno": "87654321",
 		"license": "license_test.jpeg",
 		"error_message": "Never input validate last name"
@@ -44,8 +44,8 @@ TESTING_DATA = {
 	"confirm_password_fail" : {
 		"firstname": "firstnamepass",
 		"lastname": "lastnamepass",
-		"password": "P@ssw0rd-pass",
-		"confirm_password": "P@ssw0rd-passs",
+		"password": "complexP@ssw0rd12345",
+		"confirm_password": "complexP@ssw0rd123456789",
 		"phoneno": "87654321",
 		"license": "license_test.jpeg",
 		"error_message": "Never check password matches"
@@ -54,8 +54,8 @@ TESTING_DATA = {
 	"phonenumber_fail" : {
 		"firstname": "firstnamepass",
 		"lastname": "lastnamepass",
-		"password": "P@ssw0rd-pass",
-		"confirm_password": "P@ssw0rd-pass",
+		"password": "complexP@ssw0rd12345",
+		"confirm_password": "complexP@ssw0rd12345",
 		"phoneno": "phonenumberfail",
 		"license": "license_test.jpeg",
 		"error_message": "Never input validate phone number"
@@ -64,8 +64,8 @@ TESTING_DATA = {
 	"license_fail" : {
 		"firstname": "firstnamepass",
 		"lastname": "lastnamepass",
-		"password": "P@ssw0rd-pass",
-		"confirm_password": "P@ssw0rd-pass",
+		"password": "complexP@ssw0rd12345",
+		"confirm_password": "complexP@ssw0rd12345",
 		"phoneno": "87654321",
 		"license": "license_test.txt",
 		"error_message": "Never check for file type of uploaded file"
@@ -74,8 +74,8 @@ TESTING_DATA = {
 	"success" : {
 		"firstname": "firstnamepass",
 		"lastname": "lastnamepass",
-		"password": "P@ssw0rd-pass",
-		"confirm_password": "P@ssw0rd-pass",
+		"password": "complexP@ssw0rd12345",
+		"confirm_password": "complexP@ssw0rd12345",
 		"phoneno": "87654321",
 		"license": "license_test.jpeg",
 		"error_message": "ERROR ERROR ERROR ERROR",
@@ -84,8 +84,8 @@ TESTING_DATA = {
 
 @pytest.mark.parametrize(
     "emailtotest, result", [
-		# ("notanemail", False),
-		# ("notanemail@notemaildomain.sg", False),
+		("notanemail", False),
+		("notanemail@notemaildomain.sg", False),
 		(CORRECT_EMAIL, True),
     ]
 )
@@ -134,6 +134,7 @@ def test_registration_respond_correctly(browser, emailtotest, result):
 		if scenario == "success":
 			try:
 				browser.find_element("id", "success")
+				return
 
 			except NoSuchElementException:
 				return TESTING_DATA[scenario]["error_message"]

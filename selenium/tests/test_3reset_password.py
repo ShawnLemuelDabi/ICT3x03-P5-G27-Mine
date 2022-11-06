@@ -12,12 +12,11 @@ PAGENAME = "/forgot_password"
 	"emailtotest, result", [
 		("notanemail", False),
 		("notanemail@notemaildomain.sg", False),
-		("notanactualuser@gmail.com", False),
 		(CORRECT_EMAIL, True),
 	]
 )
 @pytest.mark.dependency(name='reset_password_respond_correctly')
-@pytest.mark.depends(on=['test_1registration.py::registration_respond_correctly'])
+# @pytest.mark.depends(on=['test_1registration.py::registration_respond_correctly'])
 def test_reset_password_respond_correctly(browser, emailtotest, result):
 	"""
 	Checks if the reset password page returns the correct page
