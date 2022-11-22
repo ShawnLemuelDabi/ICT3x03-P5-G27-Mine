@@ -17,21 +17,7 @@ pipeline {
 				dependencyCheck additionalArguments: '--format HTML --format XML', odcInstallation: 'Default'
 			}
 		}
-		stage('unpack secrets') {
-			steps {
-				withCredentials([
-					file(credentialsId: 'flask_prod.env', variable: 'flask_prod_secret'),
-					file(credentialsId: 'flask_test.env', variable: 'flask_test_secret'),
-					file(credentialsId: 'mysql.env', variable: 'mysql_secret'),
-					file(credentialsId: 'mysql_root.env', variable: 'mysql_root_secret')
-				]) {
-					sh 'cp $flask_prod_secret ./flasks/flask_prod.env'
-					sh 'cp $flask_test_secret ./flasks/flask_test.env'
-					sh 'cp $mysql_secret ./flasks/mysql.env'
-					sh 'cp $mysql_root_secret ./mariadb/mysql_root.env'
-				}
-			}
-		}
+		
         stage('build webapp') {
             environment {
                 FLASK_PORT = '5001'
